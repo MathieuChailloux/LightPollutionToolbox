@@ -40,6 +40,9 @@ class PublicLightingToolboxProvider(QgsProcessingProvider):
         """
         Default constructor.
         """
+        self.alglist = [PublicLightingToolboxAlgorithm()]
+        for a in self.alglist:
+            a.initAlgorithm()
         QgsProcessingProvider.__init__(self)
 
     def unload(self):
@@ -53,9 +56,8 @@ class PublicLightingToolboxProvider(QgsProcessingProvider):
         """
         Loads all algorithms belonging to this provider.
         """
-        self.addAlgorithm(PublicLightingToolboxAlgorithm())
-        # add additional algorithms here
-        # self.addAlgorithm(MyOtherAlgorithm())
+        for a in self.alglist:
+            self.addAlgorithm(a)
 
     def id(self):
         """

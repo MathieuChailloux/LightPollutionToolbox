@@ -30,14 +30,16 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-from qgis.PyQt.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
                        QgsFeatureSink,
+                       QgsFeature,
                        QgsProcessingAlgorithm,
                        QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureField,
+                       QgsProcessingParameterField,
                        QgsProcessingParameterFeatureSink,
-                       QgsFields)
+                       QgsFields,
+                       QgsField)
 
 
 class PublicLightingToolboxAlgorithm(QgsProcessingAlgorithm):
@@ -61,6 +63,7 @@ class PublicLightingToolboxAlgorithm(QgsProcessingAlgorithm):
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
     LIGHTING = 'LIGHTING'
+    FLUX_FIELD = 'FLUX_FIELD'
     REPORTING = 'REPORTING'
     SURFACE = 'SURFACE'
     
@@ -68,7 +71,7 @@ class PublicLightingToolboxAlgorithm(QgsProcessingAlgorithm):
     FLUX_SUM = 'FLUX_SUM'
     FLUX_DEN = 'FLUX_DEN'
 
-    def initAlgorithm(self, config):
+    def initAlgorithm(self, config=None):
         """
         Here we define the inputs and output of the algorithm, along
         with some other properties.
@@ -79,33 +82,24 @@ class PublicLightingToolboxAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.LIGHTING,
-                self.tr('Lighting layer'),
-                [QgsProcessing.TypeVectorPolygon]
-            )
-        )
+                self.tr('Lighting layer')))
         self.addParameter(
             QgsProcessingParameterField(
                 self.FLUX_FIELD,
-                self.tr('Light flux field'),
-                self.LIGHTING,
-                type=QgsProcessingParameterField.Numeric
-            )
-        )
+                description=self.tr('Light flux fiel'),
+                defaultValue=None,
+                parentLayerParameterName=self.LIGHTING))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.REPORTING,
                 self.tr('Reporting layer'),
-                [QgsProcessing.TypeVectorPolygon]
-            )
-        )
+                [QgsProcessing.TypeVectorPolygon]))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.SURFACE,
                 self.tr('Surface to be illuminated layer'),
                 [QgsProcessing.TypeVectorPolygon],
-                optional=True
-            )
-        )
+                optional=True))
 
         # We add a feature sink in which to store our processed features (this
         # usually takes the form of a newly created vector layer when the
@@ -125,17 +119,33 @@ class PublicLightingToolboxAlgorithm(QgsProcessingAlgorithm):
         # Retrieve the feature source and sink. The 'dest_id' variable is used
         # to uniquely identify the feature sink, and must be included in the
         # dictionary returned by the processAlgorithm function.
-        lighting = self.parameterAsSource(parameters, self.LIGHTING, context)
+        lighting = self.parameterAsVectorLayer(parameters, self.LIGHTING, context)
         fieldname = self.parameterAsString(parameters,self.FLUX_FIELD,context)
         if not fieldname:
             raise QgsProcessingException("No field given for light flux")
-        reporting = self.parameterAsSource(parameters, self.REPORTING, context)
-        surface = self.parameterAsSource(parameters, self.SURFACE, context)
+        reporting = self.parameterAsVectorLayer(parameters, self.REPORTING, context)
+        surface = self.parameterAsVectorLayer(parameters, self.SURFACE, context)
+        
+        light_crs = lighting.dataProvider().crs().authid()
+        reporting_crs = reporting.dataProvider().crs()
+        if reporting_crs.isGeographic():
+            raise QgsProcessingException("Reporting CRS must be a projection (not lat/lon)")
+        reporting_crs = reporting_crs.authid()
+        if light_crs != reporting_crs:
+            raise QgsProcessingException("Different CRS for light layer ("
+                + str(light_crs) + ") and reporting crs (" + str(reporting_crs) + ")")
+        if surface:
+            surface_crs = surface.dataProvider().crs().authid()
+            if light_crs != surface_crs:
+                raise QgsProcessingException("Different CRS for light layer ("
+                    + str(light_crs) + ") and reporting crs (" + str(surface_crs) + ")")
         
         flux_sum_field = QgsField(self.FLUX_SUM, QVariant.Double)
+        surface_field = QgsField(self.SURFACE_AREA, QVariant.Double)
         flux_den_field = QgsField(self.FLUX_DEN, QVariant.Double)
         out_fields = QgsFields()
         out_fields.append(flux_sum_field)
+        out_fields.append(surface_field)
         out_fields.append(flux_den_field)
         (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
                 context, out_fields, reporting.wkbType(), reporting.sourceCrs())
@@ -147,7 +157,7 @@ class PublicLightingToolboxAlgorithm(QgsProcessingAlgorithm):
         
         
         
-        feats = source.getFeatures()
+        feats = reporting.getFeatures()
                 
         for current, feat in enumerate(feats):
             # Stop the algorithm if cancel button has been clicked
@@ -157,21 +167,21 @@ class PublicLightingToolboxAlgorithm(QgsProcessingAlgorithm):
             f_geom = feat.geometry()
             if surface:
                 surface_area = 0
-                for surface_feat in surface.features():
+                for surface_feat in surface.getFeatures():
                     surface_geom = surface_feat.geometry()
-                    intersection = f_geom.intersection(report_geom)
+                    intersection = f_geom.intersection(surface_geom)
                     surface_area += intersection.area()
             else:
                 surface_area = f_geom.area()
                     
             flux_sum = 0
-            for light_feat in lighting.features():
-                if f_geom.intersects(ligh_feat.geometry()):
+            for light_feat in lighting.getFeatures():
+                if f_geom.intersects(light_feat.geometry()):
                     try:
-                        flux_sum += float(ligh_feat[fieldname])
+                        flux_sum += float(light_feat[fieldname])
                     except ValueError:
                         feedback.reportError("Could not cast light flux value : "
-                            + str(ligh_feat[fieldname]))
+                            + str(light_feat[fieldname]))
                            
             
             new_feat = QgsFeature(out_fields)
