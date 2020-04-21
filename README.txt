@@ -1,7 +1,7 @@
 Plugin Builder Results
 
-Your plugin PublicLightingToolbox was created in:
-    C:/Users/fdrmc/Projets/IRSTEA/TrameNoire/devs\publiclightingtoolbox
+Your plugin LightPollutionToolbox was created in:
+    C:/Users/fdrmc/Projets/IRSTEA/TrameNoire/devs\LightPollutionToolbox
 
 Your QGIS plugin directory is located at:
     C:/Users/fdrmc/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins
@@ -15,7 +15,7 @@ What's Next:
 
   * Test the plugin by enabling it in the QGIS plugin manager
 
-  * Customize it by editing the implementation file: ``PublicLightingToolbox.py``
+  * Customize it by editing the implementation file: ``LightPollutionToolbox.py``
 
   * You can use the Makefile to compile your Ui and resource files when
     you make changes. This requires GNU make (gmake)

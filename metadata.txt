@@ -3,7 +3,7 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=PublicLightingToolbox
+name=LightPollutionToolbox
 qgisMinimumVersion=3.0
 description=Light pollution indicators (focus on public lighting)
 version=0.1

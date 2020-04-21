@@ -1,5 +1,5 @@
 #/***************************************************************************
-# PublicLightingToolbox
+# LightPollutionToolbox
 #
 # Light pollution indicators (focus on public lighting)
 #							 -------------------
@@ -38,13 +38,13 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	PublicLightingToolbox.py 
+	LightPollutionToolbox.py 
 
-PLUGINNAME = PublicLightingToolbox
+PLUGINNAME = LightPollutionToolbox
 
 PY_FILES = \
 	__init__.py \
-	PublicLightingToolbox.py 
+	LightPollutionToolbox.py 
 
 UI_FILES = 
 
