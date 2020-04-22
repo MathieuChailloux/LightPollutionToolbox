@@ -33,14 +33,23 @@ __revision__ = '$Format:%H$'
 from PyQt5.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
                        QgsFeatureSink,
+                       QgsFeatureRequest,
                        QgsFeature,
+                       QgsProject,
+                       QgsProcessingUtils,
+                       QgsProcessingContext,
+                       QgsProcessingMultiStepFeedback,
+                       QgsProcessingException,
                        QgsProcessingAlgorithm,
                        QgsProcessingParameterFeatureSource,
+                       QgsProcessingFeatureSourceDefinition,
                        QgsProcessingParameterField,
                        QgsProcessingParameterFeatureSink,
+                       QgsProcessingParameterVectorDestination,
                        QgsFields,
                        QgsField)
 
+from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
 class FluxDensityAlgorithm(QgsProcessingAlgorithm):
     """
@@ -86,7 +95,7 @@ class FluxDensityAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterField(
                 self.FLUX_FIELD,
-                description=self.tr('Light flux fiel'),
+                description=self.tr('Light flux field'),
                 defaultValue=None,
                 parentLayerParameterName=self.LIGHTING))
         self.addParameter(
@@ -226,3 +235,171 @@ class FluxDensityAlgorithm(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return FluxDensityAlgorithm()
+
+
+class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
+
+    OUTPUT = 'OUTPUT'
+    INPUT = 'INPUT'
+    LIGHTING = 'LIGHTING'
+    FLUX_FIELD = 'FLUX_FIELD'
+    REPORTING = 'REPORTING'
+    SURFACE = 'SURFACE'
+    
+    SURFACE_AREA = 'SURFACE'
+    FLUX_SUM = 'FLUX_SUM'
+    FLUX_DEN = 'FLUX_DEN'
+
+    def initAlgorithm(self, config=None):
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.LIGHTING,
+                self.tr('Lighting layer')))
+        self.addParameter(
+            QgsProcessingParameterField(
+                self.FLUX_FIELD,
+                description=self.tr('Light flux field'),
+                defaultValue=None,
+                parentLayerParameterName=self.LIGHTING))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.REPORTING,
+                self.tr('Reporting layer'),
+                [QgsProcessing.TypeVectorPolygon]))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.SURFACE,
+                self.tr('Surface to be illuminated layer'),
+                [QgsProcessing.TypeVectorPolygon],
+                optional=True))
+
+        # self.addParameter(
+            # QgsProcessingParameterVectorDestination(
+                # self.OUTPUT,
+                # self.tr('Output layer')))
+        self.addParameter(
+            QgsProcessingParameterFeatureSink(
+                self.OUTPUT,
+                self.tr('Output layer')))
+
+    def processAlgorithm(self, parameters, context, feedback):
+    
+        lighting = self.parameterAsVectorLayer(parameters, self.LIGHTING, context)
+        fieldname = self.parameterAsString(parameters,self.FLUX_FIELD,context)
+        if not fieldname:
+            raise QgsProcessingException("No field given for light flux")
+        reporting = self.parameterAsVectorLayer(parameters, self.REPORTING, context)
+        surface = self.parameterAsVectorLayer(parameters, self.SURFACE, context)
+        
+        light_crs = lighting.dataProvider().crs().authid()
+        reporting_crs = reporting.dataProvider().crs()
+        if reporting_crs.isGeographic():
+            raise QgsProcessingException("Reporting CRS must be a projection (not lat/lon)")
+        reporting_crs = reporting_crs.authid()
+        if light_crs != reporting_crs:
+            raise QgsProcessingException("Different CRS for light layer ("
+                + str(light_crs) + ") and reporting crs (" + str(reporting_crs) + ")")
+        if surface:
+            surface_crs = surface.dataProvider().crs().authid()
+            if light_crs != surface_crs:
+                raise QgsProcessingException("Different CRS for light layer ("
+                    + str(light_crs) + ") and reporting crs (" + str(surface_crs) + ")")
+        
+        flux_sum_field = QgsField(self.FLUX_SUM, QVariant.Double)
+        surface_field = QgsField(self.SURFACE_AREA, QVariant.Double)
+        flux_den_field = QgsField(self.FLUX_DEN, QVariant.Double)
+        out_fields = QgsFields()
+        out_fields.append(flux_sum_field)
+        out_fields.append(surface_field)
+        out_fields.append(flux_den_field)
+        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
+                context, out_fields, reporting.wkbType(), reporting.sourceCrs())
+        # out = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+
+        # Compute the number of steps to display within the progress bar and
+        # get features from source
+        nb_feats = reporting.featureCount()
+        total = 100.0 / nb_feats if nb_feats else 0
+        # for s in QgsProject.instance().mapLayers().keys():
+            # feedback.pushDebugInfo("layer name " + str(s))
+        
+        joined_path = QgsProcessingUtils.generateTempFilename('joined.gpkg')
+        summaries = [0,1,2,3,5,6]
+        joined = qgsTreatments.joinByLocSummary(reporting,lighting,joined_path,
+            [fieldname],summaries,predicates=[0],context=context,feedback=feedback)
+        joined_layer = qgsUtils.loadVectorLayer(joined_path)
+        # QgsProject.instance().addMapLayer(joined_layer,False)
+        # for s in QgsProject.instance().mapLayers().keys():
+            # feedback.pushDebugInfo("layer name " + str(s))
+        flux_field_sum = fieldname + "_sum"
+        
+        
+        if not context:
+            context = QgsProcessingContext()
+        context = context.setInvalidGeometryCheck(QgsFeatureRequest.GeometryNoCheck)
+        
+        multi_feedback = QgsProcessingMultiStepFeedback(nb_feats,feedback)
+        
+        for current, feat in enumerate(joined_layer.getFeatures()):
+            if feedback.isCanceled():
+                break
+            f_geom = feat.geometry()
+            # QgsProcessingFeatureSourceDefinition
+            f_id = feat.id()
+            
+            if surface:
+                mmf = QgsProcessingMultiStepFeedback(2,multi_feedback)
+                joined_layer.selectByIds([f_id])
+                suffix = "_" + str(f_id) + ".gpkg"
+                input_feat = QgsProcessingUtils.generateTempFilename("selection" + suffix)
+                qgsTreatments.saveSelectedAttributes(joined_layer,
+                    input_feat,context=context,feedback=multi_feedback)
+                mmf.setCurrentStep(1)
+                # input_feat = QgsProcessingFeatureSourceDefinition(joined_layer.id(),True)
+                clipped_path = QgsProcessingUtils.generateTempFilename("clipped"
+                    + str(f_id) + ".gpkg")
+                clipped = qgsTreatments.applyVectorClip(surface,input_feat,
+                    clipped_path,context=context,feedback=multi_feedback)
+                clipped_layer = qgsUtils.loadVectorLayer(clipped_path)
+                joined_layer.removeSelection()
+                
+                surface_area = 0
+                for surface_feat in clipped_layer.getFeatures():
+                    surface_geom = surface_feat.geometry()
+                    intersection = f_geom.intersection(surface_geom)
+                    surface_area += intersection.area()
+                mmf.setCurrentStep(2)
+            else:
+                surface_area = f_geom.area()
+                
+            # multi_feedback.setCurrentStep(2)
+                
+            new_feat = QgsFeature(out_fields)
+            new_feat.setGeometry(feat.geometry())
+            
+            flux_sum = feat[flux_field_sum]
+            new_feat[self.FLUX_SUM] = flux_sum
+            new_feat[self.SURFACE_AREA] = surface_area
+            new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else 0   
+            
+            sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
+            # multi_feedback.setProgress(int(current * total))
+            multi_feedback.setCurrentStep(current + 1)
+        
+        return {self.OUTPUT: dest_id }
+            
+    def name(self):
+        return 'Light Flux Surfacic Density (fast)'
+
+    def displayName(self):
+        """
+        Returns the translated algorithm name, which should be used for any
+        user-visible display of the algorithm name.
+        """
+        return self.tr(self.name())
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+
+    def createInstance(self):
+        return FluxDensityAlgorithm2()
