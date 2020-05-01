@@ -41,9 +41,12 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterVectorDestination,
                        QgsCoordinateReferenceSystem,
                        QgsCoordinateTransform,
+                       QgsCoordinateTransformContext,
+                       QgsGeometry,
                        QgsFields,
                        QgsFeature,
-                       Qgis)
+                       QgsFeatureSink,
+                       QgsWkbTypes)
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
@@ -51,6 +54,7 @@ class MergeGeometryAlgorithm(QgsProcessingAlgorithm):
     
     OUTPUT = 'OUTPUT'
     LAYERS = 'LAYERS'
+    CRS = 'CRS'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
     
@@ -75,7 +79,7 @@ class MergeGeometryAlgorithm(QgsProcessingAlgorithm):
         
         out_fields = QgsFields()
         (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
-                context, out_fields, Qgis.WKBMultiPolygon, dest_crs)
+                context, out_fields, QgsWkbTypes.MultiPolygon, dest_crs)
                 
         nb_feats = 0
         for layer in layers:
@@ -88,16 +92,17 @@ class MergeGeometryAlgorithm(QgsProcessingAlgorithm):
             if layer_crs == dest_crs:
                 transformator = None
             else:
-                transformator = QgsCoordinateTransform(layer_crs,dest_crs)
+                trContext = QgsCoordinateTransformContext()
+                transformator = QgsCoordinateTransform(layer_crs,dest_crs,trContext)
             for feat in layer.getFeatures():
-                feat_geom = feat.geometry()
-                geom_mp = feat_geom.asMultiPolygon()
+                feat_geom = QgsGeometry(feat.geometry())
+                if feat_geom.isEmpty():
+                    continue
+                feat_geom.convertToMultiType()
                 if transformator:
-                    new_geom = geom_mp.transform(transformator)
-                else:
-                    new_geom = geom_mp
+                    feat_geom.transform(transformator)
                 new_feat = QgsFeature(out_fields)
-                new_feat.setGeometry(new_geom)
+                new_feat.setGeometry(feat_geom)
                 sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
                 curr += 1
                 feedback.setProgress(int(curr * total))

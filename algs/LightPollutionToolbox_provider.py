@@ -45,7 +45,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         self.alglist = [FluxDensityAlgorithm(),
             FluxDensityAlgorithm2(),
             CreateMeshAlgorithm(),
-            MergeGeometry()]
+            MergeGeometryAlgorithm()]
         for a in self.alglist:
             a.initAlgorithm()
         QgsProcessingProvider.__init__(self)
