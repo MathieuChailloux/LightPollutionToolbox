@@ -34,6 +34,7 @@ from qgis.core import QgsProcessingProvider
 from .fluxDensity_algorithm import FluxDensityAlgorithm, FluxDensityAlgorithm2
 from .createMesh_algorithm import CreateMeshAlgorithm
 from .mergeGeometry_algorithm import MergeGeometryAlgorithm
+from .fluxEstimation_algorithm import FluxEstimationAlgorithm
 
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
@@ -45,7 +46,8 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         self.alglist = [FluxDensityAlgorithm(),
             FluxDensityAlgorithm2(),
             CreateMeshAlgorithm(),
-            MergeGeometryAlgorithm()]
+            MergeGeometryAlgorithm(),
+            FluxEstimationAlgorithm()]
         for a in self.alglist:
             a.initAlgorithm()
         QgsProcessingProvider.__init__(self)
