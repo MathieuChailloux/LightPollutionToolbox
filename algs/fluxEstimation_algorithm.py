@@ -1,4 +1,6 @@
 
+import os, csv
+
 from PyQt5.QtCore import QCoreApplication, QVariant
 
 from qgis.core import (QgsProcessing,
@@ -19,10 +21,14 @@ class FluxEstimationAlgorithm(QgsProcessingAlgorithm):
     OVERWRITE = 'OVERWRITE'
     LIGHT_TYPE_FIELD = 'LIGHT_TYPE_FIELD'
     LIGHT_TYPE_ASSOC = 'LIGHT_TYPE_ASSOC'
+    LED_ASSOC = 'LED_ASSOC'
     FLUX_ASSOC = 'FLUX_ASSOC'
     OUTPUT = 'OUTPUT'
     
+    DEFAULT_LED_ASSOC = "C:/Users/fdrmc/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/LightPollutionToolbox/assets/LED_eff.csv"
+    
     LAMP_TYPE_FIELD = 'Lampe - Modèle lampe'
+    LAMP_MODEL_FIELD = 'Luminaire - Libellé luminaire'
     LAMP_PW_FIELD = 'Lampe - Puissance lampe'
     base_flux = {
         "IODURES METALLIQUES" : 90,
@@ -41,7 +47,25 @@ class FluxEstimationAlgorithm(QgsProcessingAlgorithm):
 # SODIUM BLANC
 # SODIUM BASSE PRESSION
 
-    
+    led_flux_eff = {}
+
+    def parseLEDFile(self,fname,feedback):
+        fieldnames = ['Marque','Modele','Eff']
+        self.led_flux_eff = {}
+        if os.path.isfile(fname):
+            with open(fname,newline='') as csvfile:
+                reader = csv.DictReader(csvfile,fieldnames=fieldnames,delimiter=';')
+                for row in reader:
+                    try:
+                        model, eff = row['Modele'], float(row['Eff'])
+                        if model:
+                            self.led_flux_eff[model] = eff
+                    except ValueError:
+                        feedback.pushDebugInfo("Could not parse " + str(row))
+                    except TypeError:
+                        feedback.pushDebugInfo("Could not parse " + str(row))
+        else:
+            raise QgsProcessingException("File " + str(fname) + " does not exist")
     
     def getSHPFlux(self,pw):
         pw_int = int(pw)
@@ -65,6 +89,12 @@ class FluxEstimationAlgorithm(QgsProcessingAlgorithm):
         return (pw * 0.4) + 107
     
     def getLEDFlux(self,feat):
+        lamp_model = str(feat[self.LAMP_MODEL_FIELD])
+        if lamp_model in self.led_flux_eff:
+            return self.led_flux_eff[lamp_model]
+        for k, v in self.led_flux_eff.items():
+            if len(k) > 3 and lamp_model.startswith(k):
+                return v
         return 160
         
     def getFluxEff(self,feat,feedback):
@@ -112,6 +142,11 @@ class FluxEstimationAlgorithm(QgsProcessingAlgorithm):
                 # self.FLUX_ASSOC,
                 # self.tr('Association file (light type -> flux)')))
         self.addParameter(
+            QgsProcessingParameterFile(
+                self.LED_ASSOC,
+                self.tr('LED efficacy association file (LED model -> luminous efficacy)'),
+                defaultValue=self.DEFAULT_LED_ASSOC))
+        self.addParameter(
             QgsProcessingParameterVectorDestination(
                 self.OUTPUT,
                 self.tr('Output layer'),
@@ -125,20 +160,32 @@ class FluxEstimationAlgorithm(QgsProcessingAlgorithm):
         if not fieldname:
             raise QgsProcessingException("No field given for light flux")
         overwrite = self.parameterAsBool(parameters, self.OVERWRITE, context)
+        filename = self.parameterAsFile(parameters,self.LED_ASSOC,context)
+        
+        if filename:
+            self.parseLEDFile(filename,feedback)
+            feedback.pushDebugInfo(str(self.led_flux_eff))
+        else:
+            feedback.pushInfo("No file given for LED light efficacy")
+        
+        flux_eff_name = 'flux_eff'
+        flux_eff_field = QgsField(flux_eff_name, QVariant.Double)
+        new_fields = [flux_eff_field]
         
         field_exists = fieldname in lighting.fields().names()
-        
         if not field_exists:
             flux_field = QgsField(fieldname, QVariant.Double)
-            lighting.dataProvider().addAttributes([flux_field])
-            lighting.updateFields()
+            new_fields.append(flux_field)
         elif overwrite:
             pass
         else:
             raise QgsProcessingException("Flux field already exists")
+        lighting.dataProvider().addAttributes(new_fields)
+        lighting.updateFields()
         
         lighting.startEditing()
         for feat in lighting.getFeatures():
+            flux_eff = 0
             try:
                 pw = feat[self.LAMP_PW_FIELD]
                 #feedback.pushDebugInfo(str(pw))
@@ -150,6 +197,7 @@ class FluxEstimationAlgorithm(QgsProcessingAlgorithm):
             except ValueError:
                 flux = 0
             feat[fieldname] = flux
+            feat[flux_eff_name] = flux_eff
             lighting.updateFeature(feat)
         
         feedback.pushInfo("")
