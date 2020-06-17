@@ -1,5 +1,5 @@
 
-import os, csv
+import os, csv, re
 
 from PyQt5.QtCore import QCoreApplication, QVariant
 
@@ -10,6 +10,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterBoolean,
                        QgsProcessingParameterVectorDestination,
                        QgsProcessingParameterFile,
+                       #QgsProcessingParameterDateTime,
                        QgsProcessingException,
                        QgsField)
                        
@@ -220,3 +221,61 @@ class FluxEstimationAlgorithm(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return FluxEstimationAlgorithm()
+        
+        
+
+class FluxTimeAlgorithm(QgsProcessingAlgorithm):
+
+    LIGHTING = 'LIGHTING'
+    FLUX_FIELD = 'FLUX_FIELD'
+    SHUTDOWN_FIELD = 'SHUTDOWN_FIELD'
+    HOUR = 'HOUR'
+    OVERWRITE = 'OVERWRITE'
+    OUTPUT = 'OUTPUT'
+    
+    def getHourFlux(self,feat,hour,feedback):
+        flux = feat[flux_field]
+        shutdown = feat[shutdown_field]
+        feedback.pushDebugInfo("feedback = " + str(feedback))
+        if shutdown:
+            # regexp
+            pattern = "\(([AE\d+])\,(\d+)\)\;(\d*)"
+            res_match = re.match(pattern,shutdown)
+            for (inf, sup), coeff in res_match:
+                pass
+        else:
+            return flux
+            
+    def initAlgorithm(self, config=None):
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.LIGHTING,
+                self.tr('Lighting layer')))
+        self.addParameter(
+            QgsProcessingParameterString(
+                self.FLUX_FIELD,
+                self.tr('Flux field name')))
+        self.addParameter(
+            QgsProcessingParameterString(
+                self.SHUTDOWN_FIELD,
+                self.tr('Shutdown field')))
+        self.addParameter(
+            QgsProcessingParameterDateTime(
+                self.HOUR,
+                self.tr('Time for computation'),
+                type=QgsProcessingParameterDateTime.Time))
+                
+        
+    
+    def processAlgorithm(self, parameters, context, feedback):
+    
+        # Parameters
+        lighting = self.parameterAsVectorLayer(parameters, self.LIGHTING, context)
+        flux_field = self.parameterAsString(parameters,self.FLUX_FIELD,context)
+        shutdown_field = self.parameterAsString(parameters,self.SHUTDOWN_FIELD,context)
+        hour = self.parametersAsDateTime(parameters,self.HOUR,context)
+        
+        for feat in lighting.getFeatures():
+            flux = feat[flux_field]
+            coeff = self.getHourFlux(base_flux)
+        

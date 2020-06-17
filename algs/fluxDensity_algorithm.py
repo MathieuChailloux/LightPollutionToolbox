@@ -289,6 +289,8 @@ class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
         if not fieldname:
             raise QgsProcessingException("No field given for light flux")
         reporting = self.parameterAsVectorLayer(parameters, self.REPORTING, context)
+        if not reporting:
+            assert False
         surface = self.parameterAsVectorLayer(parameters, self.SURFACE, context)
         
         light_crs = lighting.dataProvider().crs().authid()
@@ -297,13 +299,21 @@ class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
             raise QgsProcessingException("Reporting CRS must be a projection (not lat/lon)")
         reporting_crs = reporting_crs.authid()
         if light_crs != reporting_crs:
-            raise QgsProcessingException("Different CRS for light layer ("
-                + str(light_crs) + ") and reporting crs (" + str(reporting_crs) + ")")
+            # raise QgsProcessingException("Different CRS for light layer ("
+                # + str(light_crs) + ") and reporting crs (" + str(reporting_crs) + ")")
+            lighting_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
+            qgsTreatments.applyReprojectLayer(lighting,reporting_crs,lighting_path,
+                context=context,feedback=feedback)
+            lighting = lighting_path
         if surface:
             surface_crs = surface.dataProvider().crs().authid()
-            if light_crs != surface_crs:
-                raise QgsProcessingException("Different CRS for light layer ("
-                    + str(light_crs) + ") and reporting crs (" + str(surface_crs) + ")")
+            if reporting_crs != surface_crs:
+                # raise QgsProcessingException("Different CRS for light layer ("
+                    # + str(light_crs) + ") and reporting crs (" + str(surface_crs) + ")")
+                surface_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
+                qgsTreatments.applyReprojectLayer(surface,reporting_crs,surface_path,
+                    context=context,feedback=feedback)
+                surface = surface_path
         
         flux_sum_field = QgsField(self.FLUX_SUM, QVariant.Double)
         surface_field = QgsField(self.SURFACE_AREA, QVariant.Double)
@@ -390,12 +400,16 @@ class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
             
     def name(self):
         return 'Light Flux Surfacic Density (fast)'
+        
+    def shortHelpString(self):
+        helpStr = "Estimation of light flux density.\n"
+        helpStr += " Flux value is selected from lighting layer according to light flux field.\n"
+        helpStr += " Surface to be illuminated (roads, sidewalks, parking areas, ...) can be specified"
+        helpStr += " through a polygon layer.\n"
+        helpStr += " For each entity of reporting layer, flux light points inside entity are selected."
+        return self.tr()
 
     def displayName(self):
-        """
-        Returns the translated algorithm name, which should be used for any
-        user-visible display of the algorithm name.
-        """
         return self.tr(self.name())
 
     def tr(self, string):
