@@ -17,6 +17,6 @@ Pour installer *LightPollutionToolbox* dans *QGIS*, aller dans le menu *Extensio
 *LightPollutionToolbox* dépend du sous-module [*qgis_lib_mc*](https://github.com/MathieuChailloux/qgis_lib_mc)
 
 Pour installer le git :
-    git clone https://github.com/MathieuChailloux/LightPollutionToolbox.git
-    cd LightPollutionToolbox
-    git clone https://github.com/MathieuChailloux/qgis_lib_mc.git
+git clone https://github.com/MathieuChailloux/LightPollutionToolbox.git
+cd LightPollutionToolbox
+git clone https://github.com/MathieuChailloux/qgis_lib_mc.git
