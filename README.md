@@ -12,6 +12,8 @@ Plusieurs algorithmes sont actuellement disponibles :
 
 Pour installer *LightPollutionToolbox* dans *QGIS*, aller dans le menu *Extensions->Installer/Gérer les extensions->Installer depuis un zip* et sélectionner l'archive *LightPollutionToolbox.zip*.
 
+Les algorithmes apparaissent alors dans la boîte à outils de traitement.
+
 # Développeurs
 
 *LightPollutionToolbox* dépend du sous-module [*qgis_lib_mc*](https://github.com/MathieuChailloux/qgis_lib_mc)
