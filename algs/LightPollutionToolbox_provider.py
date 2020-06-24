@@ -31,7 +31,7 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 __revision__ = '$Format:%H$'
 
 from qgis.core import QgsProcessingProvider
-from .fluxDensity_algorithm import FluxDensityAlgorithm, FluxDensityAlgorithm2
+from .fluxDensity_algorithm import FluxDensityAlgorithm
 from .createMesh_algorithm import CreateMeshAlgorithm
 from .mergeGeometry_algorithm import MergeGeometryAlgorithm
 from .fluxEstimation_algorithm import FluxEstimationAlgorithm
@@ -44,7 +44,6 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         Default constructor.
         """
         self.alglist = [FluxDensityAlgorithm(),
-            FluxDensityAlgorithm2(),
             CreateMeshAlgorithm(),
             MergeGeometryAlgorithm(),
             FluxEstimationAlgorithm()]

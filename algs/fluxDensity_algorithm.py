@@ -49,195 +49,10 @@ from qgis.core import (QgsProcessing,
                        QgsFields,
                        QgsField)
 
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
+from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+
 
 class FluxDensityAlgorithm(QgsProcessingAlgorithm):
-    """
-    This is an example algorithm that takes a vector layer and
-    creates a new identical one.
-
-    It is meant to be used as an example of how to create your own
-    algorithms and explain methods and variables used to do it. An
-    algorithm like this will be available in all elements, and there
-    is not need for additional work.
-
-    All Processing algorithms should extend the QgsProcessingAlgorithm
-    class.
-    """
-
-    # Constants used to refer to parameters and outputs. They will be
-    # used when calling the algorithm from another algorithm, or when
-    # calling from the QGIS console.
-
-    OUTPUT = 'OUTPUT'
-    INPUT = 'INPUT'
-    LIGHTING = 'LIGHTING'
-    FLUX_FIELD = 'FLUX_FIELD'
-    REPORTING = 'REPORTING'
-    SURFACE = 'SURFACE'
-    
-    SURFACE_AREA = 'SURFACE'
-    FLUX_SUM = 'FLUX_SUM'
-    FLUX_DEN = 'FLUX_DEN'
-
-    def initAlgorithm(self, config=None):
-        """
-        Here we define the inputs and output of the algorithm, along
-        with some other properties.
-        """
-
-        # We add the input vector features source. It can have any kind of
-        # geometry.
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.LIGHTING,
-                self.tr('Lighting layer')))
-        self.addParameter(
-            QgsProcessingParameterField(
-                self.FLUX_FIELD,
-                description=self.tr('Light flux field'),
-                defaultValue=None,
-                parentLayerParameterName=self.LIGHTING))
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.REPORTING,
-                self.tr('Reporting layer'),
-                [QgsProcessing.TypeVectorPolygon]))
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.SURFACE,
-                self.tr('Surface to be illuminated layer'),
-                [QgsProcessing.TypeVectorPolygon],
-                optional=True))
-
-        # We add a feature sink in which to store our processed features (this
-        # usually takes the form of a newly created vector layer when the
-        # algorithm is run in QGIS).
-        self.addParameter(
-            QgsProcessingParameterFeatureSink(
-                self.OUTPUT,
-                self.tr('Output layer')
-            )
-        )
-
-    def processAlgorithm(self, parameters, context, feedback):
-        """
-        Here is where the processing itself takes place.
-        """
-
-        # Retrieve the feature source and sink. The 'dest_id' variable is used
-        # to uniquely identify the feature sink, and must be included in the
-        # dictionary returned by the processAlgorithm function.
-        lighting = self.parameterAsVectorLayer(parameters, self.LIGHTING, context)
-        fieldname = self.parameterAsString(parameters,self.FLUX_FIELD,context)
-        if not fieldname:
-            raise QgsProcessingException("No field given for light flux")
-        reporting = self.parameterAsVectorLayer(parameters, self.REPORTING, context)
-        surface = self.parameterAsVectorLayer(parameters, self.SURFACE, context)
-        
-        light_crs = lighting.dataProvider().crs().authid()
-        reporting_crs = reporting.dataProvider().crs()
-        if reporting_crs.isGeographic():
-            raise QgsProcessingException("Reporting CRS must be a projection (not lat/lon)")
-        reporting_crs = reporting_crs.authid()
-        if light_crs != reporting_crs:
-            raise QgsProcessingException("Different CRS for light layer ("
-                + str(light_crs) + ") and reporting crs (" + str(reporting_crs) + ")")
-        if surface:
-            surface_crs = surface.dataProvider().crs().authid()
-            if light_crs != surface_crs:
-                raise QgsProcessingException("Different CRS for light layer ("
-                    + str(light_crs) + ") and reporting crs (" + str(surface_crs) + ")")
-        
-        flux_sum_field = QgsField(self.FLUX_SUM, QVariant.Double)
-        surface_field = QgsField(self.SURFACE_AREA, QVariant.Double)
-        flux_den_field = QgsField(self.FLUX_DEN, QVariant.Double)
-        out_fields = QgsFields()
-        out_fields.append(flux_sum_field)
-        out_fields.append(surface_field)
-        out_fields.append(flux_den_field)
-        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
-                context, out_fields, reporting.wkbType(), reporting.sourceCrs())
-
-        # Compute the number of steps to display within the progress bar and
-        # get features from source
-        nb_feats = reporting.featureCount()
-        total = 100.0 / nb_feats if nb_feats else 0
-        
-        
-        
-        feats = reporting.getFeatures()
-                
-        for current, feat in enumerate(feats):
-            # Stop the algorithm if cancel button has been clicked
-            if feedback.isCanceled():
-                break
-                
-            f_geom = feat.geometry()
-            if surface:
-                surface_area = 0
-                for surface_feat in surface.getFeatures():
-                    surface_geom = surface_feat.geometry()
-                    intersection = f_geom.intersection(surface_geom)
-                    surface_area += intersection.area()
-            else:
-                surface_area = f_geom.area()
-                    
-            flux_sum = 0
-            for light_feat in lighting.getFeatures():
-                if f_geom.intersects(light_feat.geometry()):
-                    try:
-                        flux_sum += float(light_feat[fieldname])
-                    except ValueError:
-                        feedback.reportError("Could not cast light flux value : "
-                            + str(light_feat[fieldname]))
-                           
-            
-            new_feat = QgsFeature(out_fields)
-            new_feat.setGeometry(feat.geometry())
-            new_feat[self.FLUX_SUM] = flux_sum
-            new_feat[self.SURFACE_AREA] = surface_area
-            new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else 0            
-
-            # Add a feature in the sink
-            sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
-
-            # Update the progress bar
-            feedback.setProgress(int(current * total))
-
-        # Return the results of the algorithm. In this case our only result is
-        # the feature sink which contains the processed features, but some
-        # algorithms may return multiple feature sinks, calculated numeric
-        # statistics, etc. These should all be included in the returned
-        # dictionary, with keys matching the feature corresponding parameter
-        # or output names.
-        return {self.OUTPUT: dest_id}
-
-    def name(self):
-        """
-        Returns the algorithm name, used for identifying the algorithm. This
-        string should be fixed for the algorithm, and must not be localised.
-        The name should be unique within each provider. Names should contain
-        lowercase alphanumeric characters only and no spaces or other
-        formatting characters.
-        """
-        return 'Light Flux Surfacic Density'
-
-    def displayName(self):
-        """
-        Returns the translated algorithm name, which should be used for any
-        user-visible display of the algorithm name.
-        """
-        return self.tr(self.name())
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-
-    def createInstance(self):
-        return FluxDensityAlgorithm()
-
-
-class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
 
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
@@ -273,48 +88,51 @@ class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
                 [QgsProcessing.TypeVectorPolygon],
                 optional=True))
 
-        # self.addParameter(
-            # QgsProcessingParameterVectorDestination(
-                # self.OUTPUT,
-                # self.tr('Output layer')))
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.OUTPUT,
                 self.tr('Output layer')))
 
     def processAlgorithm(self, parameters, context, feedback):
-    
-        lighting = self.parameterAsVectorLayer(parameters, self.LIGHTING, context)
+        self.dest_id = None
+        # Parameters
+        # lighting = self.parameterAsVectorLayer(parameters, self.LIGHTING, context)
+        lighting = self.parameterAsSource(parameters, self.LIGHTING, context)
+        if not lighting:
+            raise QgsProcessingException("No lighting layer")
+        lighting_layer = lighting.materialize(QgsFeatureRequest(),feedback=feedback)
         fieldname = self.parameterAsString(parameters,self.FLUX_FIELD,context)
         if not fieldname:
             raise QgsProcessingException("No field given for light flux")
-        reporting = self.parameterAsVectorLayer(parameters, self.REPORTING, context)
+        # reporting = self.parameterAsVectorLayer(parameters, self.REPORTING, context)
+        reporting = self.parameterAsSource(parameters, self.REPORTING, context)
         if not reporting:
-            assert False
-        surface = self.parameterAsVectorLayer(parameters, self.SURFACE, context)
+            raise QgsProcessingException("No reporting layer")
+        reporting_layer = reporting.materialize(QgsFeatureRequest(),feedback=feedback)
+        surface = self.parameterAsSource(parameters, self.SURFACE, context)
         
-        light_crs = lighting.dataProvider().crs().authid()
-        reporting_crs = reporting.dataProvider().crs()
+        # Reprojection if needed
+        light_crs = lighting.sourceCrs().authid()
+        reporting_crs = reporting.sourceCrs()
+        # reporting_crs = reporting.dataProvider().sourceCrs()
         if reporting_crs.isGeographic():
             raise QgsProcessingException("Reporting CRS must be a projection (not lat/lon)")
         reporting_crs = reporting_crs.authid()
         if light_crs != reporting_crs:
-            # raise QgsProcessingException("Different CRS for light layer ("
-                # + str(light_crs) + ") and reporting crs (" + str(reporting_crs) + ")")
             lighting_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
-            qgsTreatments.applyReprojectLayer(lighting,reporting_crs,lighting_path,
+            qgsTreatments.applyReprojectLayer(lighting_layer,reporting_crs,lighting_path,
                 context=context,feedback=feedback)
-            lighting = lighting_path
+            lighting_layer = lighting_path
         if surface:
-            surface_crs = surface.dataProvider().crs().authid()
+            surface_layer = surface.materialize(QgsFeatureRequest(),feedback=feedback)
+            surface_crs = surface.sourceCrs().authid()
             if reporting_crs != surface_crs:
-                # raise QgsProcessingException("Different CRS for light layer ("
-                    # + str(light_crs) + ") and reporting crs (" + str(surface_crs) + ")")
                 surface_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
                 qgsTreatments.applyReprojectLayer(surface,reporting_crs,surface_path,
                     context=context,feedback=feedback)
                 surface = surface_path
-        
+                
+        # Output fields initialization
         flux_sum_field = QgsField(self.FLUX_SUM, QVariant.Double)
         surface_field = QgsField(self.SURFACE_AREA, QVariant.Double)
         flux_den_field = QgsField(self.FLUX_DEN, QVariant.Double)
@@ -322,42 +140,38 @@ class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
         out_fields.append(flux_sum_field)
         out_fields.append(surface_field)
         out_fields.append(flux_den_field)
-        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
+        (sink, self.dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
                 context, out_fields, reporting.wkbType(), reporting.sourceCrs())
-        # out = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
 
-        # Compute the number of steps to display within the progress bar and
-        # get features from source
+        # Progess bar step
         nb_feats = reporting.featureCount()
         total = 100.0 / nb_feats if nb_feats else 0
-        # for s in QgsProject.instance().mapLayers().keys():
-            # feedback.pushDebugInfo("layer name " + str(s))
         
+        # Join light points summary by reporting unit
         joined_path = QgsProcessingUtils.generateTempFilename('joined.gpkg')
+        # SUM = 5
         summaries = [0,1,2,3,5,6]
-        joined = qgsTreatments.joinByLocSummary(reporting,lighting,joined_path,
+        # reporting_def = QgsProcessingFeatureSourceDefinition(reporting_layer.)
+        joined = qgsTreatments.joinByLocSummary(reporting_layer,lighting_layer,joined_path,
             [fieldname],summaries,predicates=[0],context=context,feedback=feedback)
         joined_layer = qgsUtils.loadVectorLayer(joined_path)
-        # QgsProject.instance().addMapLayer(joined_layer,False)
-        # for s in QgsProject.instance().mapLayers().keys():
-            # feedback.pushDebugInfo("layer name " + str(s))
         flux_field_sum = fieldname + "_sum"
         
-        
+        # Set context and feedback
         if not context:
             context = QgsProcessingContext()
         context = context.setInvalidGeometryCheck(QgsFeatureRequest.GeometryNoCheck)
-        
         multi_feedback = QgsProcessingMultiStepFeedback(nb_feats,feedback)
         
+        # Iteration on each reporting unit
         for current, feat in enumerate(joined_layer.getFeatures()):
             if feedback.isCanceled():
                 break
             f_geom = feat.geometry()
-            # QgsProcessingFeatureSourceDefinition
             f_id = feat.id()
             
             if surface:
+                # Clip surface layer to reporting feature boundaries to retrieve intersecting area
                 mmf = QgsProcessingMultiStepFeedback(2,multi_feedback)
                 joined_layer.selectByIds([f_id])
                 suffix = "_" + str(f_id) + ".gpkg"
@@ -368,7 +182,7 @@ class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
                 # input_feat = QgsProcessingFeatureSourceDefinition(joined_layer.id(),True)
                 clipped_path = QgsProcessingUtils.generateTempFilename("clipped"
                     + str(f_id) + ".gpkg")
-                clipped = qgsTreatments.applyVectorClip(surface,input_feat,
+                clipped = qgsTreatments.applyVectorClip(surface_layer,input_feat,
                     clipped_path,context=context,feedback=multi_feedback)
                 clipped_layer = qgsUtils.loadVectorLayer(clipped_path)
                 joined_layer.removeSelection()
@@ -382,24 +196,29 @@ class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
             else:
                 surface_area = f_geom.area()
                 
-            # multi_feedback.setCurrentStep(2)
-                
+            # Output result feature
             new_feat = QgsFeature(out_fields)
             new_feat.setGeometry(feat.geometry())
-            
             flux_sum = feat[flux_field_sum]
             new_feat[self.FLUX_SUM] = flux_sum
             new_feat[self.SURFACE_AREA] = surface_area
-            new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else 0   
-            
+            new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else 0
             sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
-            # multi_feedback.setProgress(int(current * total))
             multi_feedback.setCurrentStep(current + 1)
         
-        return {self.OUTPUT: dest_id }
+        return {self.OUTPUT: self.dest_id }
+            
+    def postProcessAlgorithm(self,context,feedback):
+        # out_layer = QgsProject.instance().mapLayer(self.dest_id)
+        out_layer = QgsProcessingUtils.mapLayerFromString(self.dest_id,context)
+        if not out_layer:
+            raise QgsProcessingException("No layer found for " + str(self.dest_id))
+        styles.setCustomClassesDSFL(out_layer,self.FLUX_DEN)
+        return {self.OUTPUT: self.dest_id }
+        
             
     def name(self):
-        return 'Light Flux Surfacic Density (fast)'
+        return 'Light Flux Surfacic Density'
         
     def shortHelpString(self):
         helpStr = "Estimation of light flux density.\n"
@@ -416,4 +235,4 @@ class FluxDensityAlgorithm2(QgsProcessingAlgorithm):
         return QCoreApplication.translate('Processing', string)
 
     def createInstance(self):
-        return FluxDensityAlgorithm2()
+        return FluxDensityAlgorithm()
