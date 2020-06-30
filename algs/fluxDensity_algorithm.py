@@ -236,3 +236,52 @@ class FluxDensityAlgorithm(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return FluxDensityAlgorithm()
+        
+        
+
+class DSFLSymbology(QgsProcessingAlgorithm):
+
+    INPUT = 'INPUT'
+    OUTPUT = 'OUTPUT'
+
+    def initAlgorithm(self, config=None):
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.INPUT,
+                self.tr('Input layer')))
+
+        self.addParameter(
+            QgsProcessingParameterFeatureSink(
+                self.OUTPUT,
+                self.tr('Output layer')))
+    
+    
+    def processAlgorithm(self, parameters, context, feedback):
+        self.in_layer = self.parameterAsVectorLayer(parameters,self.INPUT,context)
+        if not self.in_layer:
+            raise QgsProcessingException("No input layer")
+        return { self.OUTPUT : None }
+        
+    
+    def postProcessAlgorithm(self,context,feedback):
+        if not self.in_layer:
+            raise QgsProcessingException("No DSFL layer")
+        styles.setCustomClassesDSFL(self.in_layer,'FLUX_DEN')
+        return { self.OUTPUT : None }
+        
+    def name(self):
+        return 'Apply symbology to DSFL layer'
+        
+    def shortHelpString(self):
+        helpStr = "Apply symbology to DSFL layer"
+        return self.tr()
+
+    def displayName(self):
+        return self.tr(self.name())
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+
+    def createInstance(self):
+        return DSFLSymbology()
+        
