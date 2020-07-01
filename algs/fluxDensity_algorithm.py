@@ -250,10 +250,10 @@ class DSFLSymbology(QgsProcessingAlgorithm):
                 self.INPUT,
                 self.tr('Input layer')))
 
-        self.addParameter(
-            QgsProcessingParameterFeatureSink(
-                self.OUTPUT,
-                self.tr('Output layer')))
+        # self.addParameter(
+            # QgsProcessingParameterFeatureSink(
+                # self.OUTPUT,
+                # self.tr('Output layer')))
     
     
     def processAlgorithm(self, parameters, context, feedback):
