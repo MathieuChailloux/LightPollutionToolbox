@@ -35,7 +35,7 @@ from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology
 from .createMesh_algorithm import CreateMeshAlgorithm
 from .mergeGeometry_algorithm import MergeGeometryAlgorithm
 from .fluxEstimation_algorithm import FluxEstimationAlgorithm
-from .mkRoadsExtent import RoadsExtent
+from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
 
@@ -48,6 +48,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             CreateMeshAlgorithm(),
             MergeGeometryAlgorithm(),
             RoadsExtent(),
+            RoadsExtentBDTOPO(),
             FluxEstimationAlgorithm()]
         for a in self.alglist:
             a.initAlgorithm()
