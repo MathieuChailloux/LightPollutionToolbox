@@ -124,6 +124,76 @@ class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
     def createInstance(self):
         return RoadsExtentBDTOPO()
                 
+   
+class RoadsExtentFromCadastre(QgsProcessingAlgorithm):
+    
+    EXTENT_LAYER = 'EXTENT_LAYER'
+    CADASTRE = 'CADASTRE'
+    DIFF_LAYERS = 'DIFF_LAYERS'
+    OUTPUT = 'OUTPUT'
+    
+    DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+    
+    def initAlgorithm(self, config=None):
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.EXTENT_LAYER,
+                self.tr('Extent layer')))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.CADASTRE,
+                self.tr('Cadastre layer')))
+        self.addParameter(
+            QgsProcessingParameterMultipleLayers(
+                self.DIFF_LAYERS,
+                self.tr('Exclude layers (surface remove from result)')))
+        self.addParameter(
+            QgsProcessingParameterVectorDestination(
+                self.OUTPUT,
+                self.tr('Output layer')))
+
+    def processAlgorithm(self, parameters, context, feedback):
+        extent_layer = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
+        if not extent_layer:
+            raise QgsProcessingException("No extent layer")
+        cadastre_layer = self.parameterAsVectorLayer(parameters,self.CADASTRE,context)
+        if not cadastre_layer:
+            raise QgsProcessingException("No cadastre layer")
+        diff_layers = self.parameterAsLayerList(parameters,self.DIFF_LAYERS,context)
+        output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+        
+        nb_diff = len(diff_layers)
+        feedback = QgsProcessingMultiStepFeedback(nb_diff + 1,feedback)
+            
+        not_cadastre = QgsProcessingUtils.generateTempFilename('notCadastre.gpkg') if nb_diff > 0 else output
+        qgsTreatments.applyDifference(extent_layer,cadastre_layer,not_cadastre,
+            context=context,feedback=feedback)
+            
+        curr_step = 1
+        feedback.setCurrentStep(curr_step)
+                          
+        for cpt, diff_layer in enumerate(diff_layers, 1):
+            name = diff_layer.sourceName()
+            out = QgsProcessingUtils.generateTempFilename('diff' + name + '.gpkg') if cpt < nb_diff else output
+            qgsTreatments.applyDifference(not_cadastre,diff_layer,out,
+                context=context,feedback=feedback)
+            not_cadastre = out
+            feedback.setCurrentStep(cpt + 1)
+            
+        return {self.OUTPUT: not_cadastre}
+        
+    def name(self):
+        return 'roadsExtentCadastre'
+
+    def displayName(self):
+        return self.tr('Build Roads Extent From Cadastre')
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+
+    def createInstance(self):
+        return RoadsExtentFromCadastre()   
+
 
 class RoadsExtent(QgsProcessingAlgorithm):
     
