@@ -37,8 +37,11 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingException,
                        QgsProcessingParameterMultipleLayers,
                        QgsProcessingParameterCrs,
+                       QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterVectorDestination,
+                       QgsProcessingParameterVectorDestination,
+                       QgsProcessingMultiStepFeedback,
                        QgsCoordinateReferenceSystem,
                        QgsCoordinateTransform,
                        QgsCoordinateTransformContext,
@@ -110,10 +113,10 @@ class MergeGeometryAlgorithm(QgsProcessingAlgorithm):
         return {self.OUTPUT: dest_id}
         
     def name(self):
-        return 'Merge geometries'
+        return 'mergeGeom'
 
     def displayName(self):
-        return self.tr(self.name())
+        return self.tr('Merge geometries')
 
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)
@@ -121,4 +124,78 @@ class MergeGeometryAlgorithm(QgsProcessingAlgorithm):
     def createInstance(self):
         return MergeGeometryAlgorithm()
                 
+        
+class MergeGeometryNoOverlapAlgorithm(QgsProcessingAlgorithm):
+    
+    OUTPUT = 'OUTPUT'
+    LAYER_A = 'LAYER_A'
+    LAYER_B = 'LAYER_B'
+    CRS = 'CRS'
+    
+    DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+    
+    def initAlgorithm(self, config=None):
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.LAYER_A,
+                self.tr('Layer A')))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.LAYER_B,
+                self.tr('Layer B')))
+        # self.addParameter(
+            # QgsProcessingParameterCrs(
+                # self.CRS,
+                # description=self.tr("Output CRS"),
+                # defaultValue=self.DEFAULT_CRS))
+        self.addParameter(
+            QgsProcessingParameterVectorDestination(
+                self.OUTPUT,
+                self.tr('Output layer')))
+
+    def processAlgorithm(self, parameters, context, feedback):
+        layer_a = self.parameterAsVectorLayer(parameters,self.LAYER_A,context)
+        if not layer_a:
+            raise QgsProcessingException("No Layer A")
+        layer_b = self.parameterAsVectorLayer(parameters,self.LAYER_B,context)
+        if not layer_b:
+            raise QgsProcessingException("No Layer B")
+        output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+        # dest_crs = self.parameterAsCrs(parameters,self.CRS,context)
+        
+        out_fields = QgsFields()
+        out_crs = layer_a.sourceCrs()
+        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
+                context, out_fields, QgsWkbTypes.MultiPolygon, out_crs)
                 
+        feedback = QgsProcessingMultiStepFeedback(2,feedback)
+               
+        diff = QgsProcessingUtils.generateTempFilename('diff.gpkg')
+        qgsTreatments.applyDifference(layer_a,layer_b,diff,context=context,feedback=feedback)
+        diff_layer = qgsUtils.loadVectorLayer(diff)
+        
+        feedback.setCurrentStep(1)
+        
+        layers = [ layer_a, diff_layer ]
+        params = { MergeGeometryAlgorithm.LAYERS : layers,
+            MergeGeometryAlgorithm.CRS : out_crs,
+            MergeGeometryAlgorithm.OUTPUT : output }
+        qgsUtils.applyProcessingAlg("LPT",MergeGeometryAlgorithm.name(),parameters,
+            context=context,feedback=feedback)
+                
+        feedback.setCurrentStep(2)
+        
+        return {self.OUTPUT: output}
+        
+    def name(self):
+        return 'mergeGeomNoOverlap'
+
+    def displayName(self):
+        return self.tr('Merge geometries (no overlap)')
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+
+    def createInstance(self):
+        return MergeGeometryNoOverlapAlgorithm()
+        

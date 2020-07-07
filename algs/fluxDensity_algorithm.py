@@ -41,9 +41,10 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingMultiStepFeedback,
                        QgsProcessingException,
                        QgsProcessingAlgorithm,
-                       QgsProcessingParameterFeatureSource,
                        QgsProcessingFeatureSourceDefinition,
+                       QgsProcessingParameterBoolean,
                        QgsProcessingParameterField,
+                       QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterVectorDestination,
                        QgsFields,
@@ -60,6 +61,7 @@ class FluxDensityAlgorithm(QgsProcessingAlgorithm):
     FLUX_FIELD = 'FLUX_FIELD'
     REPORTING = 'REPORTING'
     SURFACE = 'SURFACE'
+    DISSOLVE = 'DISSOLVE'
     
     SURFACE_AREA = 'SURFACE'
     FLUX_SUM = 'FLUX_SUM'
@@ -87,6 +89,11 @@ class FluxDensityAlgorithm(QgsProcessingAlgorithm):
                 self.tr('Surface to be illuminated layer'),
                 [QgsProcessing.TypeVectorPolygon],
                 optional=True))
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.DISSOLVE,
+                self.tr('Dissolve surface layer (no overlapping features)'),
+                defaultValue=False))
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
@@ -110,6 +117,7 @@ class FluxDensityAlgorithm(QgsProcessingAlgorithm):
             raise QgsProcessingException("No reporting layer")
         reporting_layer = reporting.materialize(QgsFeatureRequest(),feedback=feedback)
         surface = self.parameterAsSource(parameters, self.SURFACE, context)
+        dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
         
         # Reprojection if needed
         light_crs = lighting.sourceCrs().authid()
@@ -184,11 +192,18 @@ class FluxDensityAlgorithm(QgsProcessingAlgorithm):
                     + str(f_id) + ".gpkg")
                 clipped = qgsTreatments.applyVectorClip(surface_layer,input_feat,
                     clipped_path,context=context,feedback=multi_feedback)
-                clipped_layer = qgsUtils.loadVectorLayer(clipped_path)
+                if dissolve_flag:
+                    feat_surface_path = QgsProcessingUtils.generateTempFilename(
+                        "dissolved" + str(f_id) + ".gpkg")
+                    qgsTreatments.dissolveLayer(clipped,feat_surface_path,context=context,feedback=feedback)
+                else:
+                    feat_surface_path = clipped_path
+                feat_surface_layer = qgsUtils.loadVectorLayer(feat_surface_path)
+                # clipped_layer = qgsUtils.loadVectorLayer(clipped_path)
                 joined_layer.removeSelection()
                 
                 surface_area = 0
-                for surface_feat in clipped_layer.getFeatures():
+                for surface_feat in feat_surface_layer.getFeatures():
                     surface_geom = surface_feat.geometry()
                     intersection = f_geom.intersection(surface_geom)
                     surface_area += intersection.area()

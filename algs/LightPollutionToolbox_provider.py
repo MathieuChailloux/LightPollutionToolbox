@@ -33,7 +33,7 @@ __revision__ = '$Format:%H$'
 from qgis.core import QgsProcessingProvider
 from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology
 from .createMesh_algorithm import CreateMeshAlgorithm
-from .mergeGeometry_algorithm import MergeGeometryAlgorithm
+from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryNoOverlapAlgorithm
 from .fluxEstimation_algorithm import FluxEstimationAlgorithm
 from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre
 
@@ -47,6 +47,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             DSFLSymbology(),
             CreateMeshAlgorithm(),
             MergeGeometryAlgorithm(),
+            MergeGeometryNoOverlapAlgorithm(),
             RoadsExtent(),
             RoadsExtentBDTOPO(),
             RoadsExtentFromCadastre(),

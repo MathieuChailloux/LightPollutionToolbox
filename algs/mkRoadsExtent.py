@@ -38,6 +38,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterBoolean,
                        QgsProcessingParameterMultipleLayers,
                        QgsProcessingParameterCrs,
+                       QgsProcessingParameterExpression,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterField,
@@ -51,11 +52,13 @@ from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
     
     INPUT = 'INPUT'
-    # ROADS_WIDTH = 'ROADS_WIDTH'
+    SELECT_EXPR = 'SELECT_EXPR'
     DISSOLVE = 'DISSOLVE'
     OUTPUT = 'OUTPUT'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+    DEFAULT_EXPR = '"FICTIF" = \'Non\' AND "ETAT" = \'En service\' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
+    BUFFER_EXPR = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 1.75))'
     
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -68,6 +71,19 @@ class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
                 # self.tr('Roads width field'),
                 # defaultValue='Largeur',
                 # parentLayerParameterName=self.INPUT))
+        self.addParameter(
+            QgsProcessingParameterExpression(
+                self.SELECT_EXPR,
+                self.tr('Expression to selecte features (all features if empty)'),
+                defaultValue=self.DEFAULT_EXPR,
+                optional =True,
+                parentLayerParameterName=self.INPUT))
+        self.addParameter(
+            QgsProcessingParameterExpression(
+                self.BUFFER_EXPR,
+                self.tr('Expression to selecte features (all features if empty)'),
+                defaultValue=self.BUFFER_EXPR,
+                parentLayerParameterName=self.INPUT))
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.DISSOLVE,
@@ -84,15 +100,19 @@ class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
             raise QgsProcessingException("No input layer")
         # roads_width_field = self.parameterAsString(parameters,self.ROADS_WIDTH,context)
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
+        expr = self.parameterAsExpression(parameters,self.SELECT_EXPR,context)
         output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         
         nb_steps = 3 if dissolve_flag else 2
         feedback = QgsProcessingMultiStepFeedback(nb_steps,feedback)
         
-        expr = ' "FICTIF" = \'Non\' AND "ETAT" = \'En service\' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
-        selected = QgsProcessingUtils.generateTempFilename('selected.gpkg')
-        qgsTreatments.extractByExpression(input_layer,expr,selected,
-            context=context,feedback=feedback)
+        # expr = ' "FICTIF" = \'Non\' AND "ETAT" = \'En service\' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
+        if expr:
+            selected = QgsProcessingUtils.generateTempFilename('selected.gpkg')
+            qgsTreatments.extractByExpression(input_layer,expr,selected,
+                context=context,feedback=feedback)
+        else:
+            selected = input_layer
         
         feedback.setCurrentStep(1)
         
@@ -116,7 +136,7 @@ class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
         return 'roadsExtentBDTOPO'
 
     def displayName(self):
-        return self.tr('Build Roads Extent Layer from BDTOPO')
+        return self.tr('Build Roads Extent from BDTOPO')
 
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)
@@ -303,7 +323,7 @@ class RoadsExtent(QgsProcessingAlgorithm):
         return 'roadsExtent'
 
     def displayName(self):
-        return self.tr('Build Roads Extent Layer')
+        return self.tr('Build Roads Extent')
 
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)
