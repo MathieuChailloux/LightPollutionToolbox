@@ -1,5 +1,5 @@
 
-import os, csv, re
+import os, csv, re, datetime
 
 from PyQt5.QtCore import QCoreApplication, QVariant
 
@@ -10,6 +10,8 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterBoolean,
                        QgsProcessingParameterVectorDestination,
                        QgsProcessingParameterFile,
+                       QgsProcessingParameterField,
+                       QgsProcessingParameterNumber,
                        #QgsProcessingParameterDateTime,
                        QgsProcessingException,
                        QgsField)
@@ -28,7 +30,7 @@ class FluxEstimationAlgorithm(QgsProcessingAlgorithm):
     
     DEFAULT_LED_ASSOC = "C:/Users/fdrmc/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/LightPollutionToolbox/assets/LED_eff.csv"
     
-    LAMP_TYPE_FIELD = 'Lampe - Modèle lampe'
+    LAMP_TYPE_FIELD = 'Lampe - Modele lampe'
     LAMP_MODEL_FIELD = 'Luminaire - Libellé luminaire'
     LAMP_PW_FIELD = 'Lampe - Puissance lampe'
     base_flux = {
@@ -230,20 +232,62 @@ class FluxTimeAlgorithm(QgsProcessingAlgorithm):
     FLUX_FIELD = 'FLUX_FIELD'
     SHUTDOWN_FIELD = 'SHUTDOWN_FIELD'
     HOUR = 'HOUR'
+    SUNSET = 'SUNSET'
+    SUNRISE = 'SUNRISE'
+    OUTPUT_FIELD = 'OUTPUT_FIELD'
     OVERWRITE = 'OVERWRITE'
     OUTPUT = 'OUTPUT'
     
-    def getHourFlux(self,feat,hour,feedback):
-        flux = feat[flux_field]
-        shutdown = feat[shutdown_field]
-        feedback.pushDebugInfo("feedback = " + str(feedback))
+    DEFAULT_SUNSET = 20
+    DEFAULT_SUNRISE = 7
+    
+    pattern = re.compile("\(([AE\d]+)-([AE\d]+)\),(\d+)")
+    
+    def getHourFlux(self,flux,shutdown,hour,sunset,sunrise,feedback):
+        #feedback.pushDebugInfo("feedback = " + str(feedback))
+        if not flux or not shutdown:
+            return flux
+        if True:
+            return flux
         if shutdown:
             # regexp
-            pattern = "\(([AE\d+])\,(\d+)\)\;(\d*)"
-            res_match = re.match(pattern,shutdown)
-            for (inf, sup), coeff in res_match:
-                pass
-        else:
+            feedback.pushDebugInfo("Shutdown = " + str(shutdown))
+            shutdown = shutdown[1:-1]
+            feedback.pushDebugInfo("Shutdown = " + str(shutdown))
+            ranges = re.split(';',shutdown)
+            for range in ranges:
+                res_match = pattern.match(range)
+                if not res_match:
+                    feedback.pushInfo("Could not find matching range in " + str(range))
+                    return flux
+                start = res_match.group(1)
+                end = res_match.group(2)
+                coeff = int(res_match.group(3))
+                feedback.pushDebugInfo("start = " + str(start))
+                feedback.pushDebugInfo("end = " + str(end))
+                feedback.pushDebugInfo("coeff = " + str(coeff))
+                try:
+                    start_time = sunset if start in ["A","E"] else int(start)
+                    # start_time = datetime.time(hour=sstart)
+                    end_time = sunrise if end in ["A","E"] else int(end)
+                    # end_time = datetime.time(hour=eend)
+                    # hour_time = datetime.time(hour=hour)
+                    hour_time = hour
+                    feedback.pushDebugInfo("start_time = " + str(start_time))
+                    feedback.pushDebugInfo("end_time = " + str(end_time))
+                    feedback.pushDebugInfo("hour_time = " + str(hour_time))
+                    if (start_time > end_time and (start_time <= hour_time or hour_time < end_time)):
+                        new_flux = int(flux * ((100 - coeff) / 100))
+                        return coeff
+                    elif (start_time <= hour_time and hour_time < end_time):
+                        new_flux = int(flux * ((100 - coeff) / 100))
+                        return coeff
+                    else:
+                        continue
+                except ValueError as e:
+                    feedback.pushInfo("Ignoring error " + str(e))
+                    continue
+                    #raise e
             return flux
             
     def initAlgorithm(self, config=None):
@@ -252,18 +296,54 @@ class FluxTimeAlgorithm(QgsProcessingAlgorithm):
                 self.LIGHTING,
                 self.tr('Lighting layer')))
         self.addParameter(
-            QgsProcessingParameterString(
+            QgsProcessingParameterField(
                 self.FLUX_FIELD,
-                self.tr('Flux field name')))
+                self.tr('Flux field name'),
+                parentLayerParameterName=self.LIGHTING,
+                defaultValue="flux_int"))
         self.addParameter(
-            QgsProcessingParameterString(
+            QgsProcessingParameterField(
                 self.SHUTDOWN_FIELD,
-                self.tr('Shutdown field')))
+                self.tr('Shutdown field'),
+                parentLayerParameterName=self.LIGHTING,
+                defaultValue="Abaissement"))
+        # self.addParameter(
+            # QgsProcessingParameterDateTime(
+                # self.HOUR,
+                # self.tr('Time for computation'),
+                # type=QgsProcessingParameterDateTime.Time))
         self.addParameter(
-            QgsProcessingParameterDateTime(
+            QgsProcessingParameterNumber(
                 self.HOUR,
                 self.tr('Time for computation'),
-                type=QgsProcessingParameterDateTime.Time))
+                type=QgsProcessingParameterNumber.Integer))
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.SUNSET,
+                self.tr('Sunset hour'),
+                type=QgsProcessingParameterNumber.Integer,
+                defaultValue=self.DEFAULT_SUNSET))
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.SUNRISE,
+                self.tr('Sunrise hour'),
+                type=QgsProcessingParameterNumber.Integer,
+                defaultValue=self.DEFAULT_SUNRISE))
+        self.addParameter(
+            QgsProcessingParameterString(
+                self.OUTPUT_FIELD,
+                self.tr('Output flux field name'),
+                defaultValue="flux_test"))
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.OVERWRITE,
+                self.tr('Overwrites outptut values if existing'),
+                defaultValue=False))
+        self.addParameter(
+            QgsProcessingParameterVectorDestination(
+                self.OUTPUT,
+                self.tr('Output layer'),
+                optional=True))
                 
         
     
@@ -273,9 +353,56 @@ class FluxTimeAlgorithm(QgsProcessingAlgorithm):
         lighting = self.parameterAsVectorLayer(parameters, self.LIGHTING, context)
         flux_field = self.parameterAsString(parameters,self.FLUX_FIELD,context)
         shutdown_field = self.parameterAsString(parameters,self.SHUTDOWN_FIELD,context)
-        hour = self.parametersAsDateTime(parameters,self.HOUR,context)
+        #hour = self.parametersAsDateTime(parameters,self.HOUR,context)
+        hour = self.parameterAsInt(parameters,self.HOUR,context)
+        sunset = self.parameterAsInt(parameters,self.SUNSET,context)
+        sunrise = self.parameterAsInt(parameters,self.SUNRISE,context)
+        out_fieldname = self.parameterAsString(parameters,self.OUTPUT_FIELD,context)
+        overwrite_flag = self.parameterAsBool(parameters,self.OVERWRITE,context)
         
+        # Creates new field        
+        field_exists = out_fieldname in lighting.fields().names()
+        if not field_exists:
+            new_field = QgsField(out_fieldname, QVariant.Int)
+            lighting.dataProvider().addAttributes([new_field])
+            lighting.updateFields()
+        elif not overwrite_flag:
+            raise QgsProcessingException("Flux '" + out_fieldname + "'field already exists")
+        lighting.updateFields()
+        
+        # Iteration on features
+        lighting.startEditing()
         for feat in lighting.getFeatures():
-            flux = feat[flux_field]
-            coeff = self.getHourFlux(base_flux)
+            init_flux, shutdown = feat[flux_field], feat[shutdown_field]
+            if not shutdown:
+                feat[out_fieldname] = init_flux
+            elif init_flux:
+                flux_int = int(init_flux)
+                # feedback.pushDebugInfo("Init : " + str(flux_int))
+                new_flux = self.getHourFlux(flux_int,shutdown,hour,sunset,sunrise,feedback)
+                # feedback.pushDebugInfo("New : " + str(new_flux))
+                # if new_flux != init_flux:
+                    # feedback.pushDebugInfo("Transfo " + str(init_flux) + " -> " + str(new_flux))
+                feat[out_fieldname] = new_flux
+            else:
+                feat[out_fieldname] = None
+            #feat[out_fieldname] = init_flux
+            lighting.updateFeature(feat)
+            #lighting.commitChanges()
+           # pass
+        feedback.pushInfo("")
+        lighting.commitChanges()
+            
+        return { self.OUTPUT : None }
         
+    def name(self):
+        return 'Light Flux By Hour'
+
+    def displayName(self):
+        return self.tr(self.name())
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+        
+    def createInstance(self):
+        return FluxTimeAlgorithm()
