@@ -277,11 +277,11 @@ class FluxTimeAlgorithm(QgsProcessingAlgorithm):
                     feedback.pushDebugInfo("end_time = " + str(end_time))
                     feedback.pushDebugInfo("hour_time = " + str(hour_time))
                     if (start_time > end_time and (start_time <= hour_time or hour_time < end_time)):
-                        new_flux = int(flux * ((100 - coeff) / 100))
-                        return coeff
+                        new_flux = int(flux * (coeff / 100))
+                        return new_flux
                     elif (start_time <= hour_time and hour_time < end_time):
-                        new_flux = int(flux * ((100 - coeff) / 100))
-                        return coeff
+                        new_flux = int(flux * (coeff / 100))
+                        return new_flux
                     else:
                         continue
                 except ValueError as e:
