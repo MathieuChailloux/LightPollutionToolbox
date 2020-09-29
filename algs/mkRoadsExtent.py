@@ -48,9 +48,10 @@ from qgis.core import (QgsProcessing,
                        QgsProperty)
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
+#from .mergeGeometry_algorithm import MergeGeometryAlgorithm
 
 
-class FluxDenGrpAlg(QgsProcessingAlgorithm):
+class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
 
     INPUT = 'INPUT'
     OUTPUT = 'OUTPUT'
@@ -68,26 +69,11 @@ class FluxDenGrpAlg(QgsProcessingAlgorithm):
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
 
-    def displayName(self):
-        return self.tr(self.name())
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-        
-    def group(self):
-        return self.tr('Light Flux Surfacic Density')
-        
-    def groupId(self):
-        return self.tr('density')
-        
-        
-class RoadsExtentBDTOPO(FluxDenGrpAlg):
-    
-    def initAlgorithm(self, config=None):
+    def initParamsBDTOPO(self):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
-                self.tr('Input layer')))
+                self.tr('Roads layer')))
         self.addParameter(
             QgsProcessingParameterField(
                 self.ROADS_WIDTH,
@@ -112,10 +98,48 @@ class RoadsExtentBDTOPO(FluxDenGrpAlg):
                 self.DISSOLVE,
                 self.tr('Dissolve result layer'),
                 defaultValue=True))
+    
+
+    def initParamsCadastre(self):
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.EXTENT_LAYER,
+                self.tr('Extent layer')))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.CADASTRE,
+                self.tr('Cadastre layer')))
+        self.addParameter(
+            QgsProcessingParameterMultipleLayers(
+                self.DIFF_LAYERS,
+                self.tr('Exclude layers (surface remove from cadastre result)')))
+    
+    def initOutput(self):
         self.addParameter(
             QgsProcessingParameterVectorDestination(
                 self.OUTPUT,
                 self.tr('Output layer')))
+
+    def displayName(self):
+        return self.tr(self.name())
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+        
+    def group(self):
+        return self.tr('Light Flux Surfacic Density')
+        
+    def groupId(self):
+        return self.tr('density')
+        
+        
+class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
+
+    NAME = 'roadsExtentBDTOPO'
+    
+    def initAlgorithm(self, config=None):
+        self.initParamsBDTOPO()
+        self.initOutput()
 
     def processAlgorithm(self, parameters, context, feedback):
         input_layer = self.parameterAsVectorLayer(parameters,self.INPUT,context)
@@ -155,7 +179,7 @@ class RoadsExtentBDTOPO(FluxDenGrpAlg):
         return {self.OUTPUT: output}
         
     def name(self):
-        return 'roadsExtentBDTOPO'
+        return self.NAME
 
     def displayName(self):
         return self.tr('Build Roads Extent (BDTOPO)')
@@ -164,25 +188,13 @@ class RoadsExtentBDTOPO(FluxDenGrpAlg):
         return RoadsExtentBDTOPO()
                 
    
-class RoadsExtentFromCadastre(FluxDenGrpAlg):
+class RoadsExtentFromCadastre(RoadsExtentGrpAlg):
+
+    NAME = 'roadsExtentCadastre'
     
     def initAlgorithm(self, config=None):
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.EXTENT_LAYER,
-                self.tr('Extent layer')))
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.CADASTRE,
-                self.tr('Cadastre layer')))
-        self.addParameter(
-            QgsProcessingParameterMultipleLayers(
-                self.DIFF_LAYERS,
-                self.tr('Exclude layers (surface remove from result)')))
-        self.addParameter(
-            QgsProcessingParameterVectorDestination(
-                self.OUTPUT,
-                self.tr('Output layer')))
+        self.initParamsCadastre()
+        self.initOutput()
 
     def processAlgorithm(self, parameters, context, feedback):
         extent_layer = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
@@ -215,7 +227,7 @@ class RoadsExtentFromCadastre(FluxDenGrpAlg):
         return {self.OUTPUT: not_cadastre}
         
     def name(self):
-        return 'roadsExtentCadastre'
+        return self.NAME
 
     def displayName(self):
         return self.tr('Build Roads Extent (Cadastre)')
@@ -224,43 +236,51 @@ class RoadsExtentFromCadastre(FluxDenGrpAlg):
         return RoadsExtentFromCadastre()   
 
 
-class RoadsExtent(FluxDenGrpAlg):
-    
-    EXTENT_LAYER = 'EXTENT_LAYER'
-    ROADS = 'ROADS'
-    ROADS_WIDTH = 'ROADS_WIDTH'
-    CADASTRE = 'CADASTRE'
-    DIFF_LAYERS = 'DIFF_LAYERS'
-    
-    DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+class RoadsExtent(RoadsExtentGrpAlg):
     
     def initAlgorithm(self, config=None):
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.EXTENT_LAYER,
-                self.tr('Extent layer')))
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.ROADS,
-                self.tr('Roads layer')))
-        self.addParameter(
-            QgsProcessingParameterField(
-                self.ROADS_WIDTH,
-                self.tr('Roads width field'),
-                defaultValue='Largeur',
-                parentLayerParameterName=self.ROADS))
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.CADASTRE,
-                self.tr('Cadastre layer')))
-        self.addParameter(
-            QgsProcessingParameterMultipleLayers(
-                self.DIFF_LAYERS,
-                self.tr('Exclude layers (surface remove from result)')))
-        self.addParameter(
-            QgsProcessingParameterVectorDestination(
-                self.OUTPUT,
-                self.tr('Output layer')))
+        self.initParamsBDTOPO()
+        self.initParamsCadastre()
+        self.initOutput()
+
+    def processAlgorithm(self, parameters, context, feedback):
+        multi_feedback = QgsProcessingMultiStepFeedback(3,feedback)
+        init_output = parameters[self.OUTPUT]
+        # BDTOPO
+        out_bdtopo = QgsProcessingUtils.generateTempFilename('out_bdtopo.gpkg')
+        parameters[self.OUTPUT] = out_bdtopo
+        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentBDTOPO.NAME,parameters,
+            context=context,feedback=multi_feedback)
+        multi_feedback.setCurrentStep(1)
+        # CADASTRE
+        out_cadastre = QgsProcessingUtils.generateTempFilename('out_cadastre.gpkg')
+        parameters[self.OUTPUT] = out_cadastre
+        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentCadastre.name(),parameters,
+            context=context,feedback=multi_feedback)
+        multi_feedback.setCurrentStep(2)
+        # MERGE
+        layers = [out_bdtopo,out_cadastre]
+        parameters = { 'LAYERS' : layers, 'CRS' : self.DEFAULT_CRS, 'OUTPUT' : init_output }
+        qgsTreatments.applyProcessingAlg("LPT",'mergeGeom',parameters,
+            context=context,feedback=feedback)
+        return {self.OUTPUT: init_output}
+        
+    def name(self):
+        return 'roadsExtent'
+        
+    def displayName(self):
+        return 'Build Roads Extent (BDTOPO + Cadastre)'
+
+    def createInstance(self):
+        return RoadsExtent()
+
+
+class RoadsExtentOld(RoadsExtentGrpAlg):
+    
+    def initAlgorithm(self, config=None):
+        RoadsExtentBDTOPO.initParams()
+        RoadsExtentFromCadastre.initParams()
+        self.initOutput()
 
     def processAlgorithm(self, parameters, context, feedback):
         extent_layer = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
@@ -328,12 +348,12 @@ class RoadsExtent(FluxDenGrpAlg):
         return {self.OUTPUT: output}
         
     def name(self):
-        return 'roadsExtent'
+        return 'roadsExtentold'
         
     def displayName(self):
-        return 'Build Roads Extent (BDTOPO + Cadastre)'
+        return 'Build Roads Extent (BDTOPO + Cadastre) DEPRECATED'
 
     def createInstance(self):
-        return RoadsExtent()
+        return RoadsExtentOld()
                 
                 

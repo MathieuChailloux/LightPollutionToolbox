@@ -186,7 +186,7 @@ class MergeGeometryNoOverlapAlgorithm(MergeGeomAlg):
         params = { MergeGeometryAlgorithm.LAYERS : layers,
             MergeGeometryAlgorithm.CRS : out_crs,
             MergeGeometryAlgorithm.OUTPUT : output }
-        qgsUtils.applyProcessingAlg("LPT",MergeGeometryAlgorithm.name(),parameters,
+        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.name(),parameters,
             context=context,feedback=feedback)
                 
         feedback.setCurrentStep(2)
