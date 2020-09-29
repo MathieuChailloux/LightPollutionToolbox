@@ -109,6 +109,12 @@ class CreateMeshAlgorithm(QgsProcessingAlgorithm):
 
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)
+        
+    def group(self):
+        return self.tr('Utils')
+        
+    def groupId(self):
+        return self.tr('utils')
 
     def createInstance(self):
         return CreateMeshAlgorithm()

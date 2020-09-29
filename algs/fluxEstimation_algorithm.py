@@ -17,7 +17,20 @@ from qgis.core import (QgsProcessing,
                        QgsField)
                        
 
-class FluxEstimationAlgorithm(QgsProcessingAlgorithm):                           
+        
+class FluxEstimAlg(QgsProcessingAlgorithm):
+
+    def group(self):
+        return self.tr('Light Flux Estimation')
+        
+    def groupId(self):
+        return self.tr('fluxEstim')
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+        
+        
+class FluxEstimationAlgorithm(FluxEstimAlg):                           
 
     LIGHTING = 'LIGHTING'
     FLUX_FIELD_NAME = 'FLUX_FIELD_NAME'
@@ -209,24 +222,17 @@ class FluxEstimationAlgorithm(QgsProcessingAlgorithm):
         return { self.OUTPUT : None }
             
     def name(self):
-        return 'Light Flux Estimation'
+        return 'fluxEstim'
 
     def displayName(self):
-        """
-        Returns the translated algorithm name, which should be used for any
-        user-visible display of the algorithm name.
-        """
-        return self.tr(self.name())
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return self.tr('Light Flux Estimation')
 
     def createInstance(self):
         return FluxEstimationAlgorithm()
         
         
 
-class FluxTimeAlgorithm(QgsProcessingAlgorithm):
+class FluxTimeAlgorithm(FluxEstimAlg):
 
     LIGHTING = 'LIGHTING'
     FLUX_FIELD = 'FLUX_FIELD'
@@ -396,13 +402,10 @@ class FluxTimeAlgorithm(QgsProcessingAlgorithm):
         return { self.OUTPUT : None }
         
     def name(self):
-        return 'Light Flux By Hour'
+        return 'fluxHour'
 
     def displayName(self):
-        return self.tr(self.name())
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return self.tr('Light Flux Per Hour')
         
     def createInstance(self):
         return FluxTimeAlgorithm()

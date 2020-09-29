@@ -49,28 +49,51 @@ from qgis.core import (QgsProcessing,
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
-class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
-    
+
+class FluxDenGrpAlg(QgsProcessingAlgorithm):
+
     INPUT = 'INPUT'
-    SELECT_EXPR = 'SELECT_EXPR'
-    DISSOLVE = 'DISSOLVE'
     OUTPUT = 'OUTPUT'
     
-    DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+    EXTENT_LAYER = 'EXTENT_LAYER'
+    ROADS = 'ROADS'
+    ROADS_WIDTH = 'ROADS_WIDTH'
+    CADASTRE = 'CADASTRE'
+    DIFF_LAYERS = 'DIFF_LAYERS'
+    
+    SELECT_EXPR = 'SELECT_EXPR'
+    DISSOLVE = 'DISSOLVE'
     DEFAULT_EXPR = '"FICTIF" = \'Non\' AND "ETAT" = \'En service\' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
     BUFFER_EXPR = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 1.75))'
+    
+    DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+
+    def displayName(self):
+        return self.tr(self.name())
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+        
+    def group(self):
+        return self.tr('Light Flux Surfacic Density')
+        
+    def groupId(self):
+        return self.tr('density')
+        
+        
+class RoadsExtentBDTOPO(FluxDenGrpAlg):
     
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
                 self.tr('Input layer')))
-        # self.addParameter(
-            # QgsProcessingParameterField(
-                # self.ROADS_WIDTH,
-                # self.tr('Roads width field'),
-                # defaultValue='Largeur',
-                # parentLayerParameterName=self.INPUT))
+        self.addParameter(
+            QgsProcessingParameterField(
+                self.ROADS_WIDTH,
+                self.tr('Roads width field'),
+                defaultValue='Largeur',
+                parentLayerParameterName=self.INPUT))
         self.addParameter(
             QgsProcessingParameterExpression(
                 self.SELECT_EXPR,
@@ -98,7 +121,7 @@ class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
         input_layer = self.parameterAsVectorLayer(parameters,self.INPUT,context)
         if not input_layer:
             raise QgsProcessingException("No input layer")
-        # roads_width_field = self.parameterAsString(parameters,self.ROADS_WIDTH,context)
+        roads_width_field = self.parameterAsString(parameters,self.ROADS_WIDTH,context)
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
         expr = self.parameterAsExpression(parameters,self.SELECT_EXPR,context)
         output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
@@ -106,7 +129,6 @@ class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
         nb_steps = 3 if dissolve_flag else 2
         feedback = QgsProcessingMultiStepFeedback(nb_steps,feedback)
         
-        # expr = ' "FICTIF" = \'Non\' AND "ETAT" = \'En service\' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
         if expr:
             selected = QgsProcessingUtils.generateTempFilename('selected.gpkg')
             qgsTreatments.extractByExpression(input_layer,expr,selected,
@@ -117,8 +139,8 @@ class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
         feedback.setCurrentStep(1)
         
         buffered = QgsProcessingUtils.generateTempFilename('buffered.gpkg') if dissolve_flag else output
-        # if roads_width_field not in input_layer.fields().names():
-            # raise QgsProcessingException("Could not find '" + str(roads_width_field) + "' in roads layer")
+        if roads_width_field not in input_layer.fields().names():
+            raise QgsProcessingException("Could not find '" + str(roads_width_field) + "' in roads layer")
         buf_expr = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 1.75))'
         distance = QgsProperty.fromExpression(buf_expr)
         qgsTreatments.applyBufferFromExpr(selected,distance,buffered,
@@ -136,23 +158,13 @@ class RoadsExtentBDTOPO(QgsProcessingAlgorithm):
         return 'roadsExtentBDTOPO'
 
     def displayName(self):
-        return self.tr('Build Roads Extent from BDTOPO')
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return self.tr('Build Roads Extent (BDTOPO)')
 
     def createInstance(self):
         return RoadsExtentBDTOPO()
                 
    
-class RoadsExtentFromCadastre(QgsProcessingAlgorithm):
-    
-    EXTENT_LAYER = 'EXTENT_LAYER'
-    CADASTRE = 'CADASTRE'
-    DIFF_LAYERS = 'DIFF_LAYERS'
-    OUTPUT = 'OUTPUT'
-    
-    DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+class RoadsExtentFromCadastre(FluxDenGrpAlg):
     
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -206,23 +218,19 @@ class RoadsExtentFromCadastre(QgsProcessingAlgorithm):
         return 'roadsExtentCadastre'
 
     def displayName(self):
-        return self.tr('Build Roads Extent From Cadastre')
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return self.tr('Build Roads Extent (Cadastre)')
 
     def createInstance(self):
         return RoadsExtentFromCadastre()   
 
 
-class RoadsExtent(QgsProcessingAlgorithm):
+class RoadsExtent(FluxDenGrpAlg):
     
     EXTENT_LAYER = 'EXTENT_LAYER'
     ROADS = 'ROADS'
     ROADS_WIDTH = 'ROADS_WIDTH'
     CADASTRE = 'CADASTRE'
     DIFF_LAYERS = 'DIFF_LAYERS'
-    OUTPUT = 'OUTPUT'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
     
@@ -321,12 +329,9 @@ class RoadsExtent(QgsProcessingAlgorithm):
         
     def name(self):
         return 'roadsExtent'
-
+        
     def displayName(self):
-        return self.tr('Build Roads Extent')
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return 'Build Roads Extent (BDTOPO + Cadastre)'
 
     def createInstance(self):
         return RoadsExtent()

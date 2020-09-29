@@ -53,13 +53,29 @@ from qgis.core import (QgsProcessing,
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
-class MergeGeometryAlgorithm(QgsProcessingAlgorithm):
+
+class MergeGeomAlg(QgsProcessingAlgorithm):
     
     OUTPUT = 'OUTPUT'
+    LAYER_A = 'LAYER_A'
+    LAYER_B = 'LAYER_B'
     LAYERS = 'LAYERS'
     CRS = 'CRS'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+        
+    def group(self):
+        return self.tr('Utils')
+        
+    def groupId(self):
+        return self.tr('utils')
+
+    
+
+class MergeGeometryAlgorithm(MergeGeomAlg):
     
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -118,21 +134,11 @@ class MergeGeometryAlgorithm(QgsProcessingAlgorithm):
     def displayName(self):
         return self.tr('Merge geometries')
 
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-
     def createInstance(self):
         return MergeGeometryAlgorithm()
                 
         
-class MergeGeometryNoOverlapAlgorithm(QgsProcessingAlgorithm):
-    
-    OUTPUT = 'OUTPUT'
-    LAYER_A = 'LAYER_A'
-    LAYER_B = 'LAYER_B'
-    CRS = 'CRS'
-    
-    DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+class MergeGeometryNoOverlapAlgorithm(MergeGeomAlg):
     
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -192,9 +198,6 @@ class MergeGeometryNoOverlapAlgorithm(QgsProcessingAlgorithm):
 
     def displayName(self):
         return self.tr('Merge geometries (no overlap)')
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
 
     def createInstance(self):
         return MergeGeometryNoOverlapAlgorithm()

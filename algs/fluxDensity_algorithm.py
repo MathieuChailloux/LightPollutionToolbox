@@ -53,10 +53,27 @@ from qgis.core import (QgsProcessing,
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
 
-class FluxDensityAlgorithm(QgsProcessingAlgorithm):
+class FluxDenGrpAlg(QgsProcessingAlgorithm):
 
-    OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
+    OUTPUT = 'OUTPUT'
+
+    def displayName(self):
+        return self.tr(self.name())
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+        
+    def group(self):
+        return self.tr('Light Flux Surfacic Density')
+        
+    def groupId(self):
+        return self.tr('density')
+
+    
+
+class FluxDensityAlgorithm(FluxDenGrpAlg):
+
     LIGHTING = 'LIGHTING'
     FLUX_FIELD = 'FLUX_FIELD'
     REPORTING = 'REPORTING'
@@ -243,21 +260,12 @@ class FluxDensityAlgorithm(QgsProcessingAlgorithm):
         helpStr += " For each entity of reporting layer, flux light points inside entity are selected."
         return self.tr()
 
-    def displayName(self):
-        return self.tr(self.name())
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-
     def createInstance(self):
         return FluxDensityAlgorithm()
         
         
 
-class DSFLSymbology(QgsProcessingAlgorithm):
-
-    INPUT = 'INPUT'
-    OUTPUT = 'OUTPUT'
+class DSFLSymbology(FluxDenGrpAlg):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -290,12 +298,6 @@ class DSFLSymbology(QgsProcessingAlgorithm):
     def shortHelpString(self):
         helpStr = "Apply symbology to DSFL layer"
         return self.tr()
-
-    def displayName(self):
-        return self.tr(self.name())
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
 
     def createInstance(self):
         return DSFLSymbology()
