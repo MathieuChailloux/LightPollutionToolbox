@@ -144,6 +144,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             raise QgsProcessingException("Reporting CRS must be a projection (not lat/lon)")
         reporting_crs = reporting_crs.authid()
         if light_crs != reporting_crs:
+            feedback.pushDebugInfo("lightin type " + str(lighting_layer.__type__))
             lighting_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
             qgsTreatments.applyReprojectLayer(lighting_layer,reporting_crs,lighting_path,
                 context=context,feedback=feedback)
@@ -153,7 +154,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             surface_crs = surface.sourceCrs().authid()
             if reporting_crs != surface_crs:
                 surface_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
-                qgsTreatments.applyReprojectLayer(surface,reporting_crs,surface_path,
+                qgsTreatments.applyReprojectLayer(surface_layer,reporting_crs,surface_path,
                     context=context,feedback=feedback)
                 surface = surface_path
                 
@@ -195,47 +196,51 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             f_geom = feat.geometry()
             f_id = feat.id()
             
-            if surface:
-                # Clip surface layer to reporting feature boundaries to retrieve intersecting area
-                mmf = QgsProcessingMultiStepFeedback(2,multi_feedback)
-                joined_layer.selectByIds([f_id])
-                suffix = "_" + str(f_id) + ".gpkg"
-                input_feat = QgsProcessingUtils.generateTempFilename("selection" + suffix)
-                qgsTreatments.saveSelectedAttributes(joined_layer,
-                    input_feat,context=context,feedback=multi_feedback)
-                mmf.setCurrentStep(1)
-                # input_feat = QgsProcessingFeatureSourceDefinition(joined_layer.id(),True)
-                clipped_path = QgsProcessingUtils.generateTempFilename("clipped"
-                    + str(f_id) + ".gpkg")
-                clipped = qgsTreatments.applyVectorClip(surface_layer,input_feat,
-                    clipped_path,context=context,feedback=multi_feedback)
-                if dissolve_flag:
-                    feat_surface_path = QgsProcessingUtils.generateTempFilename(
-                        "dissolved" + str(f_id) + ".gpkg")
-                    qgsTreatments.dissolveLayer(clipped,feat_surface_path,context=context,feedback=feedback)
+            try:
+                if surface:
+                    # Clip surface layer to reporting feature boundaries to retrieve intersecting area
+                    mmf = QgsProcessingMultiStepFeedback(2,multi_feedback)
+                    joined_layer.selectByIds([f_id])
+                    suffix = "_" + str(f_id) + ".gpkg"
+                    input_feat = QgsProcessingUtils.generateTempFilename("selection" + suffix)
+                    qgsTreatments.saveSelectedAttributes(joined_layer,
+                        input_feat,context=context,feedback=multi_feedback)
+                    mmf.setCurrentStep(1)
+                    # input_feat = QgsProcessingFeatureSourceDefinition(joined_layer.id(),True)
+                    clipped_path = QgsProcessingUtils.generateTempFilename("clipped"
+                        + str(f_id) + ".gpkg")
+                    clipped = qgsTreatments.applyVectorClip(surface_layer,input_feat,
+                        clipped_path,context=context,feedback=multi_feedback)
+                    if dissolve_flag:
+                        feat_surface_path = QgsProcessingUtils.generateTempFilename(
+                            "dissolved" + str(f_id) + ".gpkg")
+                        qgsTreatments.dissolveLayer(clipped,feat_surface_path,context=context,feedback=feedback)
+                    else:
+                        feat_surface_path = clipped_path
+                    feat_surface_layer = qgsUtils.loadVectorLayer(feat_surface_path)
+                    # clipped_layer = qgsUtils.loadVectorLayer(clipped_path)
+                    joined_layer.removeSelection()
+                    
+                    surface_area = 0
+                    for surface_feat in feat_surface_layer.getFeatures():
+                        surface_geom = surface_feat.geometry()
+                        intersection = f_geom.intersection(surface_geom)
+                        surface_area += intersection.area()
+                    mmf.setCurrentStep(2)
                 else:
-                    feat_surface_path = clipped_path
-                feat_surface_layer = qgsUtils.loadVectorLayer(feat_surface_path)
-                # clipped_layer = qgsUtils.loadVectorLayer(clipped_path)
-                joined_layer.removeSelection()
+                    surface_area = f_geom.area()
+                    
+                # Output result feature
+                new_feat = QgsFeature(out_fields)
+                new_feat.setGeometry(feat.geometry())
+                flux_sum = feat[flux_field_sum]
+                new_feat[self.FLUX_SUM] = flux_sum
+                new_feat[self.SURFACE_AREA] = surface_area
+                new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else 0
+                sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
+            except Exception as e:
+                feedback.reportError('Unexpected error : ' + str(e))
                 
-                surface_area = 0
-                for surface_feat in feat_surface_layer.getFeatures():
-                    surface_geom = surface_feat.geometry()
-                    intersection = f_geom.intersection(surface_geom)
-                    surface_area += intersection.area()
-                mmf.setCurrentStep(2)
-            else:
-                surface_area = f_geom.area()
-                
-            # Output result feature
-            new_feat = QgsFeature(out_fields)
-            new_feat.setGeometry(feat.geometry())
-            flux_sum = feat[flux_field_sum]
-            new_feat[self.FLUX_SUM] = flux_sum
-            new_feat[self.SURFACE_AREA] = surface_area
-            new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else 0
-            sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
             multi_feedback.setCurrentStep(current + 1)
         
         return {self.OUTPUT: self.dest_id }

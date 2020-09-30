@@ -64,7 +64,11 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
     
     SELECT_EXPR = 'SELECT_EXPR'
     DISSOLVE = 'DISSOLVE'
-    DEFAULT_EXPR = '"FICTIF" = \'Non\' AND "ETAT" = \'En service\' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
+    #DEFAULT_EXPR = '"FICTIF" = \'Non\' AND "ETAT" = \'En service\' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
+    DEFAULT_EXPR = '"FICTIF" = \'Non\''
+    DEFAULT_EXPR += 'AND "ETAT" = \'En service\''
+    DEFAULT_EXPR += 'AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
+    DEFAULT_EXPR += 'AND  "NATURE" IN ( \'Escalier\' , \'Piste cyclable\', \'Rond-point\',  \'Route à 1 chaussée\', \'Route à 2 chaussées\' )'
     BUFFER_EXPR = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 1.75))'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
@@ -245,7 +249,10 @@ class RoadsExtent(RoadsExtentGrpAlg):
 
     def processAlgorithm(self, parameters, context, feedback):
         multi_feedback = QgsProcessingMultiStepFeedback(3,feedback)
-        init_output = parameters[self.OUTPUT]
+        init_output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+        parameters[self.INPUT] = self.parameterAsVectorLayer(parameters,self.INPUT,context)
+        parameters[self.EXTENT_LAYER] = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
+        parameters[self.CADASTRE] = self.parameterAsVectorLayer(parameters,self.CADASTRE,context)
         # BDTOPO
         out_bdtopo = QgsProcessingUtils.generateTempFilename('out_bdtopo.gpkg')
         parameters[self.OUTPUT] = out_bdtopo
@@ -255,7 +262,7 @@ class RoadsExtent(RoadsExtentGrpAlg):
         # CADASTRE
         out_cadastre = QgsProcessingUtils.generateTempFilename('out_cadastre.gpkg')
         parameters[self.OUTPUT] = out_cadastre
-        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentCadastre.name(),parameters,
+        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentFromCadastre.NAME,parameters,
             context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(2)
         # MERGE
