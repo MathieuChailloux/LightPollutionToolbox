@@ -144,7 +144,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             raise QgsProcessingException("Reporting CRS must be a projection (not lat/lon)")
         reporting_crs = reporting_crs.authid()
         if light_crs != reporting_crs:
-            feedback.pushDebugInfo("lightin type " + str(lighting_layer.__type__))
+            #feedback.pushDebugInfo("lightin type " + str(lighting_layer.__type__))
             lighting_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
             qgsTreatments.applyReprojectLayer(lighting_layer,reporting_crs,lighting_path,
                 context=context,feedback=feedback)
@@ -153,7 +153,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             surface_layer = surface.materialize(QgsFeatureRequest(),feedback=feedback)
             surface_crs = surface.sourceCrs().authid()
             if reporting_crs != surface_crs:
-                surface_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
+                surface_path = QgsProcessingUtils.generateTempFilename('surface_reproj.gpkg')
                 qgsTreatments.applyReprojectLayer(surface_layer,reporting_crs,surface_path,
                     context=context,feedback=feedback)
                 surface = surface_path

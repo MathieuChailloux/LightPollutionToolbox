@@ -250,6 +250,7 @@ class RoadsExtent(RoadsExtentGrpAlg):
     def processAlgorithm(self, parameters, context, feedback):
         multi_feedback = QgsProcessingMultiStepFeedback(3,feedback)
         init_output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+        dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
         parameters[self.INPUT] = self.parameterAsVectorLayer(parameters,self.INPUT,context)
         parameters[self.EXTENT_LAYER] = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
         parameters[self.CADASTRE] = self.parameterAsVectorLayer(parameters,self.CADASTRE,context)
@@ -267,9 +268,16 @@ class RoadsExtent(RoadsExtentGrpAlg):
         multi_feedback.setCurrentStep(2)
         # MERGE
         layers = [out_bdtopo,out_cadastre]
-        parameters = { 'LAYERS' : layers, 'CRS' : self.DEFAULT_CRS, 'OUTPUT' : init_output }
+        if dissolve_flag:
+            merged = QgsProcessingUtils.generateTempFilename('out_merged.gpkg')
+        else:
+            merged = init_output
+        parameters = { 'LAYERS' : layers, 'CRS' : self.DEFAULT_CRS, 'OUTPUT' : merged }
         qgsTreatments.applyProcessingAlg("LPT",'mergeGeom',parameters,
             context=context,feedback=feedback)
+        # DISSOLVE
+        if dissolve_flag:
+            qgsTreatments.dissolveLayer(merged,init_output,context=context,feedback=feedback)
         return {self.OUTPUT: init_output}
         
     def name(self):
