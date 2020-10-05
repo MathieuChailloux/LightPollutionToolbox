@@ -170,7 +170,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             surface_layer = surface.materialize(QgsFeatureRequest(),feedback=feedback)
             surface_crs = surface.sourceCrs().authid()
             if reporting_crs != surface_crs:
-                surface_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
+                surface_path = QgsProcessingUtils.generateTempFilename('surface_reproj.gpkg')
                 qgsTreatments.applyReprojectLayer(surface_layer,reporting_crs,surface_path,
                     context=context,feedback=feedback)
                 surface = surface_path
