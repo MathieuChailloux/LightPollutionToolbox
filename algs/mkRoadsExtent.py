@@ -60,6 +60,7 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
     ROADS_WIDTH = 'ROADS_WIDTH'
     CADASTRE = 'CADASTRE'
     DIFF_LAYERS = 'DIFF_LAYERS'
+    # REPAIR_GEOM = 'REPAIR_GEOM'
     
     SELECT_EXPR = 'SELECT_EXPR'
     DISSOLVE = 'DISSOLVE'
@@ -120,6 +121,11 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
                 self.DIFF_LAYERS,
                 self.tr('Exclude layers (surface remove from cadastre result)'),
                 layerType=QgsProcessing.TypeVectorPolygon))
+        # self.addParameter(
+            # QgsProcessingParameterBoolean(
+                # self.REPAIR_GEOM,
+                # self.tr('Repair geometry obtained from cadastre layer'),
+                # defaultValue=True))
     
     def initOutput(self):
         self.addParameter(
@@ -211,17 +217,16 @@ class RoadsExtentFromCadastre(RoadsExtentGrpAlg):
         if not cadastre_layer:
             raise QgsProcessingException("No cadastre layer")
         diff_layers = self.parameterAsLayerList(parameters,self.DIFF_LAYERS,context)
+        # repair_flag = self.parameterAsBool(parameters,self.REPAIR_GEOM,context)
         output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         
         nb_diff = len(diff_layers)
-        feedback = QgsProcessingMultiStepFeedback(nb_diff + 1,feedback)
+        feedback = QgsProcessingMultiStepFeedback(nb_diff + 2,feedback)
             
         not_cadastre = QgsProcessingUtils.generateTempFilename('notCadastre.gpkg') if nb_diff > 0 else output
         qgsTreatments.applyDifference(extent_layer,cadastre_layer,not_cadastre,
             context=context,feedback=feedback)
-            
-        curr_step = 1
-        feedback.setCurrentStep(curr_step)
+        feedback.setCurrentStep(1)
                           
         for cpt, diff_layer in enumerate(diff_layers, 1):
             name = diff_layer.sourceName()
@@ -278,9 +283,14 @@ class RoadsExtent(RoadsExtentGrpAlg):
         parameters = { 'LAYERS' : layers, 'CRS' : self.DEFAULT_CRS, 'OUTPUT' : merged }
         qgsTreatments.applyProcessingAlg("LPT",'mergeGeom',parameters,
             context=context,feedback=feedback)
+        multi_feedback.setCurrentStep(3)
         # DISSOLVE
         if dissolve_flag:
-            qgsTreatments.dissolveLayer(merged,init_output,context=context,feedback=feedback)
+            out_fixed = QgsProcessingUtils.generateTempFilename('out_fixed.gpkg')
+            qgsTreatments.fixGeometries(merged,out_fixed,context=context,feedback=feedback)
+            multi_feedback.setCurrentStep(4)
+            qgsTreatments.dissolveLayer(out_fixed,init_output,context=context,feedback=feedback)
+            multi_feedback.setCurrentStep(5)
         return {self.OUTPUT: init_output}
         
     def name(self):
