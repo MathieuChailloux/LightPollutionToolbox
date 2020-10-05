@@ -46,6 +46,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterField,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
+                       QgsProcessingParameterNumber,
                        QgsProcessingParameterVectorDestination,
                        QgsFields,
                        QgsField)
@@ -79,6 +80,8 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
     REPORTING = 'REPORTING'
     SURFACE = 'SURFACE'
     DISSOLVE = 'DISSOLVE'
+    SKIP_EMPTY = 'SKIP_EMPTY'
+    MIN_AREA = 'MIN_AREA'
     
     SURFACE_AREA = 'SURFACE'
     FLUX_SUM = 'FLUX_SUM'
@@ -88,7 +91,8 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.LIGHTING,
-                self.tr('Lighting layer')))
+                self.tr('Lighting layer'),
+                [QgsProcessing.TypeVectorPoint]))
         self.addParameter(
             QgsProcessingParameterField(
                 self.FLUX_FIELD,
@@ -111,6 +115,17 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 self.DISSOLVE,
                 self.tr('Dissolve surface layer (no overlapping features)'),
                 defaultValue=False))
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.SKIP_EMPTY,
+                self.tr('Skip features with empty flux'),
+                defaultValue=False))
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.MIN_AREA,
+                self.tr("Features minimal area (smaller features are skipped)"),
+                type=QgsProcessingParameterNumber.Double,
+                optional=True))
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
@@ -135,6 +150,8 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         reporting_layer = reporting.materialize(QgsFeatureRequest(),feedback=feedback)
         surface = self.parameterAsSource(parameters, self.SURFACE, context)
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
+        skip_flag = self.parameterAsBool(parameters,self.SKIP_EMPTY,context)
+        min_area = self.parameterAsDouble(parameters,self.MIN_AREA,context)
         
         # Reprojection if needed
         light_crs = lighting.sourceCrs().authid()
@@ -144,7 +161,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             raise QgsProcessingException("Reporting CRS must be a projection (not lat/lon)")
         reporting_crs = reporting_crs.authid()
         if light_crs != reporting_crs:
-            feedback.pushDebugInfo("lightin type " + str(lighting_layer.__type__))
+            #feedback.pushDebugInfo("lightin type " + str(lighting_layer.__type__))
             lighting_path = QgsProcessingUtils.generateTempFilename('light_reproj.gpkg')
             qgsTreatments.applyReprojectLayer(lighting_layer,reporting_crs,lighting_path,
                 context=context,feedback=feedback)
@@ -194,27 +211,36 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             if feedback.isCanceled():
                 break
             f_geom = feat.geometry()
+            f_area = f_geom.area()
             f_id = feat.id()
+            flux_sum = feat[flux_field_sum]
+            if skip_flag and flux_sum == 0:
+                continue
+            if f_area < min_area:
+                continue
             
             try:
                 if surface:
                     # Clip surface layer to reporting feature boundaries to retrieve intersecting area
-                    mmf = QgsProcessingMultiStepFeedback(2,multi_feedback)
+                    nb_steps = 4 if dissolve_flag else 3
+                    mmf = QgsProcessingMultiStepFeedback(nb_steps,multi_feedback)
                     joined_layer.selectByIds([f_id])
                     suffix = "_" + str(f_id) + ".gpkg"
                     input_feat = QgsProcessingUtils.generateTempFilename("selection" + suffix)
                     qgsTreatments.saveSelectedAttributes(joined_layer,
-                        input_feat,context=context,feedback=multi_feedback)
+                        input_feat,context=context,feedback=mmf)
                     mmf.setCurrentStep(1)
                     # input_feat = QgsProcessingFeatureSourceDefinition(joined_layer.id(),True)
                     clipped_path = QgsProcessingUtils.generateTempFilename("clipped"
                         + str(f_id) + ".gpkg")
                     clipped = qgsTreatments.applyVectorClip(surface_layer,input_feat,
-                        clipped_path,context=context,feedback=multi_feedback)
+                        clipped_path,context=context,feedback=mmf)
+                    mmf.setCurrentStep(2)
                     if dissolve_flag:
                         feat_surface_path = QgsProcessingUtils.generateTempFilename(
                             "dissolved" + str(f_id) + ".gpkg")
-                        qgsTreatments.dissolveLayer(clipped,feat_surface_path,context=context,feedback=feedback)
+                        qgsTreatments.dissolveLayer(clipped,feat_surface_path,context=context,feedback=mmf)
+                        mmf.setCurrentStep(3)
                     else:
                         feat_surface_path = clipped_path
                     feat_surface_layer = qgsUtils.loadVectorLayer(feat_surface_path)
@@ -226,20 +252,21 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                         surface_geom = surface_feat.geometry()
                         intersection = f_geom.intersection(surface_geom)
                         surface_area += intersection.area()
-                    mmf.setCurrentStep(2)
+                    mmf.setCurrentStep(nb_steps)
                 else:
-                    surface_area = f_geom.area()
+                    surface_area = f_area
                     
                 # Output result feature
                 new_feat = QgsFeature(out_fields)
                 new_feat.setGeometry(feat.geometry())
-                flux_sum = feat[flux_field_sum]
+                #flux_sum = feat[flux_field_sum]
                 new_feat[self.FLUX_SUM] = flux_sum
                 new_feat[self.SURFACE_AREA] = surface_area
-                new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else 0
+                new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else None
                 sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
             except Exception as e:
                 feedback.reportError('Unexpected error : ' + str(e))
+                raise e
                 
             multi_feedback.setCurrentStep(current + 1)
         

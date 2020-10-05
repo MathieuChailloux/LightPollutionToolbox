@@ -53,7 +53,7 @@ from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
 class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
 
-    INPUT = 'INPUT'
+    ROADS = 'ROADS'
     OUTPUT = 'OUTPUT'
     
     EXTENT_LAYER = 'EXTENT_LAYER'
@@ -76,27 +76,28 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
     def initParamsBDTOPO(self):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
-                self.INPUT,
-                self.tr('Roads layer')))
+                self.ROADS,
+                self.tr('Roads layer'),
+                [QgsProcessing.TypeVectorLine]))
         self.addParameter(
             QgsProcessingParameterField(
                 self.ROADS_WIDTH,
                 self.tr('Roads width field'),
                 defaultValue='Largeur',
-                parentLayerParameterName=self.INPUT))
+                parentLayerParameterName=self.ROADS))
         self.addParameter(
             QgsProcessingParameterExpression(
                 self.SELECT_EXPR,
                 self.tr('Expression to selecte features (all features if empty)'),
                 defaultValue=self.DEFAULT_EXPR,
                 optional =True,
-                parentLayerParameterName=self.INPUT))
+                parentLayerParameterName=self.ROADS))
         self.addParameter(
             QgsProcessingParameterExpression(
                 self.BUFFER_EXPR,
                 self.tr('Expression to selecte features (all features if empty)'),
                 defaultValue=self.BUFFER_EXPR,
-                parentLayerParameterName=self.INPUT))
+                parentLayerParameterName=self.ROADS))
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.DISSOLVE,
@@ -108,15 +109,18 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.EXTENT_LAYER,
-                self.tr('Extent layer')))
+                self.tr('Extent layer'),
+                [QgsProcessing.TypeVectorPolygon]))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.CADASTRE,
-                self.tr('Cadastre layer')))
+                self.tr('Cadastre layer'),
+                [QgsProcessing.TypeVectorPolygon]))
         self.addParameter(
             QgsProcessingParameterMultipleLayers(
                 self.DIFF_LAYERS,
-                self.tr('Exclude layers (surface remove from cadastre result)')))
+                self.tr('Exclude layers (surface remove from cadastre result)'),
+                layerType=QgsProcessing.TypeVectorPolygon))
     
     def initOutput(self):
         self.addParameter(
@@ -146,9 +150,9 @@ class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
         self.initOutput()
 
     def processAlgorithm(self, parameters, context, feedback):
-        input_layer = self.parameterAsVectorLayer(parameters,self.INPUT,context)
+        input_layer = self.parameterAsVectorLayer(parameters,self.ROADS,context)
         if not input_layer:
-            raise QgsProcessingException("No input layer")
+            raise QgsProcessingException("No roads layer")
         roads_width_field = self.parameterAsString(parameters,self.ROADS_WIDTH,context)
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
         expr = self.parameterAsExpression(parameters,self.SELECT_EXPR,context)
@@ -250,7 +254,7 @@ class RoadsExtent(RoadsExtentGrpAlg):
     def processAlgorithm(self, parameters, context, feedback):
         multi_feedback = QgsProcessingMultiStepFeedback(3,feedback)
         init_output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
-        parameters[self.INPUT] = self.parameterAsVectorLayer(parameters,self.INPUT,context)
+        parameters[self.ROADS] = self.parameterAsVectorLayer(parameters,self.ROADS,context)
         parameters[self.EXTENT_LAYER] = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
         parameters[self.CADASTRE] = self.parameterAsVectorLayer(parameters,self.CADASTRE,context)
         # BDTOPO
