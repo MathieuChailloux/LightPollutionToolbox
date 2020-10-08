@@ -35,15 +35,116 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingAlgorithm,
                        QgsProcessingUtils,
                        QgsProcessingException,
+                       QgsProcessingParameterBoolean,
+                       QgsProcessingParameterExpression,
                        QgsProcessingParameterFeatureSource,
+                       QgsProcessingParameterVectorDestination,
+                       QgsProcessingParameterField,
                        QgsProcessingParameterNumber,
                        QgsProcessingParameterCrs,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterVectorDestination,
-                       QgsCoordinateReferenceSystem)
+                       QgsProcessingMultiStepFeedback,
+                       QgsCoordinateReferenceSystem,
+                       QgsProperty)
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
+from .mkRoadsExtent import RoadsExtentGrpAlg
 
+
+
+class RoadsReporting(RoadsExtentGrpAlg):
+
+    NAME = 'roadsReporting'
+
+    NAME_FIELD = 'NAME_FIELD'
+
+    def initAlgorithm(self, config=None):
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.ROADS,
+                self.tr('Roads layer'),
+                [QgsProcessing.TypeVectorLine]))
+        self.addParameter(
+            QgsProcessingParameterExpression(
+                self.SELECT_EXPR,
+                self.tr('Expression to select features (all features if empty)'),
+                defaultValue=RoadsExtentGrpAlg.DEFAULT_EXPR,
+                optional =True,
+                parentLayerParameterName=self.ROADS))
+        self.addParameter(
+            QgsProcessingParameterExpression(
+                self.BUFFER_EXPR,
+                self.tr('Roads buffer value'),
+                defaultValue='17',
+                parentLayerParameterName=self.ROADS))
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.DISSOLVE,
+                self.tr('Join roads by name'),
+                defaultValue=True))
+        self.addParameter(
+            QgsProcessingParameterField(
+                self.NAME_FIELD,
+                self.tr('Roads name field'),
+                defaultValue='NOM_1_G',
+                parentLayerParameterName=self.ROADS))
+        self.addParameter(
+            QgsProcessingParameterVectorDestination(
+                self.OUTPUT,
+                self.tr('Output layer')))
+
+    def processAlgorithm(self, parameters, context, feedback):
+        input_layer = self.parameterAsVectorLayer(parameters,self.ROADS,context)
+        if not input_layer:
+            raise QgsProcessingException("No roads layer")
+        name_field = self.parameterAsString(parameters,self.NAME_FIELD,context)
+        select_expr = self.parameterAsExpression(parameters,self.SELECT_EXPR,context)
+        buf_expr = self.parameterAsExpression(parameters,self.BUFFER_EXPR,context)
+        dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
+        output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+        mf = QgsProcessingMultiStepFeedback(3,feedback)
+        
+        if select_expr:
+            selected = QgsProcessingUtils.generateTempFilename('selected.gpkg')
+            qgsTreatments.extractByExpression(input_layer,select_expr,selected,
+                context=context,feedback=mf)
+        else:
+            selected = input_layer
+        mf.setCurrentStep(1)
+        
+        if dissolve_flag:
+            dissolved_tmp = QgsProcessingUtils.generateTempFilename('dissolved_tmp.gpkg')
+            fields = [name_field]
+            qgsTreatments.dissolveLayer(selected,dissolved_tmp,fields=fields,
+                context=context,feedback=mf)
+            dissolved = QgsProcessingUtils.generateTempFilename('dissolved.gpkg')
+            nonull_expr = "" + name_field + " is not NULL"
+            qgsTreatments.extractByExpression(dissolved_tmp,nonull_expr,
+                dissolved,context=context,feedback=mf)
+            
+        else:
+            dissolved = selected
+        mf.setCurrentStep(2)
+           
+        distance = QgsProperty.fromExpression(buf_expr)
+        qgsTreatments.applyBufferFromExpr(dissolved,distance,output,
+            context=context,feedback=mf)
+        mf.setCurrentStep(3)
+                    
+        return {self.OUTPUT: output}
+        
+    def name(self):
+        return self.NAME
+
+    def displayName(self):
+        return self.tr('Reporting Per Roads')
+
+    def createInstance(self):
+        return RoadsReporting()
+        
+        
+        
 class CreateMeshAlgorithm(QgsProcessingAlgorithm):
     
     OUTPUT = 'OUTPUT'

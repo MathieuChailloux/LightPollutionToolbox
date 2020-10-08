@@ -66,9 +66,10 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
     DISSOLVE = 'DISSOLVE'
     #DEFAULT_EXPR = '"FICTIF" = \'Non\' AND "ETAT" = \'En service\' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
     DEFAULT_EXPR = '"FICTIF" = \'Non\''
-    DEFAULT_EXPR += 'AND "ETAT" = \'En service\''
-    DEFAULT_EXPR += 'AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
-    DEFAULT_EXPR += 'AND  "NATURE" IN ( \'Escalier\' , \'Piste cyclable\', \'Rond-point\',  \'Route à 1 chaussée\', \'Route à 2 chaussées\' )'
+    DEFAULT_EXPR += ' AND "ETAT" = \'En service\''
+    DEFAULT_EXPR += ' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
+    #DEFAULT_EXPR += ' AND "ACCES_VL" IN (\'Libre\')'
+    DEFAULT_EXPR += ' AND  "NATURE" IN ( \'Escalier\' , \'Piste cyclable\', \'Rond-point\',  \'Route à 1 chaussée\', \'Route à 2 chaussées\', \'Route empierrée\' )'
     BUFFER_EXPR = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 1.75))'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
@@ -88,14 +89,14 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterExpression(
                 self.SELECT_EXPR,
-                self.tr('Expression to selecte features (all features if empty)'),
+                self.tr('Expression to select features (all features if empty)'),
                 defaultValue=self.DEFAULT_EXPR,
                 optional =True,
                 parentLayerParameterName=self.ROADS))
         self.addParameter(
             QgsProcessingParameterExpression(
                 self.BUFFER_EXPR,
-                self.tr('Expression to selecte features (all features if empty)'),
+                self.tr('Roads buffer value'),
                 defaultValue=self.BUFFER_EXPR,
                 parentLayerParameterName=self.ROADS))
         self.addParameter(
@@ -195,7 +196,7 @@ class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
         return self.NAME
 
     def displayName(self):
-        return self.tr('Build Roads Extent (BDTOPO)')
+        return self.tr('Roads Extent (BDTOPO)')
 
     def createInstance(self):
         return RoadsExtentBDTOPO()
@@ -242,7 +243,7 @@ class RoadsExtentFromCadastre(RoadsExtentGrpAlg):
         return self.NAME
 
     def displayName(self):
-        return self.tr('Build Roads Extent (Cadastre)')
+        return self.tr('Roads Extent (Cadastre)')
 
     def createInstance(self):
         return RoadsExtentFromCadastre()   
@@ -297,11 +298,11 @@ class RoadsExtent(RoadsExtentGrpAlg):
         return 'roadsExtent'
         
     def displayName(self):
-        return 'Build Roads Extent (BDTOPO + Cadastre)'
+        return 'Roads Extent (BDTOPO + Cadastre)'
 
     def createInstance(self):
         return RoadsExtent()
-
+        
 
 class RoadsExtentOld(RoadsExtentGrpAlg):
     
@@ -379,9 +380,9 @@ class RoadsExtentOld(RoadsExtentGrpAlg):
         return 'roadsExtentold'
         
     def displayName(self):
-        return 'Build Roads Extent (BDTOPO + Cadastre) DEPRECATED'
+        return 'Roads Extent (BDTOPO + Cadastre) DEPRECATED'
 
     def createInstance(self):
         return RoadsExtentOld()
                 
-                
+  
