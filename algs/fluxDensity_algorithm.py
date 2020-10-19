@@ -82,8 +82,10 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
     DISSOLVE = 'DISSOLVE'
     SKIP_EMPTY = 'SKIP_EMPTY'
     MIN_AREA = 'MIN_AREA'
+    MIN_NB_LAMPS= 'MIN_NB_LAMPS'
     
     SURFACE_AREA = 'SURFACE'
+    NB_LAMPS = 'NB_LAMPS'
     FLUX_SUM = 'FLUX_SUM'
     FLUX_DEN = 'FLUX_DEN'
 
@@ -126,6 +128,12 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 self.tr("Features minimal area (smaller features are skipped)"),
                 type=QgsProcessingParameterNumber.Double,
                 optional=True))
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.MIN_NB_LAMPS,
+                self.tr("Minimal number of lamps (features with less lamps are skipped)"),
+                type=QgsProcessingParameterNumber.Integer,
+                optional=True))
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
@@ -152,6 +160,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
         skip_flag = self.parameterAsBool(parameters,self.SKIP_EMPTY,context)
         min_area = self.parameterAsDouble(parameters,self.MIN_AREA,context)
+        min_lamps = self.parameterAsInt(parameters,self.MIN_NB_LAMPS,context)
         
         # Reprojection if needed
         light_crs = lighting.sourceCrs().authid()
@@ -176,10 +185,12 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 surface = surface_path
                 
         # Output fields initialization
+        nb_lamps_field = QgsField(self.NB_LAMPS, QVariant.Int)
         flux_sum_field = QgsField(self.FLUX_SUM, QVariant.Double)
         surface_field = QgsField(self.SURFACE_AREA, QVariant.Double)
         flux_den_field = QgsField(self.FLUX_DEN, QVariant.Double)
         out_fields = QgsFields()
+        out_fields.append(nb_lamps_field)
         out_fields.append(flux_sum_field)
         out_fields.append(surface_field)
         out_fields.append(flux_den_field)
@@ -198,6 +209,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         joined = qgsTreatments.joinByLocSummary(reporting_layer,lighting_layer,joined_path,
             [fieldname],summaries,predicates=[0],context=context,feedback=feedback)
         joined_layer = qgsUtils.loadVectorLayer(joined_path)
+        nb_lamps_fieldname = fieldname + "_count"
         flux_field_sum = fieldname + "_sum"
         
         # Set context and feedback
@@ -213,10 +225,13 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             f_geom = feat.geometry()
             f_area = f_geom.area()
             f_id = feat.id()
+            nb_lamps = feat[nb_lamps_fieldname]
             flux_sum = feat[flux_field_sum]
             if skip_flag and flux_sum == 0:
                 continue
             if f_area < min_area:
+                continue
+            if nb_lamps < min_lamps:
                 continue
             
             try:
@@ -260,6 +275,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 new_feat = QgsFeature(out_fields)
                 new_feat.setGeometry(feat.geometry())
                 #flux_sum = feat[flux_field_sum]
+                new_feat[self.NB_LAMPS] = nb_lamps
                 new_feat[self.FLUX_SUM] = flux_sum
                 new_feat[self.SURFACE_AREA] = surface_area
                 new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else None

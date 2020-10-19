@@ -70,7 +70,7 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
     DEFAULT_EXPR += ' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
     #DEFAULT_EXPR += ' AND "ACCES_VL" IN (\'Libre\')'
     DEFAULT_EXPR += ' AND  "NATURE" IN ( \'Escalier\' , \'Piste cyclable\', \'Rond-point\',  \'Route à 1 chaussée\', \'Route à 2 chaussées\', \'Route empierrée\' )'
-    BUFFER_EXPR = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 1.75))'
+    BUFFER_EXPR = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 2.5))'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
 
@@ -162,6 +162,7 @@ class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
         roads_width_field = self.parameterAsString(parameters,self.ROADS_WIDTH,context)
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
         expr = self.parameterAsExpression(parameters,self.SELECT_EXPR,context)
+        buf_expr = self.parameterAsExpression(parameters,self.BUFFER_EXPR,context)
         output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         
         nb_steps = 3 if dissolve_flag else 2
@@ -179,7 +180,7 @@ class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
         buffered = QgsProcessingUtils.generateTempFilename('buffered.gpkg') if dissolve_flag else output
         if roads_width_field not in input_layer.fields().names():
             raise QgsProcessingException("Could not find '" + str(roads_width_field) + "' in roads layer")
-        buf_expr = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 1.75))'
+        #buf_expr = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 2.5))'
         distance = QgsProperty.fromExpression(buf_expr)
         qgsTreatments.applyBufferFromExpr(selected,distance,buffered,
             context=context,feedback=feedback)

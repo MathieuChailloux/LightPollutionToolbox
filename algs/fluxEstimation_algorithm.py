@@ -43,7 +43,7 @@ class FluxEstimationAlgorithm(FluxEstimAlg):
     
     DEFAULT_LED_ASSOC = "C:/Users/fdrmc/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/LightPollutionToolbox/assets/LED_eff.csv"
     
-    LAMP_TYPE_FIELD = 'Lampe - Modele lampe'
+    LAMP_TYPE_FIELD = 'Lampe - Modèle lampe'
     LAMP_MODEL_FIELD = 'Luminaire - Libellé luminaire'
     LAMP_PW_FIELD = 'Lampe - Puissance lampe'
     base_flux = {
@@ -195,7 +195,7 @@ class FluxEstimationAlgorithm(FluxEstimAlg):
         elif overwrite:
             pass
         else:
-            raise QgsProcessingException("Flux field already exists")
+            raise QgsProcessingException("Flux field " + str(fieldname) + " already exists")
         lighting.dataProvider().addAttributes(new_fields)
         lighting.updateFields()
         
