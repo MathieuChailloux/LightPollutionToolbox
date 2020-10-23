@@ -36,6 +36,7 @@ from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
 from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
 from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
 from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre
+from .viirs import VIIRS_Untar
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
 
@@ -50,6 +51,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             MergeGeometryAlgorithm(),
             MergeGeometryDissolveAlgorithm(),
             MergeGeometryNoOverlapAlgorithm(),
+            VIIRS_Untar(),
             RoadsExtent(),
             RoadsExtentBDTOPO(),
             RoadsExtentFromCadastre(),
