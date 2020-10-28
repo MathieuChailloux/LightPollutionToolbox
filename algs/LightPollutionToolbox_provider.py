@@ -37,6 +37,7 @@ from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissol
 from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
 from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre
 from .viirs import VIIRS_Untar
+from .fluxDispersal_algorithm import FluxDispAlg
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
 
@@ -55,6 +56,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             RoadsExtent(),
             RoadsExtentBDTOPO(),
             RoadsExtentFromCadastre(),
+            FluxDispAlg(),
             FluxEstimationAlgorithm(),
             FluxTimeAlgorithm()]
         for a in self.alglist:
