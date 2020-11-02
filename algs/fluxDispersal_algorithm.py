@@ -54,23 +54,84 @@ from qgis.core import (QgsProcessing,
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
+
+
 class LampType:
 
     SHP = 'SHP'
     SBP = 'SBP'
     LED = 'LED'
-    IODURES_METAL = 'IM'
-    HALOGENE = 'HAL'
-    BALLON_FLUO = 'BF'
-    FLUO_COMPACT = 'FC'
-    TUBE_FLUO = 'TF'
-    INDUCTION = 'IND'
-    DICHROIQUE = 'DI'
-    COSMOPOLIS = 'COS'
+    IM = 'IM'
+    VM = 'VM'
+    HAL = 'HAL'
+    BF = 'BF'
+    FC = 'FC'
+    TF = 'TF'
+    INC = 'INC'
+    IND = 'IND'
+    DI = 'DI'
+    COS = 'COS'
     
     LAMP_TYPE_DESCR = {
-        SHP : 'Sodium Haut Pression'
+        SHP : 'Sodium Haut Pression',
+        SBP : 'Sodium Basse Pression',
+        LED : 'Diodes Electro Luminescentes',
+        IM : 'Iodures Métalliques',
+        VM : 'Vapeur de Mercure',
+        HAL : 'Halogène',
+        BF : 'Ballon Fluorescent',
+        FC : 'Lampe fluo-compacte',
+        TF : 'Tube Fluorescent',
+        INC : 'Incandescence',
+        IND : 'Lampe à induction',
+        DI : 'Dichroïque',
+        COS : 'Cosmopolis',
     }
+    
+    LAMP_BLUE_PERC_CONST = {
+        SHP : 10,
+        SBP : 0,
+        HAL : 13,
+        INC : 12,
+        # LED : 'Diodes Electro Luminescentes',
+        # IM : 'Iodures Métalliques',
+        # VM : 'Vapeur de Mercure',
+        # HAL : 'Halogène',
+        # BF : 'Ballon Fluorescent',
+        # FC : 'Lampe fluo-compacte',
+        # IND : 'Lampe à induction',
+        # DI : 'Dichroïque',
+        # COS : 'Cosmopolis',
+    }
+    
+    # http://wikinight.free.fr/index.php/2017/10/02/367/
+    # pourcentage de bleu en fonction de la température de couleur
+    LAMP_BLUE_PERC_TREND = {
+        LED : [(2700,19),(3000,22),(3500,26),(4000,30),(4500,33),(5000,37),(5700,41),(6500,46)],
+        IM : [(3145,20),(4002,33),(4041,35)],
+        TF : [(2940,20),(3480,26),(3969,30)],
+        # FLUO_COMPACT : 'Lampe fluo-compacte',
+        # INDUCTION : 'Lampe à induction',
+        # DICHROIQUE : 'Dichroïque',
+        # COSMOPOLIS : 'Cosmopolis',
+    }
+    LAMP_BLUE_PERC_TREND_XY = {
+        LED : (0.00704,1.04418),
+        IM : (0.01602,-30.42912),
+        TF : (0.00974,-8.40427),
+    }
+    
+    def getBluePerc(lamp_type,tempCoul=None):
+        if lamp_type in LAMP_BLUE_PERC_CONST:
+            return LAMP_BLUE_PERC_CONST[lamp_type]
+        elif lamp_type in LAMP_BLUE_PERC_TREND_XY:
+            if not tempCoul:
+                raise QgsProcessingException("Missing color temperature")
+            x,y = LAMP_BLUE_PERC_TREND_XY[lamp_type]
+            res = int(x * tempCoul) + y
+            return res
+        else:
+            return None
 
 class FluxDispBaseAlg(QgsProcessingAlgorithm):
 
@@ -145,24 +206,32 @@ class FluxDispAlg(FluxDispBaseAlg):
         self.initParams()
         self.initOutput()
         
-    def createFluxDistField(self,in_field):
-        if in_field not in self.input.fields().names():
-            raise QgsProcessingException("Field '" + in_field + "' does not exist")
+    def funcFluxRadius(self,f):
+        try:
+            return float(str(f[self.in_field])) / 100
+        except ValueError:
+            return None
     
+    def createFluxDistField(self,in_field):
         out_field = self.FLUX_RADIUS_FIELD
-        if out_field not in self.input.fields().names():
-            field = QgsField(out_field, QVariant.Double)
-            self.input.dataProvider().addAttributes([field])
-            self.input.updateFields()
+        qgsUtils.createOrUpdateField(self.input,self.in_field,self.funcFluxRadius,out_field)
+        # if in_field not in self.input.fields().names():
+            # raise QgsProcessingException("Field '" + in_field + "' does not exist")
+    
+        # out_field = self.FLUX_RADIUS_FIELD
+        # if out_field not in self.input.fields().names():
+            # field = QgsField(out_field, QVariant.Double)
+            # self.input.dataProvider().addAttributes([field])
+            # self.input.updateFields()
         
-        self.input.startEditing()    
-        for f in self.input.getFeatures():
-            try:
-                f[out_field] = float(f[in_field]) / 100
-            except ValueError:
-                f[out_field] = None
-            self.input.updateFeature(f)
-        self.input.commitChanges()
+        # self.input.startEditing()    
+        # for f in self.input.getFeatures():
+            # try:
+                # f[out_field] = float(str(f[in_field])) / 100
+            # except ValueError:
+                # f[out_field] = None
+            # self.input.updateFeature(f)
+        # self.input.commitChanges()
             
     
     def processAlgorithm(self, parameters, context, feedback):
@@ -178,6 +247,7 @@ class FluxDispAlg(FluxDispBaseAlg):
 class FluxDispTempCoulAlg(FluxDispBaseAlg):
     
     TEMP_COUL_FIELD = 'TEMP_COUL_FIELD'
+    LAMP_TYPE_FIELD = 'LAMP_TYPE_FIELD'
     RANGE = 'RANGE'
     
     def name(self):
@@ -197,15 +267,29 @@ class FluxDispTempCoulAlg(FluxDispBaseAlg):
                 self.tr('Color temperature field'),
                 parentLayerParameterName=self.INPUT))
         self.addParameter(
-            QgsProcessingParameterRange(
-                self.RANGE,
-                self.tr('Color temperature range'),
-                optional=True))
+            QgsProcessingParameterField(
+                self.LAMP_TYPE_FIELD,
+                self.tr('Lamp type field'),
+                parentLayerParameterName=self.INPUT))
+        # self.addParameter(
+            # QgsProcessingParameterRange(
+                # self.RANGE,
+                # self.tr('Color temperature range'),
+                # optional=True))
         self.initOutput()
+    
+    def funcFluxRadius(self,f):
+        try:
+            return float(str(f[self.in_field])) / 100
+        except ValueError:
+            return None
     
     def processAlgorithm(self, parameters, context, feedback):
         input = self.parameterAsVectorLayer(parameters, self.INPUT, context)
         flux_field = self.parameterAsString(parameters,self.FLUX_FIELD,context)
         temp_coul_field = self.parameterAsString(parameters,self.TEMP_COUL_FIELD,context)
+        # blue_perc = self.getBluePerc
+        qgsUtils.createOrUpdateField(self.input,self.in_field,self.funcFluxRadius,out_field)
+        
 
         return { self.OUTPUT : None }
