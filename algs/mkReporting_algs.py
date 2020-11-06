@@ -44,9 +44,12 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterCrs,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterVectorDestination,
+                       QgsProcessingParameterEnum,
                        QgsProcessingMultiStepFeedback,
                        QgsCoordinateReferenceSystem,
                        QgsProperty)
+
+from processing.algs.qgis.VariableDistanceBuffer import VariableDistanceBuffer
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 from .mkRoadsExtent import RoadsExtentGrpAlg
@@ -58,8 +61,10 @@ class RoadsReporting(RoadsExtentGrpAlg):
     NAME = 'roadsReporting'
 
     NAME_FIELD = 'NAME_FIELD'
+    END_CAP_STYLE = 'END_CAP_STYLE'
 
     def initAlgorithm(self, config=None):
+        self.cap_styles = [self.tr('Round'),'Flat', 'Square']
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.ROADS,
@@ -78,6 +83,10 @@ class RoadsReporting(RoadsExtentGrpAlg):
                 self.tr('Roads buffer value'),
                 defaultValue='17',
                 parentLayerParameterName=self.ROADS))
+        self.addParameter(QgsProcessingParameterEnum(
+            self.END_CAP_STYLE,
+            self.tr('End cap style'),
+            options=self.cap_styles, defaultValue=0))
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.DISSOLVE,
@@ -101,6 +110,7 @@ class RoadsReporting(RoadsExtentGrpAlg):
         name_field = self.parameterAsString(parameters,self.NAME_FIELD,context)
         select_expr = self.parameterAsExpression(parameters,self.SELECT_EXPR,context)
         buf_expr = self.parameterAsExpression(parameters,self.BUFFER_EXPR,context)
+        end_cap_style = self.parameterAsEnum(parameters, self.END_CAP_STYLE, context) #+ 1
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
         output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         mf = QgsProcessingMultiStepFeedback(3,feedback)
@@ -129,7 +139,7 @@ class RoadsReporting(RoadsExtentGrpAlg):
            
         distance = QgsProperty.fromExpression(buf_expr)
         qgsTreatments.applyBufferFromExpr(dissolved,distance,output,
-            context=context,feedback=mf)
+            cap_style=end_cap_style,context=context,feedback=mf)
         mf.setCurrentStep(3)
                     
         return {self.OUTPUT: output}

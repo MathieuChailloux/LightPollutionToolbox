@@ -60,6 +60,8 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
     ROADS_WIDTH = 'ROADS_WIDTH'
     CADASTRE = 'CADASTRE'
     DIFF_LAYERS = 'DIFF_LAYERS'
+    INCLUDE_LAYERS = 'INCLUDE_LAYERS'
+    CLIP = 'CLIP'
     # REPAIR_GEOM = 'REPAIR_GEOM'
     
     SELECT_EXPR = 'SELECT_EXPR'
@@ -69,7 +71,7 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
     DEFAULT_EXPR += ' AND "ETAT" = \'En service\''
     DEFAULT_EXPR += ' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
     #DEFAULT_EXPR += ' AND "ACCES_VL" IN (\'Libre\')'
-    DEFAULT_EXPR += ' AND  "NATURE" IN ( \'Escalier\' , \'Piste cyclable\', \'Rond-point\',  \'Route à 1 chaussée\', \'Route à 2 chaussées\', \'Route empierrée\' )'
+    DEFAULT_EXPR += ' AND  "NATURE" IN ( \'Escalier\' , \'Piste cyclable\', \'Rond-point\',  \'Route à 1 chaussée\', \'Route à 2 chaussées\', \'Route empierrée\', \'Sentier\', \'Chemin\' )'
     BUFFER_EXPR = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 2.5))'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
@@ -121,7 +123,8 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
             QgsProcessingParameterMultipleLayers(
                 self.DIFF_LAYERS,
                 self.tr('Exclude layers (surface remove from cadastre result)'),
-                layerType=QgsProcessing.TypeVectorPolygon))
+                layerType=QgsProcessing.TypeVectorPolygon,
+                optional=True))
         # self.addParameter(
             # QgsProcessingParameterBoolean(
                 # self.REPAIR_GEOM,
@@ -255,16 +258,35 @@ class RoadsExtent(RoadsExtentGrpAlg):
     def initAlgorithm(self, config=None):
         self.initParamsBDTOPO()
         self.initParamsCadastre()
+        self.addParameter(
+            QgsProcessingParameterMultipleLayers(
+                self.INCLUDE_LAYERS,
+                self.tr('Include layers (surface added to result)'),
+                layerType=QgsProcessing.TypeVectorPolygon))
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.CLIP,
+                self.tr('Clip input layers'),
+                defaultValue=True))
         self.initOutput()
 
     def processAlgorithm(self, parameters, context, feedback):
         multi_feedback = QgsProcessingMultiStepFeedback(3,feedback)
         init_output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
-        parameters[self.ROADS] = self.parameterAsVectorLayer(parameters,self.ROADS,context)
+        roads_layer = self.parameterAsVectorLayer(parameters,self.ROADS,context)
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
-        parameters[self.EXTENT_LAYER] = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
+        extent_layer = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
+        parameters[self.EXTENT_LAYER] = extent_layer
         parameters[self.CADASTRE] = self.parameterAsVectorLayer(parameters,self.CADASTRE,context)
+        include_layers = self.parameterAsLayerList(parameters,self.INCLUDE_LAYERS,context)
+        clip_flag = self.parameterAsBool(parameters,self.CLIP,context)
         # BDTOPO
+        if clip_flag:
+            roads_clipped_path = QgsProcessingUtils.generateTempFilename('roads_clipped.gpkg')
+            roads_clipped = qgsTreatments.applyVectorClip(roads_layer,extent_layer,
+                roads_clipped_path,context=context,feedback=feedback)
+            roads_layer = roads_clipped_path
+        parameters[self.ROADS] = roads_layer
         out_bdtopo = QgsProcessingUtils.generateTempFilename('out_bdtopo.gpkg')
         parameters[self.OUTPUT] = out_bdtopo
         qgsTreatments.applyProcessingAlg("LPT",RoadsExtentBDTOPO.NAME,parameters,
@@ -277,7 +299,15 @@ class RoadsExtent(RoadsExtentGrpAlg):
             context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(2)
         # MERGE
-        layers = [out_bdtopo,out_cadastre]
+        if clip_flag:
+            include_clipped = []
+            for inc in include_layers:
+                inc_clip_path = QgsProcessingUtils.generateTempFilename('inc_clipped.gpkg')
+                inc_clip = qgsTreatments.applyVectorClip(inc,extent_layer,
+                    inc_clip_path,context=context,feedback=feedback)
+                include_clipped.append(inc_clip)
+            include_layers = include_clipped
+        layers = [out_bdtopo,out_cadastre] + include_layers
         if dissolve_flag:
             merged = QgsProcessingUtils.generateTempFilename('out_merged.gpkg')
         else:
@@ -291,9 +321,12 @@ class RoadsExtent(RoadsExtentGrpAlg):
             out_fixed = QgsProcessingUtils.generateTempFilename('out_fixed.gpkg')
             qgsTreatments.fixGeometries(merged,out_fixed,context=context,feedback=feedback)
             multi_feedback.setCurrentStep(4)
-            qgsTreatments.dissolveLayer(out_fixed,init_output,context=context,feedback=feedback)
+            out_dissolved = QgsProcessingUtils.generateTempFilename('out_dissolved.gpkg')
+            qgsTreatments.dissolveLayer(out_fixed,out_dissolved,context=context,feedback=feedback)
+            qgsTreatments.assignProjection(out_dissolved,self.DEFAULT_CRS,
+                init_output,context=context,feedback=feedback)
             multi_feedback.setCurrentStep(5)
-        return {self.OUTPUT: init_output}
+        return {self.OUTPUT: init_output }
         
     def name(self):
         return 'roadsExtent'

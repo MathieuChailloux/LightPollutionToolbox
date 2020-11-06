@@ -58,6 +58,7 @@ class FluxDenGrpAlg(QgsProcessingAlgorithm):
 
     INPUT = 'INPUT'
     OUTPUT = 'OUTPUT'
+    FLUX_DEN = 'FLUX_DEN'
 
     def displayName(self):
         return self.tr(self.name())
@@ -80,6 +81,8 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
     REPORTING = 'REPORTING'
     SURFACE = 'SURFACE'
     DISSOLVE = 'DISSOLVE'
+    CLIP_DISTANCE = 'CLIP_DISTANCE'
+    REPORTING_FIELDS = 'REPORTING_FIELDS'
     SKIP_EMPTY = 'SKIP_EMPTY'
     MIN_AREA = 'MIN_AREA'
     MIN_NB_LAMPS= 'MIN_NB_LAMPS'
@@ -87,7 +90,6 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
     SURFACE_AREA = 'SURFACE'
     NB_LAMPS = 'NB_LAMPS'
     FLUX_SUM = 'FLUX_SUM'
-    FLUX_DEN = 'FLUX_DEN'
 
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -106,6 +108,19 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 self.REPORTING,
                 self.tr('Reporting layer'),
                 [QgsProcessing.TypeVectorPolygon]))
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.CLIP_DISTANCE,
+                self.tr("Maximal distance to lighting layer (reporting layer clip)"),
+                type=QgsProcessingParameterNumber.Double,
+                optional=True))
+        self.addParameter(
+            QgsProcessingParameterField(
+                self.REPORTING_FIELDS,
+                self.tr("Reporting fields to keep in output layer"),
+                parentLayerParameterName=self.REPORTING,
+                allowMultiple=True,
+                optional=True))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.SURFACE,
@@ -158,6 +173,8 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         reporting_layer = reporting.materialize(QgsFeatureRequest(),feedback=feedback)
         surface = self.parameterAsSource(parameters, self.SURFACE, context)
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
+        clip_val = self.parameterAsInt(parameters,self.CLIP_DISTANCE,context)
+        reporting_fields = self.parameterAsFields(parameters,self.REPORTING_FIELDS,context)
         skip_flag = self.parameterAsBool(parameters,self.SKIP_EMPTY,context)
         min_area = self.parameterAsDouble(parameters,self.MIN_AREA,context)
         min_lamps = self.parameterAsInt(parameters,self.MIN_NB_LAMPS,context)
@@ -190,6 +207,10 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         surface_field = QgsField(self.SURFACE_AREA, QVariant.Double)
         flux_den_field = QgsField(self.FLUX_DEN, QVariant.Double)
         out_fields = QgsFields()
+        for f in reporting_layer.fields():
+            if f.name() in reporting_fields:
+                # feedback.pushDebugInfo("f2 = " + str( f.name()))
+                out_fields.append(f)
         out_fields.append(nb_lamps_field)
         out_fields.append(flux_sum_field)
         out_fields.append(surface_field)
@@ -200,6 +221,16 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         # Progess bar step
         nb_feats = reporting.featureCount()
         total = 100.0 / nb_feats if nb_feats else 0
+        
+        # Clip according to distance to lighting
+        if clip_val:
+            buffered_path = QgsProcessingUtils.generateTempFilename('light_buf.gpkg')
+            buffered = qgsTreatments.applyBufferFromExpr(lighting_layer,clip_val,
+                buffered_path,context=context,feedback=feedback)
+            clipped_path = QgsProcessingUtils.generateTempFilename('reporting_clip.gpkg')
+            clipped = qgsTreatments.applyVectorClip(reporting_layer,buffered_path,
+                clipped_path,context=context,feedback=feedback)
+            reporting_layer = clipped_path
         
         # Join light points summary by reporting unit
         joined_path = QgsProcessingUtils.generateTempFilename('joined.gpkg')
@@ -275,6 +306,8 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 new_feat = QgsFeature(out_fields)
                 new_feat.setGeometry(feat.geometry())
                 #flux_sum = feat[flux_field_sum]
+                for report_field in reporting_fields:
+                    new_feat[report_field] = feat[report_field]
                 new_feat[self.NB_LAMPS] = nb_lamps
                 new_feat[self.FLUX_SUM] = flux_sum
                 new_feat[self.SURFACE_AREA] = surface_area
@@ -315,11 +348,19 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
 
 class DSFLSymbology(FluxDenGrpAlg):
 
+    DSFL_FIELD = 'DSFL_FIELD'
+
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
                 self.tr('Input layer')))
+        self.addParameter(
+            QgsProcessingParameterField(
+                self.DSFL_FIELD,
+                self.tr('DSFL field'),
+                defaultValue=self.FLUX_DEN,
+                parentLayerParameterName=self.INPUT))
 
         # self.addParameter(
             # QgsProcessingParameterFeatureSink(
@@ -329,6 +370,7 @@ class DSFLSymbology(FluxDenGrpAlg):
     
     def processAlgorithm(self, parameters, context, feedback):
         self.in_layer = self.parameterAsVectorLayer(parameters,self.INPUT,context)
+        self.dsfl_field = self.parameterAsString(parameters,self.DSFL_FIELD,context)
         if not self.in_layer:
             raise QgsProcessingException("No input layer")
         return { self.OUTPUT : None }
@@ -337,7 +379,7 @@ class DSFLSymbology(FluxDenGrpAlg):
     def postProcessAlgorithm(self,context,feedback):
         if not self.in_layer:
             raise QgsProcessingException("No DSFL layer")
-        styles.setCustomClassesDSFL(self.in_layer,'FLUX_DEN')
+        styles.setCustomClassesDSFL(self.in_layer,self.dsfl_field)
         return { self.OUTPUT : None }
         
     def name(self):
