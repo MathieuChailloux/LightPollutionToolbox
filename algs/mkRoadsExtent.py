@@ -262,7 +262,8 @@ class RoadsExtent(RoadsExtentGrpAlg):
             QgsProcessingParameterMultipleLayers(
                 self.INCLUDE_LAYERS,
                 self.tr('Include layers (surface added to result)'),
-                layerType=QgsProcessing.TypeVectorPolygon))
+                layerType=QgsProcessing.TypeVectorPolygon,
+                optional=True))
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.CLIP,
@@ -278,6 +279,7 @@ class RoadsExtent(RoadsExtentGrpAlg):
         extent_layer = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
         parameters[self.EXTENT_LAYER] = extent_layer
         parameters[self.CADASTRE] = self.parameterAsVectorLayer(parameters,self.CADASTRE,context)
+        parameters[self.DIFF_LAYERS] = self.parameterAsLayerList(parameters,self.DIFF_LAYERS,context)
         include_layers = self.parameterAsLayerList(parameters,self.INCLUDE_LAYERS,context)
         clip_flag = self.parameterAsBool(parameters,self.CLIP,context)
         # BDTOPO

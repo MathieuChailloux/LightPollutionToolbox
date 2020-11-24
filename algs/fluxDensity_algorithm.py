@@ -101,7 +101,8 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             QgsProcessingParameterField(
                 self.FLUX_FIELD,
                 description=self.tr('Light flux field'),
-                defaultValue=None,
+                defaultValue='flux',
+                type=QgsProcessingParameterField.Numeric,
                 parentLayerParameterName=self.LIGHTING))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
@@ -228,6 +229,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             buffered = qgsTreatments.applyBufferFromExpr(lighting_layer,clip_val,
                 buffered_path,context=context,feedback=feedback)
             clipped_path = QgsProcessingUtils.generateTempFilename('reporting_clip.gpkg')
+            qgsTreatments.createSpatialIndex(reporting_layer,context=context,feedback=feedback)
             clipped = qgsTreatments.applyVectorClip(reporting_layer,buffered_path,
                 clipped_path,context=context,feedback=feedback)
             reporting_layer = clipped_path
@@ -237,6 +239,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         # SUM = 5
         summaries = [0,1,2,3,5,6]
         # reporting_def = QgsProcessingFeatureSourceDefinition(reporting_layer.)
+        qgsTreatments.createSpatialIndex(reporting_layer,context=context,feedback=feedback)
         joined = qgsTreatments.joinByLocSummary(reporting_layer,lighting_layer,joined_path,
             [fieldname],summaries,predicates=[0],context=context,feedback=feedback)
         joined_layer = qgsUtils.loadVectorLayer(joined_path)
@@ -250,6 +253,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         multi_feedback = QgsProcessingMultiStepFeedback(nb_feats,feedback)
         
         # Iteration on each reporting unit
+        qgsTreatments.createSpatialIndex(joined_layer,context=context,feedback=feedback)
         for current, feat in enumerate(joined_layer.getFeatures()):
             if feedback.isCanceled():
                 break
