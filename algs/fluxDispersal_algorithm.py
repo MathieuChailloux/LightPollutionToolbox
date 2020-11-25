@@ -35,6 +35,8 @@ import os.path
 import tarfile
 import processing
 import glob
+import math
+import csv
 
 from pathlib import Path
 
@@ -50,9 +52,11 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterNumber,
                        QgsProcessingParameterRange,
+                       QgsProcessingParameterEnum,
+                       QgsProcessingParameterFile,
                        QgsProcessingParameterRasterDestination)
 from qgis import processing
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
+from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
 
 
@@ -121,26 +125,29 @@ class LampType:
         TF : (0.00974,-8.40427),
     }
     
-    def getBluePerc(lamp_type,tempCoul=None):
-        if lamp_type in LAMP_BLUE_PERC_CONST:
-            return LAMP_BLUE_PERC_CONST[lamp_type]
-        elif lamp_type in LAMP_BLUE_PERC_TREND_XY:
+    def getBluePerc(self,lamp_type,tempCoul=None):
+        if lamp_type in self.LAMP_BLUE_PERC_CONST:
+            return self.LAMP_BLUE_PERC_CONST[lamp_type]
+        elif lamp_type in self.LAMP_BLUE_PERC_TREND_XY:
             if not tempCoul:
                 raise QgsProcessingException("Missing color temperature")
-            x,y = LAMP_BLUE_PERC_TREND_XY[lamp_type]
+            x,y = self.LAMP_BLUE_PERC_TREND_XY[lamp_type]
             res = int(x * tempCoul) + y
             return res
         else:
             return None
 
-class FluxDispBaseAlg(QgsProcessingAlgorithm):
+class FluxDispBaseAlg(QgsProcessingAlgorithm,LampType):
 
     INPUT = 'INPUT'
     FLUX_FIELD = 'FLUX_FIELD'
+    FLUX_RADIUS_FIELD = 'flux_radius'
+    RADIUS_MODE = 'RADIUS_MODE'
+    RADIUS_COEFF = 'RADIUS_COEFF'
     RESOLUTION = 'RESOLUTION'
     OUTPUT = 'OUTPUT'
     
-    DEFAULT_RES = 5.0
+    DEFAULT_RES = 10.0
     
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)
@@ -155,13 +162,27 @@ class FluxDispBaseAlg(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
-                self.tr('Lighting layer')))
+                self.tr('Lighting layer'),
+                [QgsProcessing.TypeVectorPoint]))
         self.addParameter(
             QgsProcessingParameterField(
                 self.FLUX_FIELD,
                 self.tr('Flux field name'),
                 parentLayerParameterName=self.INPUT,
-                defaultValue="flux"))
+                defaultValue="lumen"))
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                self.RADIUS_MODE,
+                self.tr('Radius mode'),
+                options=[self.tr('Div100'),self.tr('sqrt')],
+                defaultValue=1))
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.RADIUS_COEFF,
+                self.tr('Radius coeff'),
+                type=QgsProcessingParameterNumber.Double,
+                defaultValue=1,
+                optional=True))
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.RESOLUTION,
@@ -178,6 +199,8 @@ class FluxDispBaseAlg(QgsProcessingAlgorithm):
     def parseParams(self, parameters, context):
         self.input = self.parameterAsVectorLayer(parameters, self.INPUT, context)
         self.flux_field = self.parameterAsString(parameters,self.FLUX_FIELD,context)
+        self.radius_mode = self.parameterAsEnum(parameters, self.RADIUS_MODE, context)
+        self.radius_coeff = self.parameterAsDouble(parameters,self.RADIUS_COEFF,context)
         self.resolution = self.parameterAsInt(parameters,self.RESOLUTION,context)
         self.output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         
@@ -186,12 +209,24 @@ class FluxDispBaseAlg(QgsProcessingAlgorithm):
         if self.flux_field not in self.input.fields().names():
             raise QgsProcessingException("Field '" + "' does not exist")
         
+    def funcFluxRadius100(self,f):
+        try:
+            res = float(str(f[self.flux_field])) / 100
+            coeff = self.radius_coeff if self.radius_coeff else 1
+            return res * coeff
+        except ValueError:
+            return None
         
-class FluxDispAlg(FluxDispBaseAlg):
-    
-    TEMP_COUL_FIELD = 'TEMP_COUL_FIELD'
-    RANGE = 'RANGE'
-    FLUX_RADIUS_FIELD = 'flux_radius'
+    def funcFluxRadiusSqrt(self,f):
+        try:
+            res =  math.sqrt(float(str(f[self.flux_field])))
+            coeff = self.radius_coeff if self.radius_coeff else 1
+            return res * coeff
+        except ValueError:
+            return None
+        
+        
+class FluxDispAlg(FluxDispBaseAlg, LampType):
     
     def name(self):
         return 'fluxDisp'
@@ -205,16 +240,10 @@ class FluxDispAlg(FluxDispBaseAlg):
     def initAlgorithm(self,config=None):
         self.initParams()
         self.initOutput()
-        
-    def funcFluxRadius(self,f):
-        try:
-            return float(str(f[self.in_field])) / 100
-        except ValueError:
-            return None
     
-    def createFluxDistField(self,in_field):
-        out_field = self.FLUX_RADIUS_FIELD
-        qgsUtils.createOrUpdateField(self.input,self.in_field,self.funcFluxRadius,out_field)
+    # def createFluxDistField(self,in_field):
+        # out_field = self.FLUX_RADIUS_FIELD
+        # qgsUtils.createOrUpdateField(self.input,self.in_field,self.funcFluxRadius,out_field)
         # if in_field not in self.input.fields().names():
             # raise QgsProcessingException("Field '" + in_field + "' does not exist")
     
@@ -236,19 +265,39 @@ class FluxDispAlg(FluxDispBaseAlg):
     
     def processAlgorithm(self, parameters, context, feedback):
         self.parseParams(parameters,context)
-        self.createFluxDistField(self.flux_field)
-        out = qgsTreatments.applyHeatmap(self.input, self.output,
+        # self.createFluxDistField(self.flux_field)
+        func = self.funcFluxRadius100 if self.radius_mode == 0 else self.funcFluxRadiusSqrt
+        qgsUtils.createOrUpdateField(self.input,func,self.FLUX_RADIUS_FIELD)
+        self.out = qgsTreatments.applyHeatmap(self.input, self.output,
             resolution=self.resolution, radius_field=self.FLUX_RADIUS_FIELD,
             weight_field=self.flux_field,context=context,feedback=feedback)
             
-        return { self.OUTPUT : out }
+        return { self.OUTPUT : self.output }
         
+    # def postProcessAlgorithm(self,context,feedback):
+        # feedback.pushDebugInfo("pp1 " + str(self.output))
+        # out_layer = qgsUtils.loadRasterLayer(self.output)
+        # feedback.pushDebugInfo("pp2" + str(self.out))
+        # if not out_layer:
+            # raise QgsProcessingException("No layer found for " + str(self.out))
+        # feedback.pushDebugInfo("pp3")
+        # styles.setLightingQuantileStyle(out_layer)
+        # feedback.pushDebugInfo("pp4")
+        # out_layer.triggerRepaint()
+        # return {self.OUTPUT: self.output }
         
 class FluxDispTempCoulAlg(FluxDispBaseAlg):
     
     TEMP_COUL_FIELD = 'TEMP_COUL_FIELD'
     LAMP_TYPE_FIELD = 'LAMP_TYPE_FIELD'
+    LAMP_TYPE_ASSOC = 'LAMP_TYPE_ASSOC'
     RANGE = 'RANGE'
+    
+    DEFAULT_LAMP_TYPE_ASSOC = "C:/Users/mathieu.chailloux/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/LightPollutionToolbox/assets/LampTypeAssoc_StGirons.csv"
+    IN_LAMP_TYPE = 'IN_LAMP_TYPE'
+    OUT_LAMP_TYPE = 'OUT_LAMP_TYPE'
+    BLUE_PERC_FIELD = 'blue_perc'
+    BLUE_WEIGHT_FIELD = 'blue_weight'
     
     def name(self):
         return 'fluxDispTempCoul'
@@ -265,31 +314,82 @@ class FluxDispTempCoulAlg(FluxDispBaseAlg):
             QgsProcessingParameterField(
                 self.TEMP_COUL_FIELD,
                 self.tr('Color temperature field'),
+                defaultValue='temperatur',
                 parentLayerParameterName=self.INPUT))
         self.addParameter(
             QgsProcessingParameterField(
                 self.LAMP_TYPE_FIELD,
                 self.tr('Lamp type field'),
+                defaultValue='Type mat s',
                 parentLayerParameterName=self.INPUT))
+        self.addParameter(
+            QgsProcessingParameterFile(
+                self.LAMP_TYPE_ASSOC,
+                self.tr('Lamp types association file'),
+                defaultValue=self.DEFAULT_LAMP_TYPE_ASSOC))
         # self.addParameter(
             # QgsProcessingParameterRange(
                 # self.RANGE,
                 # self.tr('Color temperature range'),
                 # optional=True))
         self.initOutput()
-    
-    def funcFluxRadius(self,f):
-        try:
-            return float(str(f[self.in_field])) / 100
-        except ValueError:
+        
+    def parseLTFile(self,fname,feedback):
+        fieldnames = [self.IN_LAMP_TYPE,self.OUT_LAMP_TYPE]
+        self.lt_assoc = {}
+        if os.path.isfile(fname):
+            with open(fname,newline='') as csvfile:
+                reader = csv.DictReader(csvfile,fieldnames=fieldnames,delimiter=';')
+                for row in reader:
+                    try:
+                        in_lt, out_lt = row[self.IN_LAMP_TYPE], row[self.OUT_LAMP_TYPE]
+                        if out_lt in self.LAMP_TYPE_DESCR:
+                            self.lt_assoc[in_lt] = out_lt
+                    except ValueError:
+                        feedback.pushDebugInfo("Could not parse " + str(row))
+                    except TypeError:
+                        feedback.pushDebugInfo("Could not parse " + str(row))
+        else:
+            raise QgsProcessingException("File " + str(fname) + " does not exist")
+            
+    def funcBluePerc(self,f):
+        temp_coul = f[self.temp_coul_field]
+        lamp_type_init = f[self.lamp_type_field]
+        if lamp_type_init in self.lt_assoc:
+            lamp_type = self.lt_assoc[lamp_type_init]
+            blue_perc = self.getBluePerc(lamp_type,temp_coul)
+            return blue_perc
+        else:
+            return None
+
+    def funcBlueWeight(self,f):
+        if f[self.BLUE_PERC_FIELD]:
+            try:
+                flux = float(f[self.flux_field])
+                blue_perc = float(f[self.BLUE_PERC_FIELD])
+                return (flux * blue_perc) / 100
+            except ValueError:
+                utils.info("no flux : " + str(f[self.flux_field]))
+                utils.info("no perc : " + str(f[self.BLUE_PERC_FIELD]))
+                return None
+        else:
+            utils.info("no perc : " + str(f[self.BLUE_PERC_FIELD]))
             return None
     
     def processAlgorithm(self, parameters, context, feedback):
-        input = self.parameterAsVectorLayer(parameters, self.INPUT, context)
-        flux_field = self.parameterAsString(parameters,self.FLUX_FIELD,context)
-        temp_coul_field = self.parameterAsString(parameters,self.TEMP_COUL_FIELD,context)
-        # blue_perc = self.getBluePerc
-        qgsUtils.createOrUpdateField(self.input,self.in_field,self.funcFluxRadius,out_field)
-        
-
-        return { self.OUTPUT : None }
+        # Parameters
+        self.parseParams(parameters,context)
+        self.lamp_type_field = self.parameterAsString(parameters,self.LAMP_TYPE_FIELD,context)
+        self.temp_coul_field = self.parameterAsString(parameters,self.TEMP_COUL_FIELD,context)
+        filename = self.parameterAsFile(parameters,self.LAMP_TYPE_ASSOC,context)
+        # Body
+        self.parseLTFile(filename,feedback)
+        feedback.pushDebugInfo("LT :\n" + str(self.lt_assoc))
+        qgsUtils.createOrUpdateField(self.input,self.funcFluxRadiusSqrt,self.FLUX_RADIUS_FIELD)
+        qgsUtils.createOrUpdateField(self.input,self.funcBluePerc,self.BLUE_PERC_FIELD)
+        qgsUtils.createOrUpdateField(self.input,self.funcBlueWeight,self.BLUE_WEIGHT_FIELD)
+        out = qgsTreatments.applyHeatmap(self.input, self.output,
+            resolution=self.resolution, radius_field=self.FLUX_RADIUS_FIELD,
+            weight_field=self.BLUE_WEIGHT_FIELD,context=context,feedback=feedback)
+            
+        return { self.OUTPUT : out }
