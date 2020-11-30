@@ -54,6 +54,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterRange,
                        QgsProcessingParameterEnum,
                        QgsProcessingParameterFile,
+                       QgsProcessingParameterRasterLayer,
                        QgsProcessingParameterRasterDestination)
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
@@ -151,9 +152,12 @@ class FluxDispBaseAlg(QgsProcessingAlgorithm,LampType):
     
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)
+        
+    def displayName(self):
+        return self.tr(self.name())
 
     def group(self):
-        return self.tr('Mapping')
+        return self.tr('Light Dispersal')
 
     def groupId(self):
         return 'lpm'
@@ -272,19 +276,16 @@ class FluxDispAlg(FluxDispBaseAlg, LampType):
             resolution=self.resolution, radius_field=self.FLUX_RADIUS_FIELD,
             weight_field=self.flux_field,context=context,feedback=feedback)
             
+        # self.out_layer = self.parameterAsRasterLayer(parameters,self.OUTPUT,context)
+        # styles.setLightingQuantileStyle(self.out_layer)
         return { self.OUTPUT : self.output }
         
-    # def postProcessAlgorithm(self,context,feedback):
-        # feedback.pushDebugInfo("pp1 " + str(self.output))
-        # out_layer = qgsUtils.loadRasterLayer(self.output)
-        # feedback.pushDebugInfo("pp2" + str(self.out))
-        # if not out_layer:
-            # raise QgsProcessingException("No layer found for " + str(self.out))
-        # feedback.pushDebugInfo("pp3")
-        # styles.setLightingQuantileStyle(out_layer)
-        # feedback.pushDebugInfo("pp4")
-        # out_layer.triggerRepaint()
-        # return {self.OUTPUT: self.output }
+    def postProcessAlgorithm(self,context,feedback):
+        out_layer = qgsUtils.loadRasterLayer(self.output)
+        if not out_layer:
+            raise QgsProcessingException("No out layer")
+        styles.setLightingQuantileStyle(out_layer)
+        return {self.OUTPUT: self.output }
         
 class FluxDispTempCoulAlg(FluxDispBaseAlg):
     
@@ -393,3 +394,39 @@ class FluxDispTempCoulAlg(FluxDispBaseAlg):
             weight_field=self.BLUE_WEIGHT_FIELD,context=context,feedback=feedback)
             
         return { self.OUTPUT : out }
+        
+        
+class LightDispSymbology(FluxDispBaseAlg):
+
+    def initAlgorithm(self, config=None):
+        self.addParameter(
+            QgsProcessingParameterRasterLayer(
+                self.INPUT,
+                self.tr('Input layer')))
+    
+    
+    def processAlgorithm(self, parameters, context, feedback):
+        self.in_layer = self.parameterAsRasterLayer(parameters,self.INPUT,context)
+        if not self.in_layer:
+            raise QgsProcessingException("No input layer")
+        return { self.OUTPUT : None }
+        
+    
+    def postProcessAlgorithm(self,context,feedback):
+        if not self.in_layer:
+            raise QgsProcessingException("No input layer")
+        styles.setLightingQuantileStyle(self.in_layer)
+        return { self.OUTPUT : None }
+        
+    def name(self):
+        return 'lightSymbology'
+        
+    def displayName(self):
+        return self.tr('Apply lighting symbology')
+        
+    def shortHelpString(self):
+        helpStr = "Apply lighting symbology to selected layer layer"
+        return self.tr(helpStr)
+
+    def createInstance(self):
+        return LightDispSymbology()
