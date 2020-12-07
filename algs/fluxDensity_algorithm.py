@@ -107,10 +107,11 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 type=QgsProcessingParameterField.Numeric,
                 parentLayerParameterName=self.LIGHTING))
         self.addParameter(
-            QgsProcessingParameterBoolean(
+            QgsProcessingParameterNumber(
                 self.FLUX_DIV,
                 self.tr('Divide flux value for crossroads lights (lights inside multiple reporting units)'),
-                defaultValue=False))
+                type=QgsProcessingParameterNumber.Double,
+                optional=True))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.REPORTING,
@@ -210,8 +211,8 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 surface_path = QgsProcessingUtils.generateTempFilename('surface_reproj.gpkg')
                 qgsTreatments.applyReprojectLayer(surface_layer,reporting_crs,surface_path,
                     context=context,feedback=feedback)
-                surface = surface_path
-                qgsTreatments.createSpatialIndex(surface_path,context=context,feedback=feedback)
+                surface_layer = qgsUtils.loadVectorLayer(surface_path)
+                qgsTreatments.createSpatialIndex(surface_layer,context=context,feedback=feedback)
                 
         # Output fields initialization
         nb_lamps_field = QgsField(self.NB_LAMPS, QVariant.Int)
@@ -247,14 +248,18 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         
         # Get reporting units count per light
         if flux_div_flag:
-            if 'ID' not in init_reporting_fields:
+            if 'ID' in init_reporting_fields:
+                id_field = 'ID'
+            elif 'fid' in init_reporting_fields:
+                id_field = 'fid'
+            else:
                 raise QgsProcessingException("ID field does not exist in reporting layer")
             qgsTreatments.createSpatialIndex(lighting_layer,context=context,feedback=feedback)
             joined_light_path = QgsProcessingUtils.generateTempFilename('joined_light.gpkg')
             qgsTreatments.joinByLocSummary(lighting_layer,reporting_layer,joined_light_path,
-                ['ID'],summaries=[0],predicates=[0],context=context,feedback=feedback)
+                [id_field],summaries=[0],predicates=[0],context=context,feedback=feedback)
             joined_light_layer = qgsUtils.loadVectorLayer(joined_light_path)
-            id_cpt_name = 'ID_count'
+            id_cpt_name = id_field + '_count'
             def funcDiv(f):
                 if f[fieldname]:
                     try:
@@ -315,7 +320,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                     # input_feat = QgsProcessingFeatureSourceDefinition(joined_layer.id(),True)
                     clipped_path = QgsProcessingUtils.generateTempFilename("clipped"
                         + str(f_id) + ".gpkg")
-                    clipped = qgsTreatments.applyVectorClip(surface,input_feat,
+                    clipped = qgsTreatments.applyVectorClip(surface_layer,input_feat,
                         clipped_path,context=context,feedback=mmf)
                     mmf.setCurrentStep(2)
                     if dissolve_flag:
@@ -375,7 +380,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         helpStr += " Surface to be illuminated (roads, sidewalks, parking areas, ...) can be specified"
         helpStr += " through a polygon layer.\n"
         helpStr += " For each entity of reporting layer, flux light points inside entity are selected."
-        return self.tr()
+        return self.tr(helpStr)
 
     def createInstance(self):
         return FluxDensityAlgorithm()

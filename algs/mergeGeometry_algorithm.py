@@ -151,7 +151,8 @@ class MergeGeometryDissolveAlgorithm(MergeGeomAlg):
         self.initAlg()
 
     def processAlgorithm(self, parameters, context, feedback):
-        #layers = self.parameterAsLayerList(parameters,self.LAYERS,context)
+        layers = self.parameterAsLayerList(parameters,self.LAYERS,context)
+        parameters[self.LAYERS] = layers
         
         mfeed = QgsProcessingMultiStepFeedback(2,feedback)
         out_merged = QgsProcessingUtils.generateTempFilename('out_merged.gpkg')

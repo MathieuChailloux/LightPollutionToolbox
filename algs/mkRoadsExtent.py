@@ -39,6 +39,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterMultipleLayers,
                        QgsProcessingParameterCrs,
                        QgsProcessingParameterExpression,
+                       QgsProcessingParameterVectorLayer,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterField,
@@ -54,6 +55,7 @@ from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
 
     ROADS = 'ROADS'
+    INPUT = 'INPUT'
     OUTPUT = 'OUTPUT'
     
     EXTENT_LAYER = 'EXTENT_LAYER'
@@ -71,8 +73,9 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
     DEFAULT_EXPR += ' AND "ETAT" = \'En service\''
     DEFAULT_EXPR += ' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
     #DEFAULT_EXPR += ' AND "ACCES_VL" IN (\'Libre\')'
-    DEFAULT_EXPR += ' AND  "NATURE" IN ( \'Escalier\' , \'Piste cyclable\', \'Rond-point\',  \'Route à 1 chaussée\', \'Route à 2 chaussées\', \'Route empierrée\', \'Sentier\', \'Chemin\' )'
-    BUFFER_EXPR = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 2.5))'
+    #DEFAULT_EXPR += ' AND  "NATURE" IN ( \'Escalier\' , \'Piste cyclable\', \'Rond-point\',  \'Route à 1 chaussée\', \'Route à 2 chaussées\', \'Route empierrée\', \'Sentier\', \'Chemin\' )'
+    BUFFER_EXPR = 'BUFFER_EXPR'
+    DEFAULT_BUFFER_EXPR = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 2.5))'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
 
@@ -99,7 +102,7 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
             QgsProcessingParameterExpression(
                 self.BUFFER_EXPR,
                 self.tr('Roads buffer value'),
-                defaultValue=self.BUFFER_EXPR,
+                defaultValue=self.DEFAULT_BUFFER_EXPR,
                 parentLayerParameterName=self.ROADS))
         self.addParameter(
             QgsProcessingParameterBoolean(
@@ -420,5 +423,46 @@ class RoadsExtentOld(RoadsExtentGrpAlg):
 
     def createInstance(self):
         return RoadsExtentOld()
+        
+        
+        
+class AddParcellesAlg(RoadsExtentGrpAlg):
+
+    NAME = 'addParcelles'
+    
+    PARCELLES = 'PARCELLES'
+    
+    def initAlgorithm(self, config=None):
+        self.addParameter(
+            QgsProcessingParameterVectorLayer(
+                self.INPUT,
+                self.tr('Input parcelle layer'),
+                [QgsProcessing.TypeVectorPolygon]))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.PARCELLES,
+                self.tr('Parcelle entities to add'),
+                [QgsProcessing.TypeVectorPolygon]))
+        #self.initOutput()
+
+    def processAlgorithm(self, parameters, context, feedback):
+        input = self.parameterAsVectorLayer(parameters, self.INPUT, context)
+        parcelles = self.parameterAsSource(parameters, self.PARCELLES, context)
+        input.dataProvider().addFeatures(parcelles.getFeatures())
+        input.commitChanges()
+        return { self.OUTPUT : None }
+        
+    def name(self):
+        return 'Add parcelles selection'
+        
+    def shortHelpString(self):
+        helpStr = "Add manual selection of cadastre parcelles"
+        return self.tr(helpStr)
+
+    def createInstance(self):
+        return AddParcellesAlg()
+            
+    
+
                 
   

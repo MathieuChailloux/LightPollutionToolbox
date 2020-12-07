@@ -35,7 +35,7 @@ from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology
 from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
 from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
 from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
-from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre
+from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
 from .viirs import VIIRS_Untar
 from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
 
@@ -56,6 +56,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             RoadsExtent(),
             RoadsExtentBDTOPO(),
             RoadsExtentFromCadastre(),
+            AddParcellesAlg(),
             FluxDispAlg(),
             FluxDispTempCoulAlg(),
             LightDispSymbology(),
