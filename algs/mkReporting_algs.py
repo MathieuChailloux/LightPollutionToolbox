@@ -35,6 +35,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingAlgorithm,
                        QgsProcessingUtils,
                        QgsProcessingException,
+                       QgsProcessingParameterDefinition,
                        QgsProcessingParameterBoolean,
                        QgsProcessingParameterExpression,
                        QgsProcessingParameterFeatureSource,
@@ -64,10 +65,13 @@ class RoadsReporting(RoadsExtentGrpAlg):
     NAME_FIELD = 'NAME_FIELD'
     INCLUDE_NULL = 'INCLUDE_NULL'
     END_CAP_STYLE = 'END_CAP_STYLE'
+    JOIN_EXPR = 'JOIN_EXPR'
     POLYGON_LAYERS = 'POLYGON_LAYERS'
     POLYGON_BUFFER = 'POLYGON_BUFFER'
+    OUTPUT_LINEAR = 'OUTPUT_LINEAR'
     # DEFAULT_BUFFER_EXPR = 'if( "LARGEUR" ,if( "LARGEUR" >=10, "LARGEUR" *2, "LARGEUR" *3),5)'
     DEFAULT_BUFFER_EXPR = 'if( "LARGEUR" ,if(  "NATURE" in ( \'Route empierrée\' , \'Route à 1 chaussée\' , \'Route à 2 chaussées\' ), if ("LARGEUR" >=10, "LARGEUR" *2, "LARGEUR" *3),	"LARGEUR"*1.5),	6)'
+    DEFAULT_JOIN_EXPR = 'NOM_1_G is not NULL AND "SENS" in ( \'Sens direct\' , \'Sens inverse\' )'
 
     def initAlgorithm(self, config=None):
         self.cap_styles = [self.tr('Round'),'Flat', 'Square']
@@ -93,22 +97,31 @@ class RoadsReporting(RoadsExtentGrpAlg):
             self.END_CAP_STYLE,
             self.tr('End cap style'),
             options=self.cap_styles, defaultValue=0))
+        # Join parameters
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.DISSOLVE,
                 self.tr('Join roads by name'),
                 defaultValue=True))
-        self.addParameter(
-            QgsProcessingParameterField(
+        paramNameField = QgsProcessingParameterField(
                 self.NAME_FIELD,
                 self.tr('Roads name field'),
                 defaultValue='NOM_1_G',
-                parentLayerParameterName=self.ROADS))
-        self.addParameter(
-            QgsProcessingParameterBoolean(
-                self.INCLUDE_NULL,
-                self.tr('Include roads with NULL name'),
-                defaultValue=True))
+                parentLayerParameterName=self.ROADS)
+        # paramIncludeNull = self.addParameter(
+            # QgsProcessingParameterBoolean(
+                # self.INCLUDE_NULL,
+                # self.tr('Include roads with NULL name'),
+                # defaultValue=True))
+        paramJoinExpr = QgsProcessingParameterExpression(
+                self.JOIN_EXPR,
+                self.tr('Expression to select entities to join'),
+                defaultValue=self.DEFAULT_JOIN_EXPR,
+                parentLayerParameterName=self.ROADS)
+        paramsJoin = [paramNameField,paramJoinExpr]
+        for param in paramsJoin:
+            param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            self.addParameter(param)
         # self.addParameter(
             # QgsProcessingParameterMultipleLayers(
                 # self.POLYGON_LAYERS,
@@ -119,6 +132,11 @@ class RoadsReporting(RoadsExtentGrpAlg):
             QgsProcessingParameterVectorDestination(
                 self.OUTPUT,
                 self.tr('Output layer')))
+        self.addParameter(
+            QgsProcessingParameterVectorDestination(
+                self.OUTPUT_LINEAR,
+                self.tr('Linear output'),
+                optional=True))
 
     def processAlgorithm(self, parameters, context, feedback):
         input_layer = self.parameterAsVectorLayer(parameters,self.ROADS,context)
@@ -129,9 +147,13 @@ class RoadsReporting(RoadsExtentGrpAlg):
         buf_expr = self.parameterAsExpression(parameters,self.BUFFER_EXPR,context)
         end_cap_style = self.parameterAsEnum(parameters, self.END_CAP_STYLE, context) #+ 1
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
-        include_null_flag = self.parameterAsBool(parameters,self.INCLUDE_NULL,context)
+        # include_null_flag = self.parameterAsBool(parameters,self.INCLUDE_NULL,context)
+        join_expr = self.parameterAsExpression(parameters,self.JOIN_EXPR,context)
         output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
-        mf = QgsProcessingMultiStepFeedback(3,feedback)
+        output_linear = self.parameterAsOutputLayer(parameters,self.OUTPUT_LINEAR,context)
+        join_flag = join_expr is not None and join_expr != ''
+        nb_steps = 3 + (3 if join_flag else 0) + (3 if output_linear else 0)
+        mf = QgsProcessingMultiStepFeedback(nb_steps,feedback)
         crs = input_layer.dataProvider().sourceCrs()
         distance = QgsProperty.fromExpression(buf_expr)
         
@@ -144,29 +166,55 @@ class RoadsReporting(RoadsExtentGrpAlg):
             selected = input_layer
         mf.setCurrentStep(1)
         
+        
+        # Apply buffer
+        buffered = QgsProcessingUtils.generateTempFilename('buffered.gpkg') if dissolve_flag else output
+        qgsTreatments.applyBufferFromExpr(selected,distance,buffered,
+            cap_style=end_cap_style,context=context,feedback=mf)
+        mf.setCurrentStep(2)
+        
         # Dissolve
         if dissolve_flag:
-            roads_null = QgsProcessingUtils.generateTempFilename('roads_null.gpkg')
-            roads_nonull = QgsProcessingUtils.generateTempFilename('roads_nonull.gpkg')
-            null_expr = "" + name_field + " is NULL"
-            qgsTreatments.extractByExpression(selected,null_expr,roads_null,
-                fail_out=roads_nonull,context=context,feedback=mf)
-            dissolved = QgsProcessingUtils.generateTempFilename('dissolved.gpkg') if include_null_flag else output
+            join_flag = join_expr is not None and join_expr != ''
+            buffered_nojoin = QgsProcessingUtils.generateTempFilename('buffered_nojoin.gpkg') 
+            buffered_join = QgsProcessingUtils.generateTempFilename('buffered_join.gpkg')
+            # null_expr = "" + name_field + " is NULL"
+            if not join_flag:
+                raise QgsProcessingException("No join expression specified")
+            qgsTreatments.extractByExpression(buffered,join_expr,buffered_join,
+                fail_out=buffered_nojoin,context=context,feedback=mf)
+            mf.setCurrentStep(3)
+            dissolved = QgsProcessingUtils.generateTempFilename('dissolved.gpkg') if join_flag else output
             fields = [name_field]
-            qgsTreatments.dissolveLayer(roads_nonull,dissolved,fields=fields,
-                context=context,feedback=mf)
-            selected = dissolved
-            if include_null_flag:
-                merged = QgsProcessingUtils.generateTempFilename('merged.gpkg')
-                layers = [dissolved,roads_null]
-                qgsTreatments.mergeVectorLayers(layers,crs,merged,context=context,feedback=mf)
-                selected = merged
-        mf.setCurrentStep(2)
+            qgsTreatments.dissolveLayer(buffered_join,dissolved,fields=fields,context=context,feedback=mf)
+            mf.setCurrentStep(4)
+            layers = [buffered_nojoin,dissolved]
+            qgsTreatments.mergeVectorLayers(layers,crs,output,context=context,feedback=mf)
+            mf.setCurrentStep(5)
+            
+            if output_linear:
+                roads_nojoin = QgsProcessingUtils.generateTempFilename('roads_nojoin.gpkg') 
+                roads_join = QgsProcessingUtils.generateTempFilename('roads_join.gpkg')
+                qgsTreatments.extractByExpression(selected,join_expr,roads_join,
+                    fail_out=roads_nojoin,context=context,feedback=mf)
+                mf.setCurrentStep(6)
+                qgsTreatments.dissolveLayer(roads_join,dissolved,fields=fields,context=context,feedback=mf)
+                mf.setCurrentStep(7)
+                layers = [roads_nojoin,dissolved]
+                qgsTreatments.mergeVectorLayers(layers,crs,output_linear,context=context,feedback=mf)
+                mf.setCurrentStep(8)
+                
+            # selected = dissolved
+            # if include_null_flag:
+                # merged = QgsProcessingUtils.generateTempFilename('merged.gpkg')
+                # layers = [dissolved,roads_null]
+                # qgsTreatments.mergeVectorLayers(layers,crs,merged,context=context,feedback=mf)
+                # selected = merged
                 
         # Apply buffer
-        qgsTreatments.applyBufferFromExpr(selected,distance,output,
-            cap_style=end_cap_style,context=context,feedback=mf)
-        mf.setCurrentStep(3)
+        # qgsTreatments.applyBufferFromExpr(selected,distance,output,
+            # cap_style=end_cap_style,context=context,feedback=mf)
+        mf.setCurrentStep(nb_steps)
                      
         return {self.OUTPUT: output}
         
