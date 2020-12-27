@@ -42,16 +42,22 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingException,
                        QgsProcessingAlgorithm,
                        QgsProcessingFeatureSourceDefinition,
+                       QgsProcessingParameterDefinition,
                        QgsProcessingParameterBoolean,
                        QgsProcessingParameterField,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterNumber,
+                       QgsProcessingParameterEnum,
+                       QgsProcessingParameterExpression,
+                       QgsProcessingParameterMultipleLayers,
                        QgsProcessingParameterVectorDestination,
                        QgsFields,
                        QgsField)
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+from .mkRoadsExtent import RoadsExtent as RE
+from .mkReporting_algs import RoadsReporting as RR
 
 
 class FluxDenGrpAlg(QgsProcessingAlgorithm):
@@ -59,6 +65,9 @@ class FluxDenGrpAlg(QgsProcessingAlgorithm):
     INPUT = 'INPUT'
     OUTPUT = 'OUTPUT'
     FLUX_DEN = 'FLUX_DEN'
+
+    def name(self):
+        return self.NAME
 
     def displayName(self):
         return self.tr(self.name())
@@ -75,6 +84,8 @@ class FluxDenGrpAlg(QgsProcessingAlgorithm):
     
 
 class FluxDensityAlgorithm(FluxDenGrpAlg):
+
+    NAME = 'dsfl'
 
     LIGHTING = 'LIGHTING'
     FLUX_FIELD = 'FLUX_FIELD'
@@ -370,10 +381,6 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         styles.setCustomClassesDSFL(out_layer,self.FLUX_DEN)
         return {self.OUTPUT: self.dest_id }
         
-            
-    def name(self):
-        return 'Light Flux Surfacic Density'
-        
     def shortHelpString(self):
         helpStr = "Estimation of light flux density.\n"
         helpStr += " Flux value is selected from lighting layer according to light flux field.\n"
@@ -388,6 +395,8 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         
 
 class DSFLSymbology(FluxDenGrpAlg):
+
+    NAME = 'dsflSymbology'
 
     DSFL_FIELD = 'DSFL_FIELD'
 
@@ -423,9 +432,6 @@ class DSFLSymbology(FluxDenGrpAlg):
         styles.setCustomClassesDSFL(self.in_layer,self.dsfl_field)
         return { self.OUTPUT : None }
         
-    def name(self):
-        return 'Apply symbology to DSFL layer'
-        
     def shortHelpString(self):
         helpStr = "Apply symbology to DSFL layer"
         return self.tr(helpStr)
@@ -433,3 +439,184 @@ class DSFLSymbology(FluxDenGrpAlg):
     def createInstance(self):
         return DSFLSymbology()
         
+
+
+FDA = FluxDensityAlgorithm
+class SimpleDSFL(FluxDenGrpAlg):
+
+    NAME = 'simpleDSFL'
+
+    REPORTING_MODE = 'REPORTING_MODE'
+    SURFACE_HYDRO = 'SURFACE_HYDRO'
+    DISSOLVE_STEP = 'DISSOLVE_STEP'
+    OUTPUT_SURFACE = 'OUTPUT_SURFACE'
+    OUTPUT_REPORTING = 'OUTPUT_REPORTING'
+
+    def initAlgorithm(self, config=None):
+        # Inputs
+        self.reporting_modes = [
+            self.tr('Reporting per road'),
+            self.tr('Reporting per road section'),
+            self.tr('Reporting per road section (linear)'),
+            self.tr('Reporting per lamp')
+        ]
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                self.REPORTING_MODE,
+                self.tr('Reporting mode'),
+                options=self.reporting_modes,
+                defaultValue=0))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                FDA.LIGHTING,
+                self.tr('Lighting layer'),
+                [QgsProcessing.TypeVectorPoint]))
+        self.addParameter(
+            QgsProcessingParameterField(
+                FDA.FLUX_FIELD,
+                description=self.tr('Light flux field'),
+                defaultValue='flux',
+                type=QgsProcessingParameterField.Numeric,
+                parentLayerParameterName=FDA.LIGHTING))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                RE.ROADS,
+                self.tr('Roads layer'),
+                [QgsProcessing.TypeVectorLine]))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                RE.CADASTRE,
+                self.tr('Cadastre layer'),
+                [QgsProcessing.TypeVectorPolygon]))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.SURFACE_HYDRO,
+                self.tr('Hydrographic surface layer'),
+                [QgsProcessing.TypeVectorPolygon],
+                optional=True))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                RE.EXTENT_LAYER,
+                self.tr('Extent layer'),
+                [QgsProcessing.TypeVectorPolygon]))
+        # Advanced parameters
+        paramSelectExpr = QgsProcessingParameterExpression(
+                RE.SELECT_EXPR,
+                self.tr('Expression to select features (all features if empty)'),
+                defaultValue=RE.DEFAULT_EXPR,
+                optional =True,
+                parentLayerParameterName=RE.ROADS)
+        paramBufferExpr = QgsProcessingParameterExpression(
+                RE.BUFFER_EXPR,
+                self.tr('Roads buffer value'),
+                defaultValue=RE.DEFAULT_BUFFER_EXPR,
+                parentLayerParameterName=RE.ROADS)
+        paramDissolve = QgsProcessingParameterEnum(
+                self.DISSOLVE_STEP,
+                self.tr('Dissolve step'),
+                options=[self.tr('Dissolve surface layer'),self.tr('Dissolve reporting unit')],
+                defaultValue=0)
+        advancedParams = [paramSelectExpr,paramBufferExpr,paramDissolve]
+        for param in advancedParams:
+            param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            self.addParameter(param)
+        # Outputs
+        self.addParameter(
+            QgsProcessingParameterVectorDestination(
+                self.OUTPUT_SURFACE,
+                self.tr('Surface layer'),
+                optional=True))
+        self.addParameter(
+            QgsProcessingParameterVectorDestination(
+                self.OUTPUT_REPORTING,
+                self.tr('Reporting layer'),
+                optional=True))
+        # self.addParameter(
+            # QgsProcessingParameterFeatureSink(
+                # self.OUTPUT,
+                # self.tr('Output layer')))
+        self.addParameter(
+            QgsProcessingParameterVectorDestination(
+                self.OUTPUT,
+                self.tr('Output layer')))
+    
+    def processAlgorithm(self, parameters, context, feedback):
+        reporting_mode = self.parameterAsEnum(parameters,self.REPORTING_MODE,context)
+        lighting_source = self.parameterAsVectorLayer(parameters,FDA.LIGHTING,context)
+        self.fieldname = self.parameterAsString(parameters,FDA.FLUX_FIELD,context)
+        roads_source = self.parameterAsVectorLayer(parameters,RE.ROADS,context)
+        cadastre_source = self.parameterAsVectorLayer(parameters,RE.CADASTRE,context)
+        hydro_source = self.parameterAsVectorLayer(parameters,self.SURFACE_HYDRO,context)
+        extent_source = self.parameterAsVectorLayer(parameters,RE.EXTENT_LAYER,context)
+        dissolve_step = self.parameterAsEnum(parameters,self.DISSOLVE_STEP,context)
+        output_surface = self.parameterAsOutputLayer(parameters,self.OUTPUT_SURFACE,context)
+        output_reporting = self.parameterAsOutputLayer(parameters,self.OUTPUT_REPORTING,context)
+        self.output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+        # Reporting
+        #reporting_layer = QgsProcessingUtils.generateTempFilename('reporting.gpkg')
+        reporting_layer = output_reporting
+        if reporting_mode == 3: # voronoi
+            #voronoi_layer = QgsProcessingUtils.generateTempFilename('voronoi.gpkg')
+            qgsTreatments.applyVoronoi(lighting_source,reporting_layer,
+                context=context,feedback=feedback)
+        else:
+            reporting_params = parameters.copy()
+            reporting_params[RR.ROADS] = roads_source
+            reporting_params[RR.NAME_FIELD] = self.fieldname
+            reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
+            reporting_params[RR.DISSOLVE] = reporting_mode in [1,2] # Roads
+            if reporting_mode == 2:
+                reporting_params[RR.OUTPUT] = 'TEMPORARY_OUTPUT'
+                reporting_params[RR.OUTPUT_LINEAR] = reporting_layer
+            else:
+                reporting_params[RR.OUTPUT] = reporting_layer
+            #roads_buffered = QgsProcessingUtils.generateTempFilename('reporting.gpkg')
+            qgsTreatments.applyProcessingAlg('LPT',RR.NAME,reporting_params,
+                context=context,feedback=feedback)
+        # Surface
+        #surface_layer = QgsProcessingUtils.generateTempFilename('surface.gpkg')
+        surface_layer = output_surface
+        surface_params = parameters.copy()
+        surface_params[RE.ROADS] = roads_source
+        surface_params[RE.CADASTRE] = cadastre_source
+        surface_params[RE.EXTENT_LAYER] = extent_source
+        if hydro_source:
+            surface_params[RE.DIFF_LAYERS] = [hydro_source]
+        surface_params[RE.DISSOLVE] = dissolve_step == 0
+        surface_params[RE.OUTPUT] = surface_layer
+        qgsTreatments.applyProcessingAlg('LPT',RE.NAME,surface_params,
+            context=context,feedback=feedback)
+        # Light surfacic density
+        density_params = parameters.copy()
+        density_params[FDA.LIGHTING] = lighting_source
+        density_params[FDA.REPORTING] = reporting_layer
+        density_params[FDA.CLIP_DISTANCE] = 20 if reporting_mode == 3 else 30
+        density_params[FDA.SURFACE] = surface_layer
+        density_params[FDA.DISSOLVE] = dissolve_step == 1
+        density_params[FDA.SKIP_EMPTY] = True
+        density_params[FDA.OUTPUT] = self.output
+        self.dest_id = qgsTreatments.applyProcessingAlg('LPT',FDA.NAME,density_params,
+            context=context,feedback=feedback)
+        # out_layer = QgsProcessingUtils.mapLayerFromString(self.dest_id,context)
+        # out_layer = qgsUtils.loadVectorLayer(out)
+        return { self.OUTPUT : self.output }
+        
+    
+    def postProcessAlgorithm(self,context,feedback):
+        out_layer = QgsProcessingUtils.mapLayerFromString(self.dest_id,context)
+        if not out_layer:
+            raise QgsProcessingException("No layer found for " + str(self.dest_id))
+        styles.setCustomClassesDSFL(out_layer,self.FLUX_DEN)
+        return {self.OUTPUT: self.output }
+        
+    def shortHelpString(self):
+        helpStr = "Computes light flux surfacic density from raw data"
+        return self.tr(helpStr)
+        
+    def group(self):
+        return None
+    def groupId(self):
+        return None
+
+    def createInstance(self):
+        return SimpleDSFL()

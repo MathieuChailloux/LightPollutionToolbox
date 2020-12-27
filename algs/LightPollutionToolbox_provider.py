@@ -31,7 +31,7 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 __revision__ = '$Format:%H$'
 
 from qgis.core import QgsProcessingProvider
-from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology
+from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology, SimpleDSFL
 from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
 from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
 from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
@@ -46,6 +46,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         Default constructor.
         """
         self.alglist = [FluxDensityAlgorithm(),
+            SimpleDSFL(),
             DSFLSymbology(),
             CreateMeshAlgorithm(),
             RoadsReporting(),

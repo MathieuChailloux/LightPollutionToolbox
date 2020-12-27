@@ -86,12 +86,6 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
                 self.tr('Roads layer'),
                 [QgsProcessing.TypeVectorLine]))
         self.addParameter(
-            QgsProcessingParameterField(
-                self.ROADS_WIDTH,
-                self.tr('Roads width field'),
-                defaultValue='Largeur',
-                parentLayerParameterName=self.ROADS))
-        self.addParameter(
             QgsProcessingParameterExpression(
                 self.SELECT_EXPR,
                 self.tr('Expression to select features (all features if empty)'),
@@ -139,6 +133,9 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
             QgsProcessingParameterVectorDestination(
                 self.OUTPUT,
                 self.tr('Output layer')))
+        
+    def name(self):
+        return self.NAME
 
     def displayName(self):
         return self.tr(self.name())
@@ -165,7 +162,6 @@ class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
         input_layer = self.parameterAsVectorLayer(parameters,self.ROADS,context)
         if not input_layer:
             raise QgsProcessingException("No roads layer")
-        roads_width_field = self.parameterAsString(parameters,self.ROADS_WIDTH,context)
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
         expr = self.parameterAsExpression(parameters,self.SELECT_EXPR,context)
         buf_expr = self.parameterAsExpression(parameters,self.BUFFER_EXPR,context)
@@ -184,8 +180,6 @@ class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
         feedback.setCurrentStep(1)
         
         buffered = QgsProcessingUtils.generateTempFilename('buffered.gpkg') if dissolve_flag else output
-        if roads_width_field not in input_layer.fields().names():
-            raise QgsProcessingException("Could not find '" + str(roads_width_field) + "' in roads layer")
         #buf_expr = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 2.5))'
         distance = QgsProperty.fromExpression(buf_expr)
         qgsTreatments.applyBufferFromExpr(selected,distance,buffered,
@@ -198,9 +192,6 @@ class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
             feedback.setCurrentStep(3)
                     
         return {self.OUTPUT: output}
-        
-    def name(self):
-        return self.NAME
 
     def displayName(self):
         return self.tr('Roads Extent (BDTOPO)')
@@ -245,9 +236,6 @@ class RoadsExtentFromCadastre(RoadsExtentGrpAlg):
             feedback.setCurrentStep(cpt + 1)
             
         return {self.OUTPUT: not_cadastre}
-        
-    def name(self):
-        return self.NAME
 
     def displayName(self):
         return self.tr('Roads Extent (Cadastre)')
@@ -257,6 +245,8 @@ class RoadsExtentFromCadastre(RoadsExtentGrpAlg):
 
 
 class RoadsExtent(RoadsExtentGrpAlg):
+
+    NAME = 'roadsExtent'
     
     def initAlgorithm(self, config=None):
         self.initParamsBDTOPO()
@@ -332,9 +322,6 @@ class RoadsExtent(RoadsExtentGrpAlg):
                 init_output,context=context,feedback=feedback)
             multi_feedback.setCurrentStep(5)
         return {self.OUTPUT: init_output }
-        
-    def name(self):
-        return 'roadsExtent'
         
     def displayName(self):
         return 'Roads Extent (BDTOPO + Cadastre)'
