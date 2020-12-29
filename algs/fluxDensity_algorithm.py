@@ -572,11 +572,11 @@ class SimpleDSFL(FluxDenGrpAlg):
             reporting_params[RR.NAME_FIELD] = self.fieldname
             reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
             reporting_params[RR.DISSOLVE] = reporting_mode in [1,2] # Roads
-            if reporting_mode == 2:
-                reporting_params[RR.OUTPUT] = 'TEMPORARY_OUTPUT'
-                reporting_params[RR.OUTPUT_LINEAR] = reporting_layer
-            else:
-                reporting_params[RR.OUTPUT] = reporting_layer
+            # if reporting_mode == 2:
+                # reporting_params[RR.OUTPUT] = 'TEMPORARY_OUTPUT'
+                # reporting_params[RR.OUTPUT_LINEAR] = reporting_layer
+            # else:
+            reporting_params[RR.OUTPUT] = reporting_layer
             #roads_buffered = QgsProcessingUtils.generateTempFilename('reporting.gpkg')
             qgsTreatments.applyProcessingAlg('LPT',RR.NAME,reporting_params,
                 context=context,feedback=feedback)
@@ -604,8 +604,7 @@ class SimpleDSFL(FluxDenGrpAlg):
         density_params[FDA.OUTPUT] = self.output
         self.dest_id = qgsTreatments.applyProcessingAlg('LPT',FDA.NAME,density_params,
             context=context,feedback=feedback)
-        # out_layer = QgsProcessingUtils.mapLayerFromString(self.dest_id,context)
-        # out_layer = qgsUtils.loadVectorLayer(out)
+        # TODO : output linear : join with tronçons
         return { self.OUTPUT : self.output }
         
     
