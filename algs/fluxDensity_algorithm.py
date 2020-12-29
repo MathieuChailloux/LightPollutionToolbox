@@ -69,8 +69,8 @@ class FluxDenGrpAlg(QgsProcessingAlgorithm):
     def name(self):
         return self.NAME
 
-    def displayName(self):
-        return self.tr(self.name())
+    # def displayName(self):
+        # return self.tr(self.name())
 
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)
@@ -388,6 +388,9 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         helpStr += " through a polygon layer.\n"
         helpStr += " For each entity of reporting layer, flux light points inside entity are selected."
         return self.tr(helpStr)
+        
+    def displayName(self):
+        return self.tr('Light Flux Surfacic Density')
 
     def createInstance(self):
         return FluxDensityAlgorithm()
@@ -435,6 +438,9 @@ class DSFLSymbology(FluxDenGrpAlg):
     def shortHelpString(self):
         helpStr = "Apply symbology to DSFL layer"
         return self.tr(helpStr)
+        
+    def displayName(self):
+        return self.tr('Apply symbology to DSFL layer')
 
     def createInstance(self):
         return DSFLSymbology()
@@ -562,6 +568,7 @@ class SimpleDSFL(FluxDenGrpAlg):
         else:
             reporting_params = parameters.copy()
             reporting_params[RR.ROADS] = roads_source
+            reporting_params[RR.BUFFER_EXPR] = RR.DEFAULT_BUFFER_EXPR
             reporting_params[RR.NAME_FIELD] = self.fieldname
             reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
             reporting_params[RR.DISSOLVE] = reporting_mode in [1,2] # Roads
@@ -612,6 +619,9 @@ class SimpleDSFL(FluxDenGrpAlg):
     def shortHelpString(self):
         helpStr = "Computes light flux surfacic density from raw data"
         return self.tr(helpStr)
+        
+    def displayName(self):
+        return self.tr('Light Flux Surfacic Density (simple)')
         
     def group(self):
         return None
