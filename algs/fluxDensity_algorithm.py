@@ -561,13 +561,22 @@ class SimpleDSFL(FluxDenGrpAlg):
         output_surface = self.parameterAsOutputLayer(parameters,self.OUTPUT_SURFACE,context)
         output_reporting = self.parameterAsOutputLayer(parameters,self.OUTPUT_REPORTING,context)
         self.output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+        out_linear = reporting_mode == 2
+        # Init steps
+        nb_steps = 4 if out_linear else 3
+        mf = QgsProcessingMultiStepFeedback(nb_steps,feedback)
+        if out_linear:
+            roads_layer = roads_source.materialize(QgsFeatureRequest(),feedback=mf)
+            id_field = 'ID'
+            if id_field not in roads_layer.fields().names():
+                raise QgsProcessingException("No 'ID' field in roads layer")
         # Reporting
         #reporting_layer = QgsProcessingUtils.generateTempFilename('reporting.gpkg')
         reporting_layer = output_reporting
         if reporting_mode == 3: # voronoi
             #voronoi_layer = QgsProcessingUtils.generateTempFilename('voronoi.gpkg')
             qgsTreatments.applyVoronoi(lighting_source,reporting_layer,
-                context=context,feedback=feedback)
+                context=context,feedback=mf)
         else:
             reporting_params = parameters.copy()
             reporting_params[RR.ROADS] = roads_source
@@ -575,14 +584,11 @@ class SimpleDSFL(FluxDenGrpAlg):
             reporting_params[RR.NAME_FIELD] = self.fieldname
             reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
             reporting_params[RR.DISSOLVE] = reporting_mode in [1,2] # Roads
-            # if reporting_mode == 2:
-                # reporting_params[RR.OUTPUT] = 'TEMPORARY_OUTPUT'
-                # reporting_params[RR.OUTPUT_LINEAR] = reporting_layer
-            # else:
             reporting_params[RR.OUTPUT] = reporting_layer
             #roads_buffered = QgsProcessingUtils.generateTempFilename('reporting.gpkg')
             qgsTreatments.applyProcessingAlg('LPT',RR.NAME,reporting_params,
-                context=context,feedback=feedback)
+                context=context,feedback=mf)
+        mf.setCurrentStep(1)
         # Surface
         #surface_layer = QgsProcessingUtils.generateTempFilename('surface.gpkg')
         # surface_layer = output_surface
@@ -595,7 +601,8 @@ class SimpleDSFL(FluxDenGrpAlg):
         surface_params[RE.DISSOLVE] = dissolve_step == 0
         surface_params[RE.OUTPUT] = output_surface
         surface = qgsTreatments.applyProcessingAlg('LPT',RE.NAME,surface_params,
-            context=context,feedback=feedback)
+            context=context,feedback=mf)
+        mf.setCurrentStep(2)
         # Light surfacic density
         density_params = parameters.copy()
         density_params[FDA.LIGHTING] = lighting_source
@@ -604,17 +611,27 @@ class SimpleDSFL(FluxDenGrpAlg):
         density_params[FDA.SURFACE] = surface
         density_params[FDA.DISSOLVE] = dissolve_step == 1
         density_params[FDA.SKIP_EMPTY] = True
-        density_params[FDA.OUTPUT] = self.output
-        self.dest_id = qgsTreatments.applyProcessingAlg('LPT',FDA.NAME,density_params,
-            context=context,feedback=feedback)
+        if out_linear:
+            output_surf = QgsProcessingUtils.generateTempFilename('output_surface.gpkg')
+            density_params[FDA.REPORTING_FIELDS] = [id_field]
+            density_params[FDA.OUTPUT] = output_surf
+        else:
+            density_params[FDA.OUTPUT] = self.output
+        self.out_id = qgsTreatments.applyProcessingAlg('LPT',FDA.NAME,density_params,
+            context=context,feedback=mf)
+        mf.setCurrentStep(3)
         # TODO : output linear : join with tronçons
+        if out_linear:
+            copy_fields = [ FDA.NB_LAMPS, FDA.FLUX_SUM, FDA.SURFACE_AREA, FDA.FLUX_DEN ]
+            self.out_id = qgsTreatments.joinByAttribute(roads_source,id_field,output_surf,id_field,
+                copy_fields=copy_fields,out_layer=self.output,context=context,feedback=mf)
         return { self.OUTPUT : self.output }
         
     
     def postProcessAlgorithm(self,context,feedback):
-        out_layer = QgsProcessingUtils.mapLayerFromString(self.dest_id,context)
+        out_layer = QgsProcessingUtils.mapLayerFromString(self.out_id,context)
         if not out_layer:
-            raise QgsProcessingException("No layer found for " + str(self.dest_id))
+            raise QgsProcessingException("No layer found for " + str(self.out_id))
         styles.setCustomClassesDSFL(out_layer,self.FLUX_DEN)
         return {self.OUTPUT: self.output }
         
