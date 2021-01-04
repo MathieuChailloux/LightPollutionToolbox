@@ -299,28 +299,27 @@ class RoadsExtent(RoadsExtentGrpAlg):
             for inc in include_layers:
                 inc_clip_path = QgsProcessingUtils.generateTempFilename('inc_clipped.gpkg')
                 inc_clip = qgsTreatments.applyVectorClip(inc,extent_layer,
-                    inc_clip_path,context=context,feedback=feedback)
+                    inc_clip_path,context=context,feedback=multi_feedback)
                 include_clipped.append(inc_clip)
             include_layers = include_clipped
         layers = [out_bdtopo,out_cadastre] + include_layers
-        if dissolve_flag:
-            merged = QgsProcessingUtils.generateTempFilename('out_merged.gpkg')
-        else:
-            merged = init_output
+        merged = QgsProcessingUtils.generateTempFilename('out_merged.gpkg')
         parameters = { 'LAYERS' : layers, 'CRS' : self.DEFAULT_CRS, 'OUTPUT' : merged }
         qgsTreatments.applyProcessingAlg("LPT",'mergeGeom',parameters,
-            context=context,feedback=feedback)
+            context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(3)
         # DISSOLVE
         if dissolve_flag:
             out_fixed = QgsProcessingUtils.generateTempFilename('out_fixed.gpkg')
-            qgsTreatments.fixGeometries(merged,out_fixed,context=context,feedback=feedback)
+            qgsTreatments.fixGeometries(merged,out_fixed,context=context,feedback=multi_feedback)
             multi_feedback.setCurrentStep(4)
             out_dissolved = QgsProcessingUtils.generateTempFilename('out_dissolved.gpkg')
-            qgsTreatments.dissolveLayer(out_fixed,out_dissolved,context=context,feedback=feedback)
+            qgsTreatments.dissolveLayer(out_fixed,out_dissolved,context=context,feedback=multi_feedback)
             qgsTreatments.assignProjection(out_dissolved,self.DEFAULT_CRS,
-                init_output,context=context,feedback=feedback)
-            multi_feedback.setCurrentStep(5)
+                init_output,context=context,feedback=multi_feedback)
+        else:
+            qgsTreatments.fixGeometries(merged,init_output,context=context,feedback=multi_feedback)
+        multi_feedback.setCurrentStep(5)
         return {self.OUTPUT: init_output }
         
     def displayName(self):

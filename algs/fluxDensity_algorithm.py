@@ -156,7 +156,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             QgsProcessingParameterBoolean(
                 self.SKIP_EMPTY,
                 self.tr('Skip features with empty flux'),
-                defaultValue=False))
+                defaultValue=True))
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.MIN_AREA,
@@ -219,10 +219,13 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             surface_layer = surface.materialize(QgsFeatureRequest(),feedback=feedback)
             surface_crs = surface.sourceCrs().authid()
             if reporting_crs != surface_crs:
-                surface_path = QgsProcessingUtils.generateTempFilename('surface_reproj.gpkg')
-                qgsTreatments.applyReprojectLayer(surface_layer,reporting_crs,surface_path,
+                surface_reproj = QgsProcessingUtils.generateTempFilename('surface_reproj.gpkg')
+                qgsTreatments.applyReprojectLayer(surface_layer,reporting_crs,surface_reproj,
                     context=context,feedback=feedback)
-                surface_layer = qgsUtils.loadVectorLayer(surface_path)
+                surface_fixed = QgsProcessingUtils.generateTempFilename('surface_fixed.gpkg')
+                qgsTreatments.fixGeometries(surface_reproj,surface_fixed,
+                    context=context,feedback=feedback)
+                surface_layer = qgsUtils.loadVectorLayer(surface_fixed)
                 qgsTreatments.createSpatialIndex(surface_layer,context=context,feedback=feedback)
                 
         # Output fields initialization
@@ -582,7 +585,7 @@ class SimpleDSFL(FluxDenGrpAlg):
                 context=context,feedback=feedback)
         # Surface
         #surface_layer = QgsProcessingUtils.generateTempFilename('surface.gpkg')
-        surface_layer = output_surface
+        # surface_layer = output_surface
         surface_params = parameters.copy()
         surface_params[RE.ROADS] = roads_source
         surface_params[RE.CADASTRE] = cadastre_source
@@ -590,15 +593,15 @@ class SimpleDSFL(FluxDenGrpAlg):
         if hydro_source:
             surface_params[RE.DIFF_LAYERS] = [hydro_source]
         surface_params[RE.DISSOLVE] = dissolve_step == 0
-        surface_params[RE.OUTPUT] = surface_layer
-        qgsTreatments.applyProcessingAlg('LPT',RE.NAME,surface_params,
+        surface_params[RE.OUTPUT] = output_surface
+        surface = qgsTreatments.applyProcessingAlg('LPT',RE.NAME,surface_params,
             context=context,feedback=feedback)
         # Light surfacic density
         density_params = parameters.copy()
         density_params[FDA.LIGHTING] = lighting_source
         density_params[FDA.REPORTING] = reporting_layer
         density_params[FDA.CLIP_DISTANCE] = 20 if reporting_mode == 3 else 30
-        density_params[FDA.SURFACE] = surface_layer
+        density_params[FDA.SURFACE] = surface
         density_params[FDA.DISSOLVE] = dissolve_step == 1
         density_params[FDA.SKIP_EMPTY] = True
         density_params[FDA.OUTPUT] = self.output
