@@ -525,7 +525,23 @@ class SimpleDSFL(FluxDenGrpAlg):
                 self.tr('Dissolve step'),
                 options=[self.tr('Dissolve surface layer'),self.tr('Dissolve reporting unit')],
                 defaultValue=0)
-        advancedParams = [paramSelectExpr,paramBufferExpr,paramDissolve]
+        paramMinArea = QgsProcessingParameterNumber(
+                FDA.MIN_AREA,
+                self.tr("Features minimal area (smaller features are skipped)"),
+                type=QgsProcessingParameterNumber.Double,
+                optional=True)
+        paramIncludeLayers = QgsProcessingParameterMultipleLayers(
+                RE.INCLUDE_LAYERS,
+                self.tr('Include layers (surface added to result)'),
+                layerType=QgsProcessing.TypeVectorPolygon,
+                optional=True)
+        paramDiffLayers = QgsProcessingParameterMultipleLayers(
+                RE.DIFF_LAYERS,
+                self.tr('Exclude layers (surface remove from cadastre result)'),
+                layerType=QgsProcessing.TypeVectorPolygon,
+                optional=True)
+        advancedParams = [ paramSelectExpr,paramBufferExpr,paramDissolve,
+            paramMinArea, paramIncludeLayers, paramDiffLayers ]
         for param in advancedParams:
             param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
             self.addParameter(param)
@@ -558,6 +574,8 @@ class SimpleDSFL(FluxDenGrpAlg):
         hydro_source = self.parameterAsVectorLayer(parameters,self.SURFACE_HYDRO,context)
         extent_source = self.parameterAsVectorLayer(parameters,RE.EXTENT_LAYER,context)
         dissolve_step = self.parameterAsEnum(parameters,self.DISSOLVE_STEP,context)
+        include_layers = self.parameterAsLayerList(parameters,RE.INCLUDE_LAYERS,context)
+        diff_layers = self.parameterAsLayerList(parameters,RE.DIFF_LAYERS,context)
         output_surface = self.parameterAsOutputLayer(parameters,self.OUTPUT_SURFACE,context)
         output_reporting = self.parameterAsOutputLayer(parameters,self.OUTPUT_REPORTING,context)
         self.output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
@@ -596,8 +614,10 @@ class SimpleDSFL(FluxDenGrpAlg):
         surface_params[RE.ROADS] = roads_source
         surface_params[RE.CADASTRE] = cadastre_source
         surface_params[RE.EXTENT_LAYER] = extent_source
+        surface_params[RE.INCLUDE_LAYERS] = include_layers
+        surface_params[RE.DIFF_LAYERS] = diff_layers
         if hydro_source:
-            surface_params[RE.DIFF_LAYERS] = [hydro_source]
+            surface_params[RE.DIFF_LAYERS] += [hydro_source]
         surface_params[RE.DISSOLVE] = dissolve_step == 0
         surface_params[RE.OUTPUT] = output_surface
         surface = qgsTreatments.applyProcessingAlg('LPT',RE.NAME,surface_params,
