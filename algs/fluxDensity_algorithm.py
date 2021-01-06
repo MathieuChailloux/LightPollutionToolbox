@@ -464,9 +464,9 @@ class SimpleDSFL(FluxDenGrpAlg):
     def initAlgorithm(self, config=None):
         # Inputs
         self.reporting_modes = [
-            self.tr('Reporting per road'),
             self.tr('Reporting per road section'),
             self.tr('Reporting per road section (linear)'),
+            self.tr('Reporting per road'),
             self.tr('Reporting per lamp')
         ]
         self.addParameter(
@@ -494,6 +494,11 @@ class SimpleDSFL(FluxDenGrpAlg):
                 [QgsProcessing.TypeVectorLine]))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
+                RE.EXTENT_LAYER,
+                self.tr('Extent layer'),
+                [QgsProcessing.TypeVectorPolygon]))
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
                 RE.CADASTRE,
                 self.tr('Cadastre layer'),
                 [QgsProcessing.TypeVectorPolygon]))
@@ -503,11 +508,6 @@ class SimpleDSFL(FluxDenGrpAlg):
                 self.tr('Hydrographic surface layer'),
                 [QgsProcessing.TypeVectorPolygon],
                 optional=True))
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                RE.EXTENT_LAYER,
-                self.tr('Extent layer'),
-                [QgsProcessing.TypeVectorPolygon]))
         # Advanced parameters
         paramSelectExpr = QgsProcessingParameterExpression(
                 RE.SELECT_EXPR,
@@ -579,7 +579,7 @@ class SimpleDSFL(FluxDenGrpAlg):
         output_surface = self.parameterAsOutputLayer(parameters,self.OUTPUT_SURFACE,context)
         output_reporting = self.parameterAsOutputLayer(parameters,self.OUTPUT_REPORTING,context)
         self.output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
-        out_linear = reporting_mode == 2
+        out_linear = reporting_mode == 1
         # Init steps
         nb_steps = 4 if out_linear else 3
         mf = QgsProcessingMultiStepFeedback(nb_steps,feedback)
@@ -599,9 +599,11 @@ class SimpleDSFL(FluxDenGrpAlg):
             reporting_params = parameters.copy()
             reporting_params[RR.ROADS] = roads_source
             reporting_params[RR.BUFFER_EXPR] = RR.DEFAULT_BUFFER_EXPR
-            reporting_params[RR.NAME_FIELD] = self.fieldname
+            reporting_params[RR.NAME_FIELD] = RR.DEFAULT_NAME_FIELD
             reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
-            reporting_params[RR.DISSOLVE] = reporting_mode in [1,2] # Roads
+            reporting_params[RR.DISSOLVE] = reporting_mode in [0,1,2] # Roads
+            if reporting_mode in [0,1]:
+                reporting_params[RR.JOIN_EXPR] = RR.JOIN_EXPR_TWO_WAYS
             reporting_params[RR.OUTPUT] = reporting_layer
             #roads_buffered = QgsProcessingUtils.generateTempFilename('reporting.gpkg')
             qgsTreatments.applyProcessingAlg('LPT',RR.NAME,reporting_params,

@@ -71,7 +71,9 @@ class RoadsReporting(RoadsExtentGrpAlg):
     OUTPUT_LINEAR = 'OUTPUT_LINEAR'
     # DEFAULT_BUFFER_EXPR = 'if( "LARGEUR" ,if( "LARGEUR" >=10, "LARGEUR" *2, "LARGEUR" *3),5)'
     DEFAULT_BUFFER_EXPR = 'if( "LARGEUR" ,if(  "NATURE" in ( \'Route empierrée\' , \'Route à 1 chaussée\' , \'Route à 2 chaussées\' ), if ("LARGEUR" >=10, "LARGEUR" *2, "LARGEUR" *3),	"LARGEUR"*1.5),	6)'
-    DEFAULT_JOIN_EXPR = 'NOM_1_G is not NULL AND "SENS" in ( \'Sens direct\' , \'Sens inverse\' )'
+    DEFAULT_JOIN_EXPR = 'NOM_1_G is not NULL'
+    JOIN_EXPR_TWO_WAYS = 'NOM_1_G is not NULL AND "SENS" in ( \'Sens direct\' , \'Sens inverse\' )'
+    DEFAULT_NAME_FIELD = 'NOM_1_G'
 
     def initAlgorithm(self, config=None):
         self.cap_styles = [self.tr('Round'),'Flat', 'Square']
@@ -106,7 +108,7 @@ class RoadsReporting(RoadsExtentGrpAlg):
         paramNameField = QgsProcessingParameterField(
                 self.NAME_FIELD,
                 self.tr('Roads name field'),
-                defaultValue='NOM_1_G',
+                defaultValue=self.DEFAULT_NAME_FIELD,
                 parentLayerParameterName=self.ROADS)
         # paramIncludeNull = self.addParameter(
             # QgsProcessingParameterBoolean(
@@ -181,6 +183,8 @@ class RoadsReporting(RoadsExtentGrpAlg):
             # null_expr = "" + name_field + " is NULL"
             if not join_flag:
                 raise QgsProcessingException("No join expression specified")
+            if name_field not in input_layer.fields().names():
+                raise QgsProcessingException("Field '" + str(name_field) + "' does not exist, impossible to join by name")
             qgsTreatments.extractByExpression(buffered,join_expr,buffered_join,
                 fail_out=buffered_nojoin,context=context,feedback=mf)
             mf.setCurrentStep(3)
