@@ -464,10 +464,10 @@ class SimpleDSFL(FluxDenGrpAlg):
     def initAlgorithm(self, config=None):
         # Inputs
         self.reporting_modes = [
-            self.tr('Reporting per road section'),
-            self.tr('Reporting per road section (linear)'),
-            self.tr('Reporting per road'),
-            self.tr('Reporting per lamp')
+            self.tr('Per road section'),
+            self.tr('Per road section (linear)'),
+            self.tr('Per road'),
+            self.tr('Per lamp')
         ]
         self.addParameter(
             QgsProcessingParameterEnum(

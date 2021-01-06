@@ -38,7 +38,7 @@ from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
 from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
 from .viirs import VIIRS_Untar
 from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
-from .showTresholds import ShowULRAlg
+from .classifyLamps import ClassifyLightingAlg
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
 
@@ -62,7 +62,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             FluxDispAlg(),
             FluxDispTempCoulAlg(),
             LightDispSymbology(),
-            ShowULRAlg(),
+            ClassifyLightingAlg(),
             FluxEstimationAlgorithm(),
             FluxTimeAlgorithm()]
         for a in self.alglist:

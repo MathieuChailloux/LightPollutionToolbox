@@ -37,6 +37,7 @@ from qgis.core import (QgsProcessing,
                        QgsFeature,
                        QgsProject,
                        QgsVectorLayer,
+                       QgsGraduatedSymbolRenderer,
                        QgsProcessingUtils,
                        QgsProcessingContext,
                        QgsProcessingMultiStepFeedback,
@@ -58,17 +59,58 @@ from qgis.core import (QgsProcessing,
 
 from ..qgis_lib_mc import styles                       
 
-class ShowTresholdAlg(QgsProcessingAlgorithm):
+# class ClassifyLampAlg(QgsProcessingAlgorithm):
+
+    # INPUT = 'INPUT'
+    # FIELD = 'FIELD'
+    # OUTPUT = 'OUTPUT'
+    
+    # def name(self):
+        # return self.NAME
+
+    # def initAlgFromFieldInfo(self,field_descr,suffix='_copy',defaultVal=None):
+        # self.suffix = suffix
+        # self.addParameter(
+            # QgsProcessingParameterFeatureSource(
+                # self.INPUT,
+                # self.tr('Lighting layer'),
+                # [QgsProcessing.TypeVectorPoint]))
+        # self.addParameter(
+            # QgsProcessingParameterField(
+                # self.FIELD,
+                # description=self.tr(field_descr),
+                # defaultValue=defaultVal,
+                # type=QgsProcessingParameterField.Numeric,
+                # parentLayerParameterName=self.INPUT))
+    
+    # def processAlgorithm(self, parameters, context, feedback):
+        # self.in_layer = self.parameterAsVectorLayer(parameters,self.INPUT,context)
+        # self.field = self.parameterAsString(parameters,self.FIELD,context)
+        # if not self.in_layer:
+            # raise QgsProcessingException("No input layer")
+        # self.clone = QgsVectorLayer(self.in_layer.source(),
+            # self.in_layer.name() + self.suffix, self.in_layer.providerType())
+        # return { self.OUTPUT : self.clone }
+
+    # def tr(self, string):
+        # return QCoreApplication.translate('Processing', string)
+        
+
+   
+class ClassifyLightingAlg(QgsProcessingAlgorithm):
 
     INPUT = 'INPUT'
     FIELD = 'FIELD'
+    CLASSIF_MODE = 'CLASSIF_MODE'
     OUTPUT = 'OUTPUT'
+    NAME = 'classifyLighting'
     
-    def name(self):
-        return self.NAME
-
-    def initAlgFromFieldInfo(self,field_descr,suffix='_copy',defaultVal=None):
-        self.suffix = suffix
+    def initAlgorithm(self, config=None):
+        self.classif_modes = [
+            self.tr('Flux'),
+            self.tr('Color Temperature'),
+            self.tr('ULR'),
+        ]
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
@@ -77,54 +119,78 @@ class ShowTresholdAlg(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterField(
                 self.FIELD,
-                description=self.tr(field_descr),
-                defaultValue=defaultVal,
+                description=self.tr('Field to classify'),
+                defaultValue='flux',
                 type=QgsProcessingParameterField.Numeric,
                 parentLayerParameterName=self.INPUT))
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                self.CLASSIF_MODE,
+                self.tr('Classification mode'),
+                options=self.classif_modes,
+                defaultValue=0))
+        #self.initAlgFromFieldInfo(self.tr('ULR field'),suffix='_ulr')
     
     def processAlgorithm(self, parameters, context, feedback):
         self.in_layer = self.parameterAsVectorLayer(parameters,self.INPUT,context)
         self.field = self.parameterAsString(parameters,self.FIELD,context)
+        self.mode = self.parameterAsEnum(parameters,self.CLASSIF_MODE,context)
         if not self.in_layer:
             raise QgsProcessingException("No input layer")
+        if self.mode == 0:
+            suffix = '_flux'
+        elif self.mode == 1:
+            suffix = '_tempCoul'
+        elif self.mode == 2:
+            suffix = '__ulr'
+        else:
+            raise QgsProcessingException("Unexpected classification mode : " + str(self.mode))
         self.clone = QgsVectorLayer(self.in_layer.source(),
-            self.in_layer.name() + self.suffix, self.in_layer.providerType())
+            self.in_layer.name() + suffix, self.in_layer.providerType())
         return { self.OUTPUT : self.clone }
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-        
-    # def group(self):
-        # return self.tr('Light Flux Surfacic Density')
-        
-    # def groupId(self):
-        # return self.tr('density')
-        
-
-   
-class ShowULRAlg(ShowTresholdAlg):
-
-    NAME = 'showULR'
-    
-    def initAlgorithm(self, config=None):
-        self.initAlgFromFieldInfo(self.tr('ULR field'),suffix='_ulr')
         
     def postProcessAlgorithm(self,context,feedback):
         if not self.clone:
             raise QgsProcessingException("No duplicate layer")
-        class_bounds = [1,4]
-        color_ramp = styles.getGradientColorRampRdYlGn()
-        styles.setCustomClasses2(self.clone,self.field,color_ramp,class_bounds)
+        if self.mode == 0:
+            self.classifyFlux()
+        elif self.mode == 1:
+            self.classifyTempCoul()
+        elif self.mode == 2:
+            self.classifyULR()
+        else:
+            assert(False)
         QgsProject.instance().addMapLayer(self.clone, addToLegend=True)
         return { self.OUTPUT : self.clone }
         
+    def classifyFlux(self):
+        color_ramp = styles.mkColorRamp('Plasma')
+        classif_method = QgsGraduatedSymbolRenderer.Quantile
+        #classif_method = QgsGraduatedSymbolRenderer.Jenks
+        renderer = styles.mkGraduatedRenderer(self.clone,self.field,color_ramp,
+            nb_classes=5,classif_method=classif_method)
+        styles.setRenderer(self.clone,renderer)
+        
+    def classifyTempCoul(self):
+        class_bounds = [2000,2400,2700,3000]
+        color_ramp = styles.mkColorRamp('RdYlBu')
+        styles.setCustomClasses2(self.clone,self.field,color_ramp,class_bounds)
+        
+    def classifyULR(self):
+        class_bounds = [1,4]
+        color_ramp = styles.getGradientColorRampRdYlGn()
+        styles.setCustomClasses2(self.clone,self.field,color_ramp,class_bounds)
+        
     def shortHelpString(self):
-        helpStr = "Apply ULR symbology to input layer"
+        helpStr = "Classify lighting layer according to selected mode (flux, color temperature, ULR)"
         return self.tr(helpStr)
         
     def displayName(self):
-        return self.tr('Show Upward Light Ratio')
+        return self.tr('Classify lighting layer')
 
     def createInstance(self):
-        return ShowULRAlg()
+        return ClassifyLightingAlg()
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
     
