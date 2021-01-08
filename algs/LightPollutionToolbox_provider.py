@@ -31,7 +31,7 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 __revision__ = '$Format:%H$'
 
 from qgis.core import QgsProcessingProvider
-from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology, SimpleDSFL
+from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology, DSFLSurface, DSFLRaw
 from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
 from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
 from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
@@ -47,24 +47,27 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         Default constructor.
         """
         self.alglist = [FluxDensityAlgorithm(),
-            SimpleDSFL(),
+            DSFLSurface(),
+            DSFLRaw(),
             DSFLSymbology(),
             CreateMeshAlgorithm(),
             RoadsReporting(),
             MergeGeometryAlgorithm(),
             MergeGeometryDissolveAlgorithm(),
             MergeGeometryNoOverlapAlgorithm(),
-            VIIRS_Untar(),
             RoadsExtent(),
             RoadsExtentBDTOPO(),
             RoadsExtentFromCadastre(),
             AddParcellesAlg(),
+            LightDispSymbology(),
+            ClassifyLightingAlg()]
+        self.alglist2 = [
+            VIIRS_Untar(),
             FluxDispAlg(),
             FluxDispTempCoulAlg(),
-            LightDispSymbology(),
-            ClassifyLightingAlg(),
             FluxEstimationAlgorithm(),
-            FluxTimeAlgorithm()]
+            FluxTimeAlgorithm()
+            ]
         for a in self.alglist:
             a.initAlgorithm()
         QgsProcessingProvider.__init__(self)

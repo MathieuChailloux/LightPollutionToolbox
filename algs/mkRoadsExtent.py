@@ -49,7 +49,7 @@ from qgis.core import (QgsProcessing,
                        QgsProperty)
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
-#from .mergeGeometry_algorithm import MergeGeometryAlgorithm
+from .mergeGeometry_algorithm import MergeGeometryAlgorithm
 
 
 class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
@@ -180,7 +180,6 @@ class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
         feedback.setCurrentStep(1)
         
         buffered = QgsProcessingUtils.generateTempFilename('buffered.gpkg') if dissolve_flag else output
-        #buf_expr = 'if ("LARGEUR", "LARGEUR" / 2, if("NB_VOIES", "NB_VOIES" * 1.75, 2.5))'
         distance = QgsProperty.fromExpression(buf_expr)
         qgsTreatments.applyBufferFromExpr(selected,distance,buffered,
             context=context,feedback=feedback)
@@ -265,7 +264,6 @@ class RoadsExtent(RoadsExtentGrpAlg):
         self.initOutput()
 
     def processAlgorithm(self, parameters, context, feedback):
-        multi_feedback = QgsProcessingMultiStepFeedback(3,feedback)
         init_output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         roads_layer = self.parameterAsVectorLayer(parameters,self.ROADS,context)
         dissolve_flag = self.parameterAsBool(parameters,self.DISSOLVE,context)
@@ -275,6 +273,8 @@ class RoadsExtent(RoadsExtentGrpAlg):
         parameters[self.DIFF_LAYERS] = self.parameterAsLayerList(parameters,self.DIFF_LAYERS,context)
         include_layers = self.parameterAsLayerList(parameters,self.INCLUDE_LAYERS,context)
         clip_flag = self.parameterAsBool(parameters,self.CLIP,context)
+        nb_steps = 5 if dissolve_flag else 4
+        multi_feedback = QgsProcessingMultiStepFeedback(nb_steps,feedback)
         # BDTOPO
         if clip_flag:
             roads_clipped_path = QgsProcessingUtils.generateTempFilename('roads_clipped.gpkg')
@@ -305,7 +305,7 @@ class RoadsExtent(RoadsExtentGrpAlg):
         layers = [out_bdtopo,out_cadastre] + include_layers
         merged = QgsProcessingUtils.generateTempFilename('out_merged.gpkg')
         parameters = { 'LAYERS' : layers, 'CRS' : self.DEFAULT_CRS, 'OUTPUT' : merged }
-        qgsTreatments.applyProcessingAlg("LPT",'mergeGeom',parameters,
+        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.NAME,parameters,
             context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(3)
         # DISSOLVE
@@ -319,7 +319,7 @@ class RoadsExtent(RoadsExtentGrpAlg):
                 init_output,context=context,feedback=multi_feedback)
         else:
             qgsTreatments.fixGeometries(merged,init_output,context=context,feedback=multi_feedback)
-        multi_feedback.setCurrentStep(5)
+        multi_feedback.setCurrentStep(nb_steps)
         return {self.OUTPUT: init_output }
         
     def displayName(self):
@@ -327,89 +327,7 @@ class RoadsExtent(RoadsExtentGrpAlg):
 
     def createInstance(self):
         return RoadsExtent()
-        
-
-class RoadsExtentOld(RoadsExtentGrpAlg):
-    
-    def initAlgorithm(self, config=None):
-        RoadsExtentBDTOPO.initParams()
-        RoadsExtentFromCadastre.initParams()
-        self.initOutput()
-
-    def processAlgorithm(self, parameters, context, feedback):
-        extent_layer = self.parameterAsVectorLayer(parameters,self.EXTENT_LAYER,context)
-        if not extent_layer:
-            raise QgsProcessingException("No extent layer")
-        roads_layer = self.parameterAsVectorLayer(parameters,self.ROADS,context)
-        if not roads_layer:
-            raise QgsProcessingException("No roads layer")
-        roads_width_field = self.parameterAsString(parameters,self.ROADS_WIDTH,context)
-        cadastre_layer = self.parameterAsVectorLayer(parameters,self.CADASTRE,context)
-        if not cadastre_layer:
-            raise QgsProcessingException("No cadastre layer")
-        diff_layers = self.parameterAsLayerList(parameters,self.DIFF_LAYERS,context)
-        output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
-        # dest_crs = self.parameterAsCrs(parameters,self.CRS,context)
-        
-        feedback = QgsProcessingMultiStepFeedback(5,feedback)
-                
-        # intersection = QgsProcessingUtils.generateTempFilename('intersected.gpkg')
-        # qgsTreatments.extractByLoc(roads_layer,extent_layer,intersection,
-            # context=context,feedback=feedback)
-        
-        buffered = QgsProcessingUtils.generateTempFilename('buffered.gpkg')
-        if roads_width_field not in roads_layer.fields().names():
-            raise QgsProcessingException("Could not find '" + str(roads_width_field) + "' in roads layer")
-        distance = QgsProperty.fromExpression('"LARGEUR" / 2')
-        qgsTreatments.applyBufferFromExpr(roads_layer,distance,buffered,
-            context=context,feedback=feedback)
-            
-        feedback.setCurrentStep(1)
-            
-        not_cadastre = QgsProcessingUtils.generateTempFilename('notCadastre.gpkg')
-        qgsTreatments.applyDifference(extent_layer,cadastre_layer,not_cadastre,
-            context=context,feedback=feedback)
-            
-        feedback.setCurrentStep(2)
-                          
-        for diff_layer in diff_layers:
-            name = diff_layer.sourceName()
-            out = QgsProcessingUtils.generateTempFilename('diff' + name + '.gpkg')
-            qgsTreatments.applyDifference(not_cadastre,diff_layer,out,
-                context=context,feedback=feedback)
-            not_cadastre = out
-        
-        feedback.setCurrentStep(3)
-        
-        # buffered_layer = qgsUtils.loadVectorLayer(buffered)
-        # not_cadastre_layer = qgsUtils.loadVectorLayer(not_cadastre)
-        # layers = [buffered_layer,not_cadastre_layer]
-        # merged = QgsProcessingUtils.generateTempFilename('merged.gpkg')
-        # parameters = { 'LAYERS' : layers, 'CRS' : buffered_layer.sourceCrs(), 'OUTPUT' : merged }
-        # qgsTreatments.applyProcessingAlg("LPT","Merge geometries",parameters,
-            # context=context,feedback=feedback)
-            
-        diff_layer = QgsProcessingUtils.generateTempFilename('diff.gpkg')
-        qgsTreatments.applyDifference(buffered,diff_layer,out,
-            context=context,feedback=feedback)
-            
-        feedback.setCurrentStep(4)
-        
-        # dissolved = qgsTreatments.dissolveLayer(merged,output,context=context,feedback=feedback)
-            
-        feedback.setCurrentStep(5)
-        
-        return {self.OUTPUT: output}
-        
-    def name(self):
-        return 'roadsExtentold'
-        
-    def displayName(self):
-        return 'Roads Extent (BDTOPO + Cadastre) DEPRECATED'
-
-    def createInstance(self):
-        return RoadsExtentOld()
-        
+               
         
         
 class AddParcellesAlg(RoadsExtentGrpAlg):

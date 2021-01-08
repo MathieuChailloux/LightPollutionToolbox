@@ -141,7 +141,8 @@ class RoadsReporting(RoadsExtentGrpAlg):
                 optional=True))
 
     def processAlgorithm(self, parameters, context, feedback):
-        input_layer = self.parameterAsVectorLayer(parameters,self.ROADS,context)
+        roads_source, roads_layer = qgsTreatments.parameterAsSourceLayer(
+            self,parameters,self.ROADS,context,feedback=feedback)
         if not input_layer:
             raise QgsProcessingException("No roads layer")
         name_field = self.parameterAsString(parameters,self.NAME_FIELD,context)
@@ -156,16 +157,17 @@ class RoadsReporting(RoadsExtentGrpAlg):
         join_flag = join_expr is not None and join_expr != ''
         nb_steps = 3 + (3 if join_flag else 0) + (3 if output_linear else 0)
         mf = QgsProcessingMultiStepFeedback(nb_steps,feedback)
-        crs = input_layer.dataProvider().sourceCrs()
+        crs = roads_source.sourceCrs()
+        # crs = input_layer.sourceCrs()
         distance = QgsProperty.fromExpression(buf_expr)
         
         # Extract selection
         if select_expr:
             selected = QgsProcessingUtils.generateTempFilename('selected.gpkg')
-            qgsTreatments.extractByExpression(input_layer,select_expr,selected,
+            qgsTreatments.extractByExpression(roads_layer,select_expr,selected,
                 context=context,feedback=mf)
         else:
-            selected = input_layer
+            selected = roads_layer
         mf.setCurrentStep(1)
         
         
@@ -183,7 +185,7 @@ class RoadsReporting(RoadsExtentGrpAlg):
             # null_expr = "" + name_field + " is NULL"
             if not join_flag:
                 raise QgsProcessingException("No join expression specified")
-            if name_field not in input_layer.fields().names():
+            if name_field not in roads_layer.fields().names():
                 raise QgsProcessingException("Field '" + str(name_field) + "' does not exist, impossible to join by name")
             qgsTreatments.extractByExpression(buffered,join_expr,buffered_join,
                 fail_out=buffered_nojoin,context=context,feedback=mf)
