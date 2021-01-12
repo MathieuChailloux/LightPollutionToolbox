@@ -143,8 +143,6 @@ class RoadsReporting(RoadsExtentGrpAlg):
     def processAlgorithm(self, parameters, context, feedback):
         roads_source, roads_layer = qgsTreatments.parameterAsSourceLayer(
             self,parameters,self.ROADS,context,feedback=feedback)
-        if not input_layer:
-            raise QgsProcessingException("No roads layer")
         name_field = self.parameterAsString(parameters,self.NAME_FIELD,context)
         select_expr = self.parameterAsExpression(parameters,self.SELECT_EXPR,context)
         buf_expr = self.parameterAsExpression(parameters,self.BUFFER_EXPR,context)
