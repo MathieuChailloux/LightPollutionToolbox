@@ -34,8 +34,9 @@ import os
 import sys
 import inspect
 
-from qgis.core import QgsProcessingAlgorithm, QgsApplication
+from qgis.core import QgsProcessingAlgorithm, QgsApplication, QgsProcessingException
 from .algs.LightPollutionToolbox_provider import LightPollutionToolboxProvider
+from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 
@@ -54,7 +55,27 @@ class LightPollutionToolboxPlugin(object):
         QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):
+        if QgsApplication.locale() in ['fr','FR']:
+            self.switchLang('fr')
         self.initProcessing()
+        
+        # Switch language to english.
+    def switchLang(self,lang):
+        #assert(False)
+        plugin_dir = os.path.dirname(__file__)
+        lang_path = os.path.join(plugin_dir,'i18n','LightPollutionToolbox_' + lang + '.qm')
+        if os.path.exists(lang_path):
+            #assert(False)
+            self.translator = QTranslator()
+            self.translator.load(lang_path)
+            if qVersion() > '4.3.3':
+                #assert(False)
+                print(lang_path)
+                QCoreApplication.installTranslator(self.translator)
+            else:
+                return
+        else:
+            raise QgsProcessingException("No translation file : " + str(en_path))
 
     def unload(self):
         QgsApplication.processingRegistry().removeProvider(self.provider)
