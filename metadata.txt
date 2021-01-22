@@ -5,15 +5,16 @@
 [general]
 name=LightPollutionToolbox
 qgisMinimumVersion=3.0
-description=Light pollution indicators (focus on public lighting)
-version=0.1
+description=Light pollution toolbox
+version=1.0
 author=Mathieu Chailloux
 email=mathieu@chailloux.org
 
-about=Provide a brief description of the plugin and its purpose.
+about=Video tutorials : https://www.youtube.com/playlist?list=PLh9oFe6PuPCWDfZEbtX6nAcuKb2eyZ4HW
+</br></br>BioDispersalLightPollutionToolbox provides multiple algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ... 
 
-tracker=http://bugs
-repository=http://repo
+tracker=https://github.com/MathieuChailloux/LightPollutionToolbox/issues
+repository=https://github.com/MathieuChailloux/LightPollutionToolbox
 # End of mandatory metadata
 
 # Recommended items:
@@ -23,13 +24,13 @@ hasProcessingProvider=yes
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=python
+tags=python, light, pollution, density, surfacic
 
-homepage=http://homepage
+homepage=https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README.md
 category=Analysis
 icon=icon.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
