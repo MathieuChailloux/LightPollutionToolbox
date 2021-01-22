@@ -61,14 +61,14 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             RoadsExtentFromCadastre(),
             AddParcellesAlg(),
             RadianceStats(),
-            LightDispSymbology(),
             ClassifyLightingAlg()]
         self.alglist2 = [
             VIIRS_Untar(),
             FluxDispAlg(),
             FluxDispTempCoulAlg(),
             FluxEstimationAlgorithm(),
-            FluxTimeAlgorithm()
+            FluxTimeAlgorithm(),
+            LightDispSymbology()
             ]
         for a in self.alglist:
             a.initAlgorithm()
