@@ -10,8 +10,7 @@ version=1.0
 author=Mathieu Chailloux
 email=mathieu@chailloux.org
 
-about=Video tutorials : https://www.youtube.com/playlist?list=PLh9oFe6PuPCWDfZEbtX6nAcuKb2eyZ4HW
-</br></br>BioDispersalLightPollutionToolbox provides multiple algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ... 
+about=Video tutorials : https://www.youtube.com/playlist?list=PLh9oFe6PuPCWDfZEbtX6nAcuKb2eyZ4HW</br></br>LightPollutionToolbox provides multiple algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ... 
 
 tracker=https://github.com/MathieuChailloux/LightPollutionToolbox/issues
 repository=https://github.com/MathieuChailloux/LightPollutionToolbox
@@ -21,7 +20,7 @@ repository=https://github.com/MathieuChailloux/LightPollutionToolbox
 
 hasProcessingProvider=yes
 # Uncomment the following line and add your changelog:
-changelog=Changelog test
+#changelog=Changelog test
 
 # Tags are comma separated with spaces allowed
 tags=python, light, pollution, density, surfacic

@@ -30,6 +30,10 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
+import os
+import inspect
+from PyQt5.QtGui import QIcon
+
 from qgis.core import QgsProcessingProvider
 from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology, DSFLSurface, DSFLRaw
 from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
@@ -106,11 +110,9 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         return self.tr('Light Pollution Toolbox')
 
     def icon(self):
-        """
-        Should return a QIcon which is used for your provider inside
-        the Processing toolbox.
-        """
-        return QgsProcessingProvider.icon(self)
+        cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
+        icon = QIcon(os.path.join(os.path.join(cmd_folder, '../lamp.png')))
+        return icon
 
     def longName(self):
         """

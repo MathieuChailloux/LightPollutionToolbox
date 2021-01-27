@@ -36,7 +36,8 @@ import inspect
 
 from qgis.core import QgsProcessingAlgorithm, QgsApplication, QgsProcessingException
 from .algs.LightPollutionToolbox_provider import LightPollutionToolboxProvider
-from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication, QIcon
+from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
+from PyQt5.QtGui import QIcon
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 
@@ -50,6 +51,7 @@ class LightPollutionToolboxPlugin(object):
         self.provider = None
         
     # def icon(self):
+        # cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
         # icon = QIcon(os.path.join(os.path.join(cmd_folder, 'lamp.png')))
         # return icon
 
