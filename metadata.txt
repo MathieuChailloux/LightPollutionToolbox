@@ -21,14 +21,14 @@ repository=https://github.com/MathieuChailloux/LightPollutionToolbox
 
 hasProcessingProvider=yes
 # Uncomment the following line and add your changelog:
-# changelog=
+changelog=Changelog test
 
 # Tags are comma separated with spaces allowed
 tags=python, light, pollution, density, surfacic
 
 homepage=https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README.md
 category=Analysis
-icon=icon.png
+icon=lamp.png
 # experimental flag
 experimental=False
 
@@ -40,7 +40,7 @@ deprecated=False
 # Check the documentation for more information.
 # plugin_dependencies=
 
-Category of the plugin: Raster, Vector, Database or Web
+#Category of the plugin: Raster, Vector, Database or Web
 # category=
 
 # If the plugin can run on QGIS Server.

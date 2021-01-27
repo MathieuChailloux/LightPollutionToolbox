@@ -36,7 +36,7 @@ import inspect
 
 from qgis.core import QgsProcessingAlgorithm, QgsApplication, QgsProcessingException
 from .algs.LightPollutionToolbox_provider import LightPollutionToolboxProvider
-from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
+from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication, QIcon
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 
@@ -48,6 +48,10 @@ class LightPollutionToolboxPlugin(object):
 
     def __init__(self):
         self.provider = None
+        
+    # def icon(self):
+        # icon = QIcon(os.path.join(os.path.join(cmd_folder, 'lamp.png')))
+        # return icon
 
     def initProcessing(self):
         """Init Processing provider for QGIS >= 3.8."""
