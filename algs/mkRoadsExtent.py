@@ -357,7 +357,7 @@ class AddParcellesAlg(RoadsExtentGrpAlg):
         return { self.OUTPUT : None }
         
     def name(self):
-        return 'Add parcelles selection'
+        return self.tr('Add cadastre selection')
         
     def shortHelpString(self):
         helpStr = "Add manual selection of cadastre parcelles"
