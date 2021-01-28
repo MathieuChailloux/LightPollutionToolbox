@@ -61,6 +61,8 @@ EXCLUDE_DIRS = \
 	sample_data/outputs \
 	help
 
+EXCLUDE_FILES = \
+	docs/fr/NoteDSFLI_25012021_v2.docx
 
 COMPILED_RESOURCE_FILES = 
 
@@ -142,6 +144,7 @@ archive:
 	$(foreach EXTRA_PY_DIR,$(EXTRA_PY_DIRS), cp $(EXTRA_PY_DIR)/*.py $(PLUGINNAME)/$(EXTRA_PY_DIR);)
 	$(foreach EXTRA_DIR,$(EXTRA_DIRS), cp -R $(EXTRA_DIR) $(PLUGINNAME)/;)
 	$(foreach EXCLUDE_DIR,$(EXCLUDE_DIRS), rm -rf $(PLUGINNAME)/$(EXCLUDE_DIR);)
+	$(foreach EXCLUDE_FILE,$(EXCLUDE_FILES), rm -f $(PLUGINNAME)/$(EXCLUDE_FILE);)
 	echo "LightPollutionToolbox commit number "  > $(COMMIT_FILE)
 	echo $(COMMIT) >> $(COMMIT_FILE)
 	echo "\nqgis_lib_mc commit number "  >> $(COMMIT_FILE)
