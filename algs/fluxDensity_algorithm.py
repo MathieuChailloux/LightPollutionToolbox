@@ -553,8 +553,12 @@ class DSFLSurface(FluxDensityAlgorithm):
         # Reporting
         reporting_layer = output_reporting
         if reporting_mode == 3: # voronoi
-            #voronoi_layer = QgsProcessingUtils.generateTempFilename('voronoi.gpkg')
-            qgsTreatments.applyVoronoi(lighting_layer,reporting_layer,
+            if qgsUtils.isMultiPartLayer(lighting_layer):
+                in_voronoi = QgsProcessingUtils.generateTempFilename('lighting_single.gpkg')
+                qgsTreatments.multiToSingleGeom(lighting_layer,in_voronoi,context=context,feedback=feedback)
+            else:
+                in_voronoi = lighting_layer
+            qgsTreatments.applyVoronoi(in_voronoi,reporting_layer,
                 context=context,feedback=mf)
         else:
             reporting_params = parameters.copy()
@@ -702,8 +706,12 @@ class DSFLRaw(DSFLSurface):
         # Reporting
         reporting_layer = output_reporting
         if reporting_mode == 3: # voronoi
-            #voronoi_layer = QgsProcessingUtils.generateTempFilename('voronoi.gpkg')
-            qgsTreatments.applyVoronoi(lighting_layer,reporting_layer,
+            if qgsUtils.isMultipartLayer(lighting_layer):
+                in_voronoi = QgsProcessingUtils.generateTempFilename('lighting_single.gpkg')
+                qgsTreatments.multiToSingleGeom(lighting_layer,in_voronoi,context=context,feedback=feedback)
+            else:
+                in_voronoi = lighting_layer
+            qgsTreatments.applyVoronoi(in_voronoi,reporting_layer,
                 context=context,feedback=mf)
         else:
             reporting_params = parameters.copy()
@@ -711,9 +719,9 @@ class DSFLRaw(DSFLSurface):
             reporting_params[RR.BUFFER_EXPR] = RR.DEFAULT_BUFFER_EXPR
             reporting_params[RR.NAME_FIELD] = RR.DEFAULT_NAME_FIELD
             reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
-            reporting_params[RR.DISSOLVE] = reporting_mode in [0,1,2] # Roads
-            if reporting_mode in [0,1]:
-                reporting_params[RR.JOIN_EXPR] = RR.JOIN_EXPR_TWO_WAYS
+            reporting_params[RR.DISSOLVE] = reporting_mode in [2] # Roads
+            # if reporting_mode in [0,1]:
+                # reporting_params[RR.JOIN_EXPR] = RR.JOIN_EXPR_TWO_WAYS
             reporting_params[RR.OUTPUT] = reporting_layer
             qgsTreatments.applyProcessingAlg('LPT',RR.NAME,reporting_params,
                 context=context,feedback=mf)
