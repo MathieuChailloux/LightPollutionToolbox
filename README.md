@@ -13,7 +13,7 @@
 
 Available documentation:
  - [Video tutorials](https://www.youtube.com/playlist?list=PLh9oFe6PuPCWDfZEbtX6nAcuKb2eyZ4HW)
- - [Notice about Light Flux Surfacic density (french only)](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI.pdf)
+ - [Notice about Light Flux Surfacic density (french only)](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
 
 # Algorithms
 

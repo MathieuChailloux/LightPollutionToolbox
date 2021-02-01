@@ -13,7 +13,7 @@
 
 Documentation disponible :
  - [Tutoriels vidéo](https://www.youtube.com/playlist?list=PLh9oFe6PuPCWDfZEbtX6nAcuKb2eyZ4HW)
- - [Note méthodologique sur la Densité Surfacique de Flux Lumineux Installée](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI.pdf)
+ - [Note méthodologique sur la Densité Surfacique de Flux Lumineux Installée](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
 
 # Algorithmes
 
