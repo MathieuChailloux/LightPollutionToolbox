@@ -125,6 +125,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 self.CLIP_DISTANCE,
                 self.tr("Maximal distance to lighting layer (reporting layer clip)"),
                 type=QgsProcessingParameterNumber.Double,
+                defaultValue=30,
                 optional=True)
         self.paramKeepFields = QgsProcessingParameterField(
                 self.REPORTING_FIELDS,
@@ -553,7 +554,7 @@ class DSFLSurface(FluxDensityAlgorithm):
         # Reporting
         reporting_layer = output_reporting
         if reporting_mode == 3: # voronoi
-            if qgsUtils.isMultiPartLayer(lighting_layer):
+            if qgsUtils.isMultipartLayer(lighting_layer):
                 in_voronoi = QgsProcessingUtils.generateTempFilename('lighting_single.gpkg')
                 qgsTreatments.multiToSingleGeom(lighting_layer,in_voronoi,context=context,feedback=feedback)
             else:
@@ -577,7 +578,7 @@ class DSFLSurface(FluxDensityAlgorithm):
         density_params = parameters.copy()
         density_params[FDA.LIGHTING] = lighting_layer
         density_params[FDA.REPORTING] = reporting_layer
-        density_params[FDA.CLIP_DISTANCE] = clip_distance if clip_distance else (20 if reporting_mode == 3 else 30)
+        density_params[FDA.CLIP_DISTANCE] = clip_distance
         density_params[FDA.SURFACE] = surface_layer
         if out_linear:
             output_surf = QgsProcessingUtils.generateTempFilename('output_surface.gpkg')
@@ -689,6 +690,7 @@ class DSFLRaw(DSFLSurface):
         # extent_source = self.parameterAsSource(parameters,RE.EXTENT_LAYER,context)
         extent_source, extent_layer = qgsTreatments.parameterAsSourceLayer(self,
             parameters,RE.EXTENT_LAYER,context,feedback=feedback)
+        clip_distance = self.parameterAsDouble(parameters,self.CLIP_DISTANCE,context)
         dissolve_step = self.parameterAsEnum(parameters,self.DISSOLVE_STEP,context)
         include_layers = self.parameterAsLayerList(parameters,RE.INCLUDE_LAYERS,context)
         diff_layers = self.parameterAsLayerList(parameters,RE.DIFF_LAYERS,context)
@@ -746,7 +748,7 @@ class DSFLRaw(DSFLSurface):
         density_params = parameters.copy()
         density_params[FDA.LIGHTING] = lighting_layer
         density_params[FDA.REPORTING] = reporting_layer
-        density_params[FDA.CLIP_DISTANCE] = 20 if reporting_mode == 3 else 30
+        density_params[FDA.CLIP_DISTANCE] = clip_distance
         density_params[FDA.SURFACE] = surface
         density_params[FDA.DISSOLVE] = dissolve_step == 1
         density_params[FDA.SKIP_EMPTY] = True
