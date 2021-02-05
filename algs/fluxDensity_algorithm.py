@@ -641,13 +641,13 @@ class DSFLRaw(DSFLSurface):
         self.initReportingAdvancedParams()
         self.paramSelectExpr = QgsProcessingParameterExpression(
                 RE.SELECT_EXPR,
-                self.tr('Expression to select features (all features if empty)'),
+                self.tr('Roads selection (surface layer)'),
                 defaultValue=RE.DEFAULT_EXPR,
                 optional =True,
                 parentLayerParameterName=RE.ROADS)
         self.paramBufferExpr = QgsProcessingParameterExpression(
                 RE.BUFFER_EXPR,
-                self.tr('Roads buffer value'),
+                self.tr('Roads buffer value (surface layer)'),
                 defaultValue=RE.DEFAULT_BUFFER_EXPR,
                 parentLayerParameterName=RE.ROADS)
         self.paramDissolveStep = QgsProcessingParameterEnum(
