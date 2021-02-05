@@ -100,7 +100,6 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
     MIN_AREA = 'MIN_AREA'
     MIN_NB_LAMPS= 'MIN_NB_LAMPS'
     OUTPUT_SURFACE = 'OUTPUT_SURFACE'
-    OUTPUT_REPORTING = 'OUTPUT_REPORTING'
     
     SURFACE_AREA = 'SURFACE'
     NB_LAMPS = 'NB_LAMPS'
@@ -159,18 +158,12 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
             self.addParameter(param)
             
-    def initOutput(self,out_sink=False,out_surf=False,out_report=False):
+    def initOutput(self,out_sink=False,out_surf=False):
         if out_surf:
             self.addParameter(
                 QgsProcessingParameterVectorDestination(
                     self.OUTPUT_SURFACE,
                     self.tr('Surface layer'),
-                    optional=True))
-        if out_report:
-            self.addParameter(
-                QgsProcessingParameterVectorDestination(
-                    self.OUTPUT_REPORTING,
-                    self.tr('Reporting layer'),
                     optional=True))
         if out_sink:
             self.addParameter(
@@ -482,7 +475,6 @@ class DSFLSurface(FluxDensityAlgorithm):
 
     REPORTING_MODE = 'REPORTING_MODE'
     SURFACE_LAYER = 'SURFACE_LAYER'
-    OUTPUT_REPORTING = 'OUTPUT_REPORTING'
     
     def initReportingParams(self):
         self.reporting_modes = [
@@ -525,7 +517,7 @@ class DSFLSurface(FluxDensityAlgorithm):
         self.initAdvancedParams(self.advancedParams)
         
         # Outputs
-        self.initOutput(out_sink=False,out_report=True)
+        self.initOutput(out_sink=False)
     
     def processAlgorithm(self, parameters, context, feedback):
         # Params
@@ -540,8 +532,6 @@ class DSFLSurface(FluxDensityAlgorithm):
         # Advanced params
         clip_distance = self.parameterAsDouble(parameters,self.CLIP_DISTANCE,context)
         # Outputs
-        output_surface = self.parameterAsOutputLayer(parameters,self.OUTPUT_SURFACE,context)
-        output_reporting = self.parameterAsOutputLayer(parameters,self.OUTPUT_REPORTING,context)
         self.output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         out_linear = reporting_mode == 1
         # Init steps
@@ -551,25 +541,23 @@ class DSFLSurface(FluxDensityAlgorithm):
             id_field = 'ID'
             if id_field not in roads_layer.fields().names():
                 raise QgsProcessingException("No 'ID' field in roads layer")
+        qgsTreatments.fixShapefileFID(surface_layer,context=context,feedback=feedback)
         # Reporting
-        reporting_layer = output_reporting
+        reporting_layer = QgsProcessingUtils.generateTempFilename('reporting.gpkg')
         if reporting_mode == 3: # voronoi
             if qgsUtils.isMultipartLayer(lighting_layer):
                 in_voronoi = QgsProcessingUtils.generateTempFilename('lighting_single.gpkg')
-                qgsTreatments.multiToSingleGeom(lighting_layer,in_voronoi,context=context,feedback=feedback)
+                qgsTreatments.multiToSingleGeom(lighting_layer,in_voronoi,context=context,feedback=mf)
             else:
                 in_voronoi = lighting_layer
-            qgsTreatments.applyVoronoi(in_voronoi,reporting_layer,
-                context=context,feedback=mf)
+            qgsTreatments.applyVoronoi(in_voronoi,reporting_layer,context=context,feedback=mf)
         else:
             reporting_params = parameters.copy()
             reporting_params[RR.ROADS] = roads_layer
             reporting_params[RR.BUFFER_EXPR] = RR.DEFAULT_BUFFER_EXPR
             reporting_params[RR.NAME_FIELD] = RR.DEFAULT_NAME_FIELD
             reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
-            reporting_params[RR.DISSOLVE] = reporting_mode in [0,1,2] # Roads
-            if reporting_mode in [0,1]:
-                reporting_params[RR.JOIN_EXPR] = RR.JOIN_EXPR_TWO_WAYS
+            reporting_params[RR.DISSOLVE] = reporting_mode in [2] # Roads
             reporting_params[RR.OUTPUT] = reporting_layer
             qgsTreatments.applyProcessingAlg('LPT',RR.NAME,reporting_params,
                 context=context,feedback=mf)
@@ -623,7 +611,6 @@ class DSFLRaw(DSFLSurface):
     SURFACE_HYDRO = 'SURFACE_HYDRO'
     DISSOLVE_STEP = 'DISSOLVE_STEP'
     OUTPUT_SURFACE = 'OUTPUT_SURFACE'
-    OUTPUT_REPORTING = 'OUTPUT_REPORTING'
 
     def initAlgorithm(self, config=None):
         # Inputs
@@ -672,22 +659,20 @@ class DSFLRaw(DSFLSurface):
             self.paramDissolveStep, self.paramSkip, self.paramMinArea, self.paramMinLamps ]
         self.initAdvancedParams(self.advancedParams)
         # Outputs
-        self.initOutput(out_surf=True,out_report=True)
+        self.initOutput(out_surf=True)
     
     def processAlgorithm(self, parameters, context, feedback):
+        # Parameters
         reporting_mode = self.parameterAsEnum(parameters,self.REPORTING_MODE,context)
         lighting_source, lighting_layer = qgsTreatments.parameterAsSourceLayer(
             self,parameters,self.LIGHTING,context,feedback=feedback)
         self.fieldname = self.parameterAsString(parameters,FDA.FLUX_FIELD,context)
         roads_source, roads_layer = qgsTreatments.parameterAsSourceLayer(self,
             parameters,RE.ROADS,context,feedback=feedback)
-        #cadastre_source = self.parameterAsSource(parameters,RE.CADASTRE,context)
         cadastre_source, cadastre_layer = qgsTreatments.parameterAsSourceLayer(self,
             parameters,RE.CADASTRE,context,feedback=feedback)
-        # hydro_source = self.parameterAsSource(parameters,self.SURFACE_HYDRO,context)
         hydro_source, hydro_layer = qgsTreatments.parameterAsSourceLayer(self,
             parameters,self.SURFACE_HYDRO,context,feedback=feedback)
-        # extent_source = self.parameterAsSource(parameters,RE.EXTENT_LAYER,context)
         extent_source, extent_layer = qgsTreatments.parameterAsSourceLayer(self,
             parameters,RE.EXTENT_LAYER,context,feedback=feedback)
         clip_distance = self.parameterAsDouble(parameters,self.CLIP_DISTANCE,context)
@@ -695,42 +680,16 @@ class DSFLRaw(DSFLSurface):
         include_layers = self.parameterAsLayerList(parameters,RE.INCLUDE_LAYERS,context)
         diff_layers = self.parameterAsLayerList(parameters,RE.DIFF_LAYERS,context)
         output_surface = self.parameterAsOutputLayer(parameters,self.OUTPUT_SURFACE,context)
-        output_reporting = self.parameterAsOutputLayer(parameters,self.OUTPUT_REPORTING,context)
         self.output = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         out_linear = reporting_mode == 1
         # Init steps
-        nb_steps = 4 if out_linear else 3
+        nb_steps = 3 if out_linear else 2
         mf = QgsProcessingMultiStepFeedback(nb_steps,feedback)
         if out_linear:
             id_field = 'ID'
             if id_field not in roads_layer.fields().names():
                 raise QgsProcessingException("No 'ID' field in roads layer")
-        # Reporting
-        reporting_layer = output_reporting
-        if reporting_mode == 3: # voronoi
-            if qgsUtils.isMultipartLayer(lighting_layer):
-                in_voronoi = QgsProcessingUtils.generateTempFilename('lighting_single.gpkg')
-                qgsTreatments.multiToSingleGeom(lighting_layer,in_voronoi,context=context,feedback=feedback)
-            else:
-                in_voronoi = lighting_layer
-            qgsTreatments.applyVoronoi(in_voronoi,reporting_layer,
-                context=context,feedback=mf)
-        else:
-            reporting_params = parameters.copy()
-            reporting_params[RR.ROADS] = roads_layer
-            reporting_params[RR.BUFFER_EXPR] = RR.DEFAULT_BUFFER_EXPR
-            reporting_params[RR.NAME_FIELD] = RR.DEFAULT_NAME_FIELD
-            reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
-            reporting_params[RR.DISSOLVE] = reporting_mode in [2] # Roads
-            # if reporting_mode in [0,1]:
-                # reporting_params[RR.JOIN_EXPR] = RR.JOIN_EXPR_TWO_WAYS
-            reporting_params[RR.OUTPUT] = reporting_layer
-            qgsTreatments.applyProcessingAlg('LPT',RR.NAME,reporting_params,
-                context=context,feedback=mf)
-        mf.setCurrentStep(1)
         # Surface
-        #surface_layer = QgsProcessingUtils.generateTempFilename('surface.gpkg')
-        # surface_layer = output_surface
         surface_params = parameters.copy()
         surface_params[RE.ROADS] = roads_layer
         surface_params[RE.CADASTRE] = cadastre_layer
@@ -743,13 +702,15 @@ class DSFLRaw(DSFLSurface):
         surface_params[RE.OUTPUT] = output_surface
         surface = qgsTreatments.applyProcessingAlg('LPT',RE.NAME,surface_params,
             context=context,feedback=mf)
-        mf.setCurrentStep(2)
+        mf.setCurrentStep(1)
         # Light surfacic density
+        qgsTreatments.fixShapefileFID(surface,context=context,feedback=mf)
         density_params = parameters.copy()
         density_params[FDA.LIGHTING] = lighting_layer
-        density_params[FDA.REPORTING] = reporting_layer
+        # density_params[FDA.REPORTING] = reporting_layer
         density_params[FDA.CLIP_DISTANCE] = clip_distance
         density_params[FDA.SURFACE] = surface
+        density_params[RE.ROADS] = roads_layer
         density_params[FDA.DISSOLVE] = dissolve_step == 1
         density_params[FDA.SKIP_EMPTY] = True
         if out_linear:
@@ -758,14 +719,15 @@ class DSFLRaw(DSFLSurface):
             density_params[FDA.OUTPUT] = output_surf
         else:
             density_params[FDA.OUTPUT] = self.output
-        self.out_id = qgsTreatments.applyProcessingAlg('LPT',FDA.NAME,density_params,
-            context=context,feedback=mf)
-        mf.setCurrentStep(3)
+        self.out_id = qgsTreatments.applyProcessingAlg('LPT',DSFLSurface.NAME,
+            density_params,context=context,feedback=mf)
+        mf.setCurrentStep(2)
         # Join if output linear
         if out_linear:
             copy_fields = [ FDA.NB_LAMPS, FDA.FLUX_SUM, FDA.SURFACE_AREA, FDA.FLUX_DEN ]
             self.out_id = qgsTreatments.joinByAttribute(roads_layer,id_field,output_surf,id_field,
                 copy_fields=copy_fields,out_layer=self.output,context=context,feedback=mf)
+            mf.setCurrentStep(3)
         return { self.OUTPUT : self.output }
         
     
