@@ -34,6 +34,10 @@ Main algorithms are:
  - *Roads Extent (BDTOPO)*: computes surface layer from roads layer
  - *Roads Extent (Cadastre)*: computes surface layer from cadastre layer
 
+# Sample data 
+
+Sample data to compute light flux surfacic density is provided with plugin (directory *sample_data*).
+
 # Contact
 
 *Development* : Mathieu Chailloux (mathieu@chailloux.org)
