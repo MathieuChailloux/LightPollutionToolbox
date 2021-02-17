@@ -47,7 +47,8 @@ PY_FILES = \
 
 UI_FILES = 
 
-EXTRAS = metadata.txt 
+EXTRAS = metadata.txt \
+	lamp.png
 
 EXTRA_DIRS = \
 	docs \
