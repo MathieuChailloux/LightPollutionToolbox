@@ -10,7 +10,7 @@ version=1.0
 author=Mathieu Chailloux
 email=mathieu@chailloux.org
 
-about=Video tutorials (work in progress) : https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7</br></br>LightPollutionToolbox provides multiple algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ...</br></br>Developped by Mathieu Chailloux (INRAE / UMR TETIS)
+about=Video tutorials (work in progress) : https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7</br></br>LightPollutionToolbox provides several algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ...</br></br>Developped by Mathieu Chailloux (INRAE / UMR TETIS)
 
 tracker=https://github.com/MathieuChailloux/LightPollutionToolbox/issues
 repository=https://github.com/MathieuChailloux/LightPollutionToolbox
