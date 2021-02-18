@@ -7,7 +7,7 @@
 
 *LightPollutionToolbox* regroupe divers géotraitements pour caractériser et cartographier la pollution lumineuse. Développé initialement pour vérifier la conformité à la réglementation depuis des couches d'éclairage public, cet outil a vocation à évoluer et d'être augmenté de tout géotraitement pertinent sur la thématique pollution lumineuse et Trame noire.
 
-*LightPollutionToolbox* a été développé par Mathieu Chailloux ([*UMR TETIS*](https://www.umr-tetis.fr / [*IRSTEA*](http://www.inrae.fr) pour le [*Centre de ressources Trame verte et bleue*](http://www.trameverteetbleue.fr/).
+*LightPollutionToolbox* a été développé par Mathieu Chailloux ([*UMR TETIS*](https://www.umr-tetis.fr) / [*IRSTEA*](http://www.inrae.fr) pour le [*Centre de ressources Trame verte et bleue*](http://www.trameverteetbleue.fr/).
 
 # Documentation
 
