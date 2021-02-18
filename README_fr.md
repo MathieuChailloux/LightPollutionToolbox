@@ -37,7 +37,7 @@ La description détaillée des paramètres est disponible dans chaque algorithme
 
 # Contact
 
-*Développement* : Mathieu Chailloux (mathieu@chailloux.org)
+*Développement* : Mathieu Chailloux (mathieu.chailloux@inrae.fr)
 
 *Coordination* : Jennifer Amsallem (jennifer.amsallem@inrae.fr)
 
