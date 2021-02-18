@@ -7,7 +7,7 @@
 
 *LightPollutionToolbox* provides multiple algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ... 
 
-*LightPollutionToolbox* has been developed by Mathieu Chailloux ([*UMR TETIS*](https://www.umr-tetis.fr) / [*IRSTEA*](http://www.inrae.fr)) on mission for the [*French ecological network resource center*](http://www.trameverteetbleue.fr/).
+*LightPollutionToolbox* has been developed by Mathieu Chailloux ([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) on mission for the [*French ecological network resource center*](http://www.trameverteetbleue.fr/).
 
 # Documentation
 
