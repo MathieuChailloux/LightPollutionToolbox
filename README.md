@@ -40,7 +40,7 @@ Sample data to compute light flux surfacic density is provided with plugin (dire
 
 # Contact
 
-*Development* : Mathieu Chailloux (mathieu@chailloux.org)
+*Development* : Mathieu Chailloux (mathieu.chailloux@inrae.fr)
 
 *Coordination* : Jennifer Amsallem (jennifer.amsallem@inrae.fr)
 
