@@ -184,6 +184,9 @@ class ClassifyLightingAlg(QgsProcessingAlgorithm):
     def shortHelpString(self):
         helpStr = "Classify lighting layer according to selected mode (flux, color temperature, ULR)"
         return self.tr(helpStr)
+
+    def name(self):
+        return self.NAME
         
     def displayName(self):
         return self.tr('Classify lighting layer')
