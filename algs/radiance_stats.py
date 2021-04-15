@@ -60,7 +60,9 @@ from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
 
-class RadianceStats(QgsProcessingAlgorithm):
+class RadianceStats(qgsUtils.BaseProcessingAlgorithm):
+
+    ALG_NAME = 'radianceStats'
 
     INPUT = 'INPUT'
     INPUT_RASTER = 'INPUT_RASTER'
@@ -74,15 +76,6 @@ class RadianceStats(QgsProcessingAlgorithm):
     DEFAULT_SURF_FIELD = 'SUPERFICIE'
     RAD_POP_FIELDNAME = 'rad_pop'
     RAD_SURF_FIELDNAME = 'rad_surf'
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-
-    def createInstance(self):
-        return RadianceStats()
-
-    def name(self):
-        return 'radianceStats'
 
     def displayName(self):
         return self.tr('Radiance zonal statistics')

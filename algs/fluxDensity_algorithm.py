@@ -56,36 +56,13 @@ from qgis.core import (QgsProcessing,
                        QgsField)
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
-from .mkRoadsExtent import RoadsExtent as RE
+from .mkRoadsExtent import FluxDenGrpAlg, RoadsExtent as RE
 from .mkReporting_algs import RoadsReporting as RR
 
-
-class FluxDenGrpAlg(QgsProcessingAlgorithm):
-
-    INPUT = 'INPUT'
-    OUTPUT = 'OUTPUT'
-    FLUX_DEN = 'FLUX_DEN'
-
-    def name(self):
-        return self.NAME
-
-    # def displayName(self):
-        # return self.tr(self.name())
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-        
-    def group(self):
-        return self.tr('Light Flux Surfacic Density')
-        
-    def groupId(self):
-        return self.tr('density')
-
-    
-
+  
 class FluxDensityAlgorithm(FluxDenGrpAlg):
 
-    NAME = 'dsfl'
+    ALG_NAME = 'dsfl'
 
     LIGHTING = 'LIGHTING'
     FLUX_FIELD = 'FLUX_FIELD'
@@ -104,6 +81,17 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
     SURFACE_AREA = 'SURFACE'
     NB_LAMPS = 'NB_LAMPS'
     FLUX_SUM = 'FLUX_SUM'
+        
+    def shortHelpString(self):
+        helpStr = "Estimation of light flux density.\n"
+        helpStr += " Flux value is selected from lighting layer according to light flux field.\n"
+        helpStr += " Surface to be illuminated (roads, sidewalks, parking areas, ...) can be specified"
+        helpStr += " through a polygon layer.\n"
+        helpStr += " For each entity of reporting layer, flux light points inside entity are selected."
+        return self.tr(helpStr)
+        
+    def displayName(self):
+        return self.tr('Light Flux Surfacic Density')
     
     def initLightingParams(self):
         self.addParameter(
@@ -410,27 +398,20 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         styles.setCustomClassesDSFL(out_layer,self.FLUX_DEN)
         return {self.OUTPUT: self.dest_id }
         
-    def shortHelpString(self):
-        helpStr = "Estimation of light flux density.\n"
-        helpStr += " Flux value is selected from lighting layer according to light flux field.\n"
-        helpStr += " Surface to be illuminated (roads, sidewalks, parking areas, ...) can be specified"
-        helpStr += " through a polygon layer.\n"
-        helpStr += " For each entity of reporting layer, flux light points inside entity are selected."
-        return self.tr(helpStr)
-        
-    def displayName(self):
-        return self.tr('Light Flux Surfacic Density')
-
-    def createInstance(self):
-        return FluxDensityAlgorithm()
-        
         
 
 class DSFLSymbology(FluxDenGrpAlg):
 
-    NAME = 'dsflSymbology'
+    ALG_NAME = 'dsflSymbology'
 
     DSFL_FIELD = 'DSFL_FIELD'
+        
+    def shortHelpString(self):
+        helpStr = "Apply symbology to DSFL layer"
+        return self.tr(helpStr)
+        
+    def displayName(self):
+        return self.tr('Apply symbology to DSFL layer')
 
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -459,26 +440,23 @@ class DSFLSymbology(FluxDenGrpAlg):
         styles.setCustomClassesDSFL(self.in_layer,self.dsfl_field)
         return { self.OUTPUT : None }
         
-    def shortHelpString(self):
-        helpStr = "Apply symbology to DSFL layer"
-        return self.tr(helpStr)
-        
-    def displayName(self):
-        return self.tr('Apply symbology to DSFL layer')
-
-    def createInstance(self):
-        return DSFLSymbology()
-        
 
 
 FDA = FluxDensityAlgorithm
 
 class DSFLSurface(FluxDensityAlgorithm):
 
-    NAME = 'dsflSurface'
+    ALG_NAME = 'dsflSurface'
 
     REPORTING_MODE = 'REPORTING_MODE'
     SURFACE_LAYER = 'SURFACE_LAYER'
+        
+    def shortHelpString(self):
+        helpStr = "Computes light flux surfacic density from already computed surface layer"
+        return self.tr(helpStr)
+        
+    def displayName(self):
+        return self.tr('Light Flux Surfacic Density (from surface)')
     
     def initReportingParams(self):
         self.reporting_modes = [
@@ -563,7 +541,7 @@ class DSFLSurface(FluxDensityAlgorithm):
             reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
             reporting_params[RR.DISSOLVE] = reporting_mode in [2] # Roads
             reporting_params[RR.OUTPUT] = reporting_layer
-            qgsTreatments.applyProcessingAlg('LPT',RR.NAME,reporting_params,
+            qgsTreatments.applyProcessingAlg('LPT',RR.name(),reporting_params,
                 context=context,feedback=mf)
         mf.setCurrentStep(1)
         # Light surfacic density
@@ -578,7 +556,7 @@ class DSFLSurface(FluxDensityAlgorithm):
             density_params[FDA.OUTPUT] = output_surf
         else:
             density_params[FDA.OUTPUT] = self.output
-        self.out_id = qgsTreatments.applyProcessingAlg('LPT',FDA.NAME,density_params,
+        self.out_id = qgsTreatments.applyProcessingAlg('LPT',FDA.name(),density_params,
             context=context,feedback=mf)
         mf.setCurrentStep(3)
         # Join if output linear
@@ -595,26 +573,28 @@ class DSFLSurface(FluxDensityAlgorithm):
             raise QgsProcessingException("No layer found for " + str(self.out_id))
         styles.setCustomClassesDSFL(out_layer,self.FLUX_DEN)
         return {self.OUTPUT: self.output }
-        
-    def shortHelpString(self):
-        helpStr = "Computes light flux surfacic density from already computed surface layer"
-        return self.tr(helpStr)
-        
-    def displayName(self):
-        return self.tr('Light Flux Surfacic Density (from surface)')
-
-    def createInstance(self):
-        return DSFLSurface()
 
 
 class DSFLRaw(DSFLSurface):
 
-    NAME = 'dsflRaw'
+    ALG_NAME = 'dsflRaw'
 
     REPORTING_MODE = 'REPORTING_MODE'
     SURFACE_HYDRO = 'SURFACE_HYDRO'
     DISSOLVE_STEP = 'DISSOLVE_STEP'
     OUTPUT_SURFACE = 'OUTPUT_SURFACE'
+        
+    def shortHelpString(self):
+        helpStr = "Computes light flux surfacic density from raw data"
+        return self.tr(helpStr)
+        
+    def displayName(self):
+        return self.tr('Light Flux Surfacic Density (from raw data)')
+        
+    def group(self):
+        return None
+    def groupId(self):
+        return None
 
     def initAlgorithm(self, config=None):
         # Inputs
@@ -704,8 +684,8 @@ class DSFLRaw(DSFLSurface):
             surface_params[RE.DIFF_LAYERS] += [hydro_layer]
         surface_params[RE.DISSOLVE] = dissolve_step == 0
         surface_params[RE.OUTPUT] = output_surface
-        surface = qgsTreatments.applyProcessingAlg('LPT',RE.NAME,surface_params,
-            context=context,feedback=mf)
+        surface = qgsTreatments.applyProcessingAlg('LPT',
+            RE.name(),surface_params,context=context,feedback=mf)
         mf.setCurrentStep(1)
         # Light surfacic density
         qgsTreatments.fixShapefileFID(surface,context=context,feedback=mf)
@@ -723,8 +703,8 @@ class DSFLRaw(DSFLSurface):
             density_params[FDA.OUTPUT] = output_surf
         else:
             density_params[FDA.OUTPUT] = self.output
-        self.out_id = qgsTreatments.applyProcessingAlg('LPT',DSFLSurface.NAME,
-            density_params,context=context,feedback=mf)
+        self.out_id = qgsTreatments.applyProcessingAlg('LPT',
+            DSFLSurface.name(),density_params,context=context,feedback=mf)
         mf.setCurrentStep(2)
         # Join if output linear
         if out_linear:
@@ -741,18 +721,3 @@ class DSFLRaw(DSFLSurface):
             raise QgsProcessingException("No layer found for " + str(self.out_id))
         styles.setCustomClassesDSFL(out_layer,self.FLUX_DEN)
         return {self.OUTPUT: self.output }
-        
-    def shortHelpString(self):
-        helpStr = "Computes light flux surfacic density from raw data"
-        return self.tr(helpStr)
-        
-    def displayName(self):
-        return self.tr('Light Flux Surfacic Density (from raw data)')
-        
-    def group(self):
-        return None
-    def groupId(self):
-        return None
-
-    def createInstance(self):
-        return DSFLRaw()

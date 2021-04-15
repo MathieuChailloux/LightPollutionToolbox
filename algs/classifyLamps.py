@@ -57,53 +57,20 @@ from qgis.core import (QgsProcessing,
                        QgsFields,
                        QgsField)
 
-from ..qgis_lib_mc import styles                       
-
-# class ClassifyLampAlg(QgsProcessingAlgorithm):
-
-    # INPUT = 'INPUT'
-    # FIELD = 'FIELD'
-    # OUTPUT = 'OUTPUT'
-    
-    # def name(self):
-        # return self.NAME
-
-    # def initAlgFromFieldInfo(self,field_descr,suffix='_copy',defaultVal=None):
-        # self.suffix = suffix
-        # self.addParameter(
-            # QgsProcessingParameterFeatureSource(
-                # self.INPUT,
-                # self.tr('Lighting layer'),
-                # [QgsProcessing.TypeVectorPoint]))
-        # self.addParameter(
-            # QgsProcessingParameterField(
-                # self.FIELD,
-                # description=self.tr(field_descr),
-                # defaultValue=defaultVal,
-                # type=QgsProcessingParameterField.Numeric,
-                # parentLayerParameterName=self.INPUT))
-    
-    # def processAlgorithm(self, parameters, context, feedback):
-        # self.in_layer = self.parameterAsVectorLayer(parameters,self.INPUT,context)
-        # self.field = self.parameterAsString(parameters,self.FIELD,context)
-        # if not self.in_layer:
-            # raise QgsProcessingException("No input layer")
-        # self.clone = QgsVectorLayer(self.in_layer.source(),
-            # self.in_layer.name() + self.suffix, self.in_layer.providerType())
-        # return { self.OUTPUT : self.clone }
-
-    # def tr(self, string):
-        # return QCoreApplication.translate('Processing', string)
-        
+from ..qgis_lib_mc import qgsUtils, styles                       
 
    
-class ClassifyLightingAlg(QgsProcessingAlgorithm):
+class ClassifyLightingAlg(qgsUtils.BaseProcessingAlgorithm):
+    
+    ALG_NAME = 'classifyLighting'
 
     INPUT = 'INPUT'
     FIELD = 'FIELD'
     CLASSIF_MODE = 'CLASSIF_MODE'
     OUTPUT = 'OUTPUT'
-    NAME = 'classifyLighting'
+        
+    def displayName(self):
+        return self.tr('Classify lighting layer')
     
     def initAlgorithm(self, config=None):
         self.classif_modes = [
@@ -184,16 +151,3 @@ class ClassifyLightingAlg(QgsProcessingAlgorithm):
     def shortHelpString(self):
         helpStr = "Classify lighting layer according to selected mode (flux, color temperature, ULR)"
         return self.tr(helpStr)
-
-    def name(self):
-        return self.NAME
-        
-    def displayName(self):
-        return self.tr('Classify lighting layer')
-
-    def createInstance(self):
-        return ClassifyLightingAlg()
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-    

@@ -52,11 +52,22 @@ from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 from .mergeGeometry_algorithm import MergeGeometryAlgorithm
 
 
-class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
 
-    ROADS = 'ROADS'
+class FluxDenGrpAlg(qgsUtils.BaseProcessingAlgorithm):
+
     INPUT = 'INPUT'
     OUTPUT = 'OUTPUT'
+    FLUX_DEN = 'FLUX_DEN'
+        
+    def group(self):
+        return self.tr('Light Flux Surfacic Density')
+    
+    def groupId(self):
+        return 'density'
+                       
+class RoadsExtentGrpAlg(FluxDenGrpAlg):
+
+    ROADS = 'ROADS'
     
     EXTENT_LAYER = 'EXTENT_LAYER'
     ROADS_WIDTH = 'ROADS_WIDTH'
@@ -68,7 +79,6 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
     
     SELECT_EXPR = 'SELECT_EXPR'
     DISSOLVE = 'DISSOLVE'
-    #DEFAULT_EXPR = '"FICTIF" = \'Non\' AND "ETAT" = \'En service\' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
     DEFAULT_EXPR = '"FICTIF" = \'Non\''
     DEFAULT_EXPR += ' AND "ETAT" = \'En service\''
     DEFAULT_EXPR += ' AND "POS_SOL" IN (\'0\',\'1\',\'2\')'
@@ -134,25 +144,13 @@ class RoadsExtentGrpAlg(QgsProcessingAlgorithm):
                 self.OUTPUT,
                 self.tr('Output layer')))
         
-    def name(self):
-        return self.NAME
-
-    def displayName(self):
-        return self.tr(self.name())
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-        
-    def group(self):
-        return self.tr('Light Flux Surfacic Density')
-        
-    def groupId(self):
-        return self.tr('density')
-        
         
 class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
 
-    NAME = 'roadsExtentBDTOPO'
+    ALG_NAME = 'roadsExtentBDTOPO'
+
+    def displayName(self):
+        return self.tr('Roads Extent (BDTOPO)')
     
     def initAlgorithm(self, config=None):
         self.initParamsBDTOPO()
@@ -191,17 +189,14 @@ class RoadsExtentBDTOPO(RoadsExtentGrpAlg):
             feedback.setCurrentStep(3)
                     
         return {self.OUTPUT: output}
-
-    def displayName(self):
-        return self.tr('Roads Extent (BDTOPO)')
-
-    def createInstance(self):
-        return RoadsExtentBDTOPO()
                 
    
 class RoadsExtentFromCadastre(RoadsExtentGrpAlg):
 
-    NAME = 'roadsExtentCadastre'
+    ALG_NAME = 'roadsExtentCadastre'
+
+    def displayName(self):
+        return self.tr('Roads Extent (Cadastre)') 
     
     def initAlgorithm(self, config=None):
         self.initParamsCadastre()
@@ -236,16 +231,13 @@ class RoadsExtentFromCadastre(RoadsExtentGrpAlg):
             
         return {self.OUTPUT: not_cadastre}
 
-    def displayName(self):
-        return self.tr('Roads Extent (Cadastre)')
-
-    def createInstance(self):
-        return RoadsExtentFromCadastre()   
-
 
 class RoadsExtent(RoadsExtentGrpAlg):
 
-    NAME = 'roadsExtent'
+    ALG_NAME = 'roadsExtent'
+        
+    def displayName(self):
+        return 'Roads Extent (BDTOPO + Cadastre)'
     
     def initAlgorithm(self, config=None):
         self.initParamsBDTOPO()
@@ -284,14 +276,14 @@ class RoadsExtent(RoadsExtentGrpAlg):
         parameters[self.ROADS] = roads_layer
         out_bdtopo = QgsProcessingUtils.generateTempFilename('out_bdtopo.gpkg')
         parameters[self.OUTPUT] = out_bdtopo
-        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentBDTOPO.NAME,parameters,
-            context=context,feedback=multi_feedback)
+        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentBDTOPO.name(),
+            parameters,context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(1)
         # CADASTRE
         out_cadastre = QgsProcessingUtils.generateTempFilename('out_cadastre.gpkg')
         parameters[self.OUTPUT] = out_cadastre
-        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentFromCadastre.NAME,parameters,
-            context=context,feedback=multi_feedback)
+        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentFromCadastre.name(),
+            parameters,context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(2)
         # MERGE
         if clip_flag:
@@ -305,8 +297,8 @@ class RoadsExtent(RoadsExtentGrpAlg):
         layers = [out_bdtopo,out_cadastre] + include_layers
         merged = QgsProcessingUtils.generateTempFilename('out_merged.gpkg')
         parameters = { 'LAYERS' : layers, 'CRS' : self.DEFAULT_CRS, 'OUTPUT' : merged }
-        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.NAME,parameters,
-            context=context,feedback=multi_feedback)
+        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.name(),
+            parameters,context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(3)
         # DISSOLVE
         if dissolve_flag:
@@ -321,20 +313,21 @@ class RoadsExtent(RoadsExtentGrpAlg):
             qgsTreatments.fixGeometries(merged,init_output,context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(nb_steps)
         return {self.OUTPUT: init_output }
-        
-    def displayName(self):
-        return 'Roads Extent (BDTOPO + Cadastre)'
-
-    def createInstance(self):
-        return RoadsExtent()
                
         
         
 class AddParcellesAlg(RoadsExtentGrpAlg):
 
-    NAME = 'addParcelles'
+    ALG_NAME = 'addParcelles'
     
     PARCELLES = 'PARCELLES'
+        
+    def displayName(self):
+        return self.tr('Add cadastre selection')
+        
+    def shortHelpString(self):
+        helpStr = "Add manual selection of cadastre parcelles"
+        return self.tr(helpStr)
     
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -355,16 +348,6 @@ class AddParcellesAlg(RoadsExtentGrpAlg):
         input.dataProvider().addFeatures(parcelles.getFeatures())
         input.commitChanges()
         return { self.OUTPUT : None }
-        
-    def name(self):
-        return self.tr('Add cadastre selection')
-        
-    def shortHelpString(self):
-        helpStr = "Add manual selection of cadastre parcelles"
-        return self.tr(helpStr)
-
-    def createInstance(self):
-        return AddParcellesAlg()
             
     
 

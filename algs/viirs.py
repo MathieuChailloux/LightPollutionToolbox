@@ -51,7 +51,9 @@ from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
 
-class VIIRS_Untar(QgsProcessingAlgorithm):
+class VIIRS_Untar(qgsUtils.BaseProcessingAlgorithm):
+
+    ALG_NAME = 'viirs_untar'
 
     VIIRS_DIR = 'VIIRS_DIR'
     EXTENT = 'EXTENT'
@@ -59,15 +61,6 @@ class VIIRS_Untar(QgsProcessingAlgorithm):
     DEFAULT_FRANCE = 'F:/IRSTEA/TrameNoire/VIIRS/surfaceFrance/DEPARTEMENT.shp'
     
     OUTPUT = 'OUTPUT'
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-
-    def createInstance(self):
-        return VIIRS_Untar()
-
-    def name(self):
-        return 'viirs_untar'
 
     def displayName(self):
         return self.tr('Untar VIIRS')

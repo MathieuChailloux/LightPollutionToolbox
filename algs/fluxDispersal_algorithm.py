@@ -138,7 +138,7 @@ class LampType:
         else:
             return None
 
-class FluxDispBaseAlg(QgsProcessingAlgorithm,LampType):
+class FluxDispBaseAlg(qgsUtils.BaseProcessingAlgorithm,LampType):
 
     INPUT = 'INPUT'
     FLUX_FIELD = 'FLUX_FIELD'
@@ -149,9 +149,6 @@ class FluxDispBaseAlg(QgsProcessingAlgorithm,LampType):
     OUTPUT = 'OUTPUT'
     
     DEFAULT_RES = 10.0
-    
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
         
     def displayName(self):
         return self.tr(self.name())
@@ -231,41 +228,15 @@ class FluxDispBaseAlg(QgsProcessingAlgorithm,LampType):
         
         
 class FluxDispAlg(FluxDispBaseAlg, LampType):
-    
-    def name(self):
-        return 'fluxDisp'
+
+    ALG_NAME = 'fluxDisp'
 
     def displayName(self):
         return self.tr('Flux Disp')
-        
-    def createInstance(self):
-        return FluxDispAlg()
 
     def initAlgorithm(self,config=None):
         self.initParams()
-        self.initOutput()
-    
-    # def createFluxDistField(self,in_field):
-        # out_field = self.FLUX_RADIUS_FIELD
-        # qgsUtils.createOrUpdateField(self.input,self.in_field,self.funcFluxRadius,out_field)
-        # if in_field not in self.input.fields().names():
-            # raise QgsProcessingException("Field '" + in_field + "' does not exist")
-    
-        # out_field = self.FLUX_RADIUS_FIELD
-        # if out_field not in self.input.fields().names():
-            # field = QgsField(out_field, QVariant.Double)
-            # self.input.dataProvider().addAttributes([field])
-            # self.input.updateFields()
-        
-        # self.input.startEditing()    
-        # for f in self.input.getFeatures():
-            # try:
-                # f[out_field] = float(str(f[in_field])) / 100
-            # except ValueError:
-                # f[out_field] = None
-            # self.input.updateFeature(f)
-        # self.input.commitChanges()
-            
+        self.initOutput()            
     
     def processAlgorithm(self, parameters, context, feedback):
         self.parseParams(parameters,context)
@@ -289,6 +260,8 @@ class FluxDispAlg(FluxDispBaseAlg, LampType):
         
 class FluxDispTempCoulAlg(FluxDispBaseAlg):
     
+    ALG_NAME = 'fluxDispTempCoul'
+    
     TEMP_COUL_FIELD = 'TEMP_COUL_FIELD'
     LAMP_TYPE_FIELD = 'LAMP_TYPE_FIELD'
     LAMP_TYPE_ASSOC = 'LAMP_TYPE_ASSOC'
@@ -299,15 +272,9 @@ class FluxDispTempCoulAlg(FluxDispBaseAlg):
     OUT_LAMP_TYPE = 'OUT_LAMP_TYPE'
     BLUE_PERC_FIELD = 'blue_perc'
     BLUE_WEIGHT_FIELD = 'blue_weight'
-    
-    def name(self):
-        return 'fluxDispTempCoul'
 
     def displayName(self):
         return self.tr('Flux Disp Temp Coul')
-        
-    def createInstance(self):
-        return FluxDispTempCoulAlg()
 
     def initAlgorithm(self,config=None):
         self.initParams()
@@ -398,6 +365,8 @@ class FluxDispTempCoulAlg(FluxDispBaseAlg):
         
 class LightDispSymbology(FluxDispBaseAlg):
 
+    ALG_NAME = 'lightSymbology'
+
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterRasterLayer(
@@ -418,15 +387,9 @@ class LightDispSymbology(FluxDispBaseAlg):
         styles.setLightingQuantileStyle(self.in_layer)
         return { self.OUTPUT : None }
         
-    def name(self):
-        return 'lightSymbology'
-        
     def displayName(self):
         return self.tr('Apply lighting symbology')
         
     def shortHelpString(self):
         helpStr = "Apply lighting symbology to selected layer layer"
         return self.tr(helpStr)
-
-    def createInstance(self):
-        return LightDispSymbology()

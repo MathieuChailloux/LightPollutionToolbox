@@ -54,7 +54,7 @@ from qgis.core import (QgsProcessing,
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
 
-class MergeGeomAlg(QgsProcessingAlgorithm):
+class MergeGeomAlg(qgsUtils.BaseProcessingAlgorithm):
     
     OUTPUT = 'OUTPUT'
     LAYER_A = 'LAYER_A'
@@ -78,9 +78,6 @@ class MergeGeomAlg(QgsProcessingAlgorithm):
             QgsProcessingParameterVectorDestination(
                 self.OUTPUT,
                 self.tr('Output layer')))
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
         
     def group(self):
         return self.tr('Utils')
@@ -92,7 +89,10 @@ class MergeGeomAlg(QgsProcessingAlgorithm):
 
 class MergeGeometryAlgorithm(MergeGeomAlg):
 
-    NAME = 'mergeGeom'
+    ALG_NAME = 'mergeGeom'
+
+    def displayName(self):
+        return self.tr('Merge geometries')
     
     def initAlgorithm(self, config=None):
         self.initAlg()
@@ -132,20 +132,14 @@ class MergeGeometryAlgorithm(MergeGeomAlg):
                 feedback.setProgress(int(curr * total))
                 
         return {self.OUTPUT: dest_id}
-        
-    def name(self):
-        return self.NAME
-
-    def displayName(self):
-        return self.tr('Merge geometries')
-
-    def createInstance(self):
-        return MergeGeometryAlgorithm()
   
 
 class MergeGeometryDissolveAlgorithm(MergeGeomAlg):
 
-    NAME = 'mergeGeomDissolve'
+    ALG_NAME = 'mergeGeomDissolve'
+
+    def displayName(self):
+        return self.tr('Merge geometries (dissolve)')
     
     def initAlgorithm(self, config=None):
         self.initAlg()
@@ -159,8 +153,8 @@ class MergeGeometryDissolveAlgorithm(MergeGeomAlg):
         init_out = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         parameters[self.OUTPUT] = out_merged
         
-        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.NAME,parameters,
-            context=context,feedback=mfeed)
+        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.ALG_NAME,
+            parameters,context=context,feedback=mfeed)
         mfeed.setCurrentStep(1)
             
         out_fixed = QgsProcessingUtils.generateTempFilename('out_fixed.gpkg')
@@ -170,17 +164,13 @@ class MergeGeometryDissolveAlgorithm(MergeGeomAlg):
         mfeed.setCurrentStep(3)
         return {self.OUTPUT: init_out}
         
-    def name(self):
-        return self.NAME
-
-    def displayName(self):
-        return self.tr('Merge geometries (dissolve)')
-
-    def createInstance(self):
-        return MergeGeometryDissolveAlgorithm()
-        
         
 class MergeGeometryNoOverlapAlgorithm(MergeGeomAlg):
+        
+    ALG_NAME = 'mergeGeomNoOverlap'
+
+    def displayName(self):
+        return self.tr('Merge geometries (no overlap)')
     
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -228,19 +218,10 @@ class MergeGeometryNoOverlapAlgorithm(MergeGeomAlg):
         params = { MergeGeometryAlgorithm.LAYERS : layers,
             MergeGeometryAlgorithm.CRS : out_crs,
             MergeGeometryAlgorithm.OUTPUT : output }
-        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.name(),parameters,
-            context=context,feedback=feedback)
+        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.name(),
+            parameters,context=context,feedback=feedback)
                 
         feedback.setCurrentStep(2)
         
         return {self.OUTPUT: output}
-        
-    def name(self):
-        return 'mergeGeomNoOverlap'
-
-    def displayName(self):
-        return self.tr('Merge geometries (no overlap)')
-
-    def createInstance(self):
-        return MergeGeometryNoOverlapAlgorithm()
         

@@ -16,21 +16,21 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingException,
                        QgsField)
                        
+from ..qgis_lib_mc import qgsUtils
 
         
-class FluxEstimAlg(QgsProcessingAlgorithm):
+class FluxEstimAlg(qgsUtils.BaseProcessingAlgorithm):
 
     def group(self):
         return self.tr('Light Flux Estimation')
         
     def groupId(self):
         return self.tr('fluxEstim')
+        
+        
+class FluxEstimationAlgorithm(FluxEstimAlg):
 
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-        
-        
-class FluxEstimationAlgorithm(FluxEstimAlg):                           
+    ALG_NAME = 'fluxEstim'
 
     LIGHTING = 'LIGHTING'
     FLUX_FIELD_NAME = 'FLUX_FIELD_NAME'
@@ -64,6 +64,9 @@ class FluxEstimationAlgorithm(FluxEstimAlg):
 # SODIUM BASSE PRESSION
 
     led_flux_eff = {}
+
+    def displayName(self):
+        return self.tr('Light Flux Estimation')
 
     def parseLEDFile(self,fname,feedback):
         fieldnames = ['Marque','Modele','Eff']
@@ -220,20 +223,13 @@ class FluxEstimationAlgorithm(FluxEstimAlg):
         lighting.commitChanges()
             
         return { self.OUTPUT : None }
-            
-    def name(self):
-        return 'fluxEstim'
-
-    def displayName(self):
-        return self.tr('Light Flux Estimation')
-
-    def createInstance(self):
-        return FluxEstimationAlgorithm()
         
         
 
 class FluxTimeAlgorithm(FluxEstimAlg):
 
+    ALG_NAME = 'fluxHour'
+    
     LIGHTING = 'LIGHTING'
     FLUX_FIELD = 'FLUX_FIELD'
     SHUTDOWN_FIELD = 'SHUTDOWN_FIELD'
@@ -248,6 +244,9 @@ class FluxTimeAlgorithm(FluxEstimAlg):
     DEFAULT_SUNRISE = 7
     
     pattern = re.compile("\(([AE\d]+)-([AE\d]+)\),(\d+)")
+
+    def displayName(self):
+        return self.tr('Light Flux Per Hour')
     
     def getHourFlux(self,flux,shutdown,hour,sunset,sunrise,feedback):
         #feedback.pushDebugInfo("feedback = " + str(feedback))
@@ -400,12 +399,3 @@ class FluxTimeAlgorithm(FluxEstimAlg):
         lighting.commitChanges()
             
         return { self.OUTPUT : None }
-        
-    def name(self):
-        return 'fluxHour'
-
-    def displayName(self):
-        return self.tr('Light Flux Per Hour')
-        
-    def createInstance(self):
-        return FluxTimeAlgorithm()

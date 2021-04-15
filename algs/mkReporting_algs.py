@@ -60,7 +60,7 @@ from .mkRoadsExtent import RoadsExtentGrpAlg
 
 class RoadsReporting(RoadsExtentGrpAlg):
 
-    NAME = 'roadsReporting'
+    ALG_NAME = 'roadsReporting'
 
     NAME_FIELD = 'NAME_FIELD'
     INCLUDE_NULL = 'INCLUDE_NULL'
@@ -74,6 +74,9 @@ class RoadsReporting(RoadsExtentGrpAlg):
     DEFAULT_JOIN_EXPR = 'NOM_1_G is not NULL'
     JOIN_EXPR_TWO_WAYS = 'NOM_1_G is not NULL AND "SENS" in ( \'Sens direct\' , \'Sens inverse\' )'
     DEFAULT_NAME_FIELD = 'NOM_1_G'
+
+    def displayName(self):
+        return self.tr('Reporting Per Roads')
 
     def initAlgorithm(self, config=None):
         self.cap_styles = [self.tr('Round'),'Flat', 'Square']
@@ -222,18 +225,11 @@ class RoadsReporting(RoadsExtentGrpAlg):
                      
         return {self.OUTPUT: output}
         
-    def name(self):
-        return self.NAME
+        
+        
+class CreateMeshAlgorithm(qgsUtils.BaseProcessingAlgorithm):
 
-    def displayName(self):
-        return self.tr('Reporting Per Roads')
-
-    def createInstance(self):
-        return RoadsReporting()
-        
-        
-        
-class CreateMeshAlgorithm(QgsProcessingAlgorithm):
+    ALG_NAME = 'createMesh'
     
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
@@ -242,6 +238,14 @@ class CreateMeshAlgorithm(QgsProcessingAlgorithm):
     SIZE = 'SIZE'
     
     DEFAULT_CRS = QgsCoordinateReferenceSystem("epsg:2154")
+
+    def displayName(self):
+        return self.tr('Create Mesh Layer')
+        
+    def group(self):
+        return self.tr('Utils')
+    def groupId(self):
+        return self.tr('utils')
     
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -288,22 +292,3 @@ class CreateMeshAlgorithm(QgsProcessingAlgorithm):
             context=context,feedback=feedback)
         
         return {self.OUTPUT: out }
-        
-    
-    def name(self):
-        return 'Create Mesh Layer'
-
-    def displayName(self):
-        return self.tr(self.name())
-
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
-        
-    def group(self):
-        return self.tr('Utils')
-        
-    def groupId(self):
-        return self.tr('utils')
-
-    def createInstance(self):
-        return CreateMeshAlgorithm()
