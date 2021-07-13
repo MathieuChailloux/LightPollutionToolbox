@@ -541,7 +541,7 @@ class DSFLSurface(FluxDensityAlgorithm):
             reporting_params[RR.END_CAP_STYLE] = 1 # Flat buffer cap style
             reporting_params[RR.DISSOLVE] = reporting_mode in [2] # Roads
             reporting_params[RR.OUTPUT] = reporting_layer
-            qgsTreatments.applyProcessingAlg('LPT',RR.name(),reporting_params,
+            qgsTreatments.applyProcessingAlg('LPT',RR.ALG_NAME,reporting_params,
                 context=context,feedback=mf)
         mf.setCurrentStep(1)
         # Light surfacic density
@@ -556,7 +556,7 @@ class DSFLSurface(FluxDensityAlgorithm):
             density_params[FDA.OUTPUT] = output_surf
         else:
             density_params[FDA.OUTPUT] = self.output
-        self.out_id = qgsTreatments.applyProcessingAlg('LPT',FDA.name(),density_params,
+        self.out_id = qgsTreatments.applyProcessingAlg('LPT',FDA.ALG_NAME,density_params,
             context=context,feedback=mf)
         mf.setCurrentStep(3)
         # Join if output linear
@@ -685,7 +685,7 @@ class DSFLRaw(DSFLSurface):
         surface_params[RE.DISSOLVE] = dissolve_step == 0
         surface_params[RE.OUTPUT] = output_surface
         surface = qgsTreatments.applyProcessingAlg('LPT',
-            RE.name(),surface_params,context=context,feedback=mf)
+            RE.ALG_NAME,surface_params,context=context,feedback=mf)
         mf.setCurrentStep(1)
         # Light surfacic density
         qgsTreatments.fixShapefileFID(surface,context=context,feedback=mf)
@@ -704,7 +704,7 @@ class DSFLRaw(DSFLSurface):
         else:
             density_params[FDA.OUTPUT] = self.output
         self.out_id = qgsTreatments.applyProcessingAlg('LPT',
-            DSFLSurface.name(),density_params,context=context,feedback=mf)
+            DSFLSurface.ALG_NAME,density_params,context=context,feedback=mf)
         mf.setCurrentStep(2)
         # Join if output linear
         if out_linear:

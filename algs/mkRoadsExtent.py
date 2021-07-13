@@ -276,13 +276,13 @@ class RoadsExtent(RoadsExtentGrpAlg):
         parameters[self.ROADS] = roads_layer
         out_bdtopo = QgsProcessingUtils.generateTempFilename('out_bdtopo.gpkg')
         parameters[self.OUTPUT] = out_bdtopo
-        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentBDTOPO.name(),
+        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentBDTOPO.ALG_NAME,
             parameters,context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(1)
         # CADASTRE
         out_cadastre = QgsProcessingUtils.generateTempFilename('out_cadastre.gpkg')
         parameters[self.OUTPUT] = out_cadastre
-        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentFromCadastre.name(),
+        qgsTreatments.applyProcessingAlg("LPT",RoadsExtentFromCadastre.ALG_NAME,
             parameters,context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(2)
         # MERGE
@@ -297,7 +297,7 @@ class RoadsExtent(RoadsExtentGrpAlg):
         layers = [out_bdtopo,out_cadastre] + include_layers
         merged = QgsProcessingUtils.generateTempFilename('out_merged.gpkg')
         parameters = { 'LAYERS' : layers, 'CRS' : self.DEFAULT_CRS, 'OUTPUT' : merged }
-        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.name(),
+        qgsTreatments.applyProcessingAlg("LPT",MergeGeometryAlgorithm.ALG_NAME,
             parameters,context=context,feedback=multi_feedback)
         multi_feedback.setCurrentStep(3)
         # DISSOLVE
