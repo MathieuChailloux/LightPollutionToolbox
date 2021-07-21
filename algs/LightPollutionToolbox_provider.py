@@ -44,7 +44,7 @@ from .viirs import VIIRS_Untar
 from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
 from .classifyLamps import ClassifyLightingAlg
 from .radiance_stats import RadianceStats
-from .visibility import SourceVisibility
+from .visibility import SourceVisibility, SourceVisibilityPara
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
 
@@ -67,7 +67,8 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             AddParcellesAlg(),
             RadianceStats(),
             ClassifyLightingAlg(),
-            SourceVisibility()]
+            SourceVisibility(),
+            SourceVisibilityPara()]
         self.alglist2 = [
             VIIRS_Untar(),
             FluxDispAlg(),

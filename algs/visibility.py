@@ -30,8 +30,17 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
+import time
+from functools import partial
+
 from PyQt5.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
+                       QgsProcessingAlgRunnerTask,
+                       QgsTask,
+                       QgsApplication,
+                       QgsMessageLog,
+                       QgsProcessingContext,
+                       QgsProcessingFeedback,
                        #QgsFeatureSink,
                        #QgsFeatureRequest,
                        #QgsFeature,
@@ -185,5 +194,117 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
                 context=context,feedback=multi_feedback)
         return { self.OUTPUT : output_path }
         
+MESSAGE_CATEGORY = 'My processing tasks'
+def testFUnc():
+    QgsMessageLog.logMessage('Task finished',
+        MESSAGE_CATEGORY,
+        Qgis.Warning)
+    
+def endFunc(context,sucess,results):
+    QgsMessageLog.logMessage('Task finished',
+        MESSAGE_CATEGORY,
+        Qgis.Warning)
+    context.append('ttt')
+    
+class SourceVisibilityPara(SourceVisibility):
+
+    ALG_NAME = 'sourceVisibilityPara'
+    
+    NB_CURR_TASKS = 0
+    
+    def displayName(self):
+        return self.tr('Light sources visibility (parallelism)')
+    
+    def groupId(self):
+        return 'direct'
         
+        
+    def task_finished(self,context, feedback, successful, results):
+        feedback.pushDebugInfo("END")
+        if not successful:
+            raise QgsProcessingException('Fail')
+        assert(False)
+        self.NB_CURR_TASKS -= 1
+        
+    def print_progress(self,feedback,taskId,progress):
+        assert(False)
+        feedback.pushDebugInfo("Progress (" + str(taskId) + ") = " + str(progress))
+        
+        
+    def processAlgorithm(self, parameters, context, feedback):
+    
+        qgsUtils.checkPluginInstalled(self.VISI_PROVIDER)
+    
+        raster = self.parameterAsRasterLayer(parameters,self.DEM, context)
+        obs_source, obs_layer = self.parameterAsSourceLayer(parameters,self.OBSERVER_POINTS,context)
+        grid_source, grid_layer = self.parameterAsSourceLayer(parameters,self.GRID,context)
+        parameters[self.DEM] = raster 
+
+        output_path = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+        
+        if grid_layer:
+            nb_feats = grid_layer.featureCount()
+            if nb_feats == 0:
+                raise QgsProcessingException("Empty reporting layer")
+            multi_feedback = feedbacks.ProgressMultiStepFeedback(nb_feats, feedback)
+            out_layers = []
+            tasks = []
+            task_mgr = QgsApplication.taskManager()
+            ttt_list = []
+            for count, feat in enumerate(grid_layer.getFeatures()):
+                multi_feedback.setCurrentStep(count)
+                feat_id = feat.id()
+                grid_layer.selectByIds([feat_id])
+                grid_selection = qgsUtils.mkProcTmpPath("grid" + str(feat_id) + ".gpkg")
+                qgsTreatments.saveSelectedFeatures(grid_layer,grid_selection,context,multi_feedback)
+                lamp_selection =  qgsUtils.mkProcTmpPath("source" + str(feat_id) + ".gpkg")
+                qgsTreatments.extractByLoc(obs_layer,grid_selection,lamp_selection,
+                    context=context,feedback=multi_feedback)
+                    
+                qgsTreatments.selectByLoc(obs_layer,grid_selection,
+                    context=context,feedback=multi_feedback)
+                if obs_layer.selectedFeatureCount() == 0:
+                    feedback.pushDebugInfo("Skipping empty grid " + str(feat_id))
+                    continue
+                lamp_selection =  qgsUtils.mkProcTmpPath("source" + str(feat_id) + ".gpkg")
+                qgsTreatments.saveSelectedFeatures(obs_layer,lamp_selection,context,multi_feedback)
+                # lamp_selection = QgsProcessingFeatureSourceDefinition(
+                    # obs_layer.id(),selectedFeaturesOnly=True)
+                # if obs_layer.selectedFeatureCount() == 0:
+                    # feedback.pushDebugInfo("Skipping empty grid " + str(feat_id))
+                    # continue
+                out_layer = qgsUtils.mkProcTmpPath("visibility" + str(feat_id) + ".tif")
+                parameters[self.OBSERVER_POINTS] = lamp_selection
+                parameters[self.OUTPUT] = out_layer
+                # qgsTreatments.applyProcessingAlg(self.VISI_PROVIDER,self.VIEWSHED_ALGNAME,
+                    # parameters, context,multi_feedback)
+                alg_name = self.VISI_PROVIDER + ":" + self.VIEWSHED_ALGNAME
+                alg = QgsApplication.processingRegistry().algorithmById(alg_name)
+                #context = QgsProcessingContext()
+                feedback = QgsProcessingFeedback()
+                task = QgsProcessingAlgRunnerTask(alg, parameters, context, multi_feedback)
+                #task = QgsTask.fromFunction('test',partial(endFunc,ttt_list))
+                #task.executed.connect(endFunc)
+                #task.progressChanged.connect(partial(self.print_progress,feedback))
+                #task.progressChanged.connect(testFUnc)
+                task_mgr.addTask(task)
+                task.run()
+                #tasks.append(task)
+                self.NB_CURR_TASKS += 1
+                out_layers.append(out_layer)
+            multi_feedback.pushDebugInfo("out_layers = " + str(out_layers))
+            multi_feedback.pushDebugInfo("nb_tasks = " + str(self.NB_CURR_TASKS))
+            multi_feedback.pushDebugInfo("SLEEP")
+            time.sleep(10)
+            multi_feedback.pushDebugInfo("ttt_list = " + str(ttt_list))
+            
+            # for t in tasks:
+                # t.wait()
+            #time.sleep(600)
+            # while task_mgr.count() > 1:
+                # multi_feedback.pushDebugInfo("nb_tasks remaining = " + str(task_mgr.count()))
+                # time.sleep(10)
+            # qgsTreatments.applyRSeries(out_layers,10,output_path,range=None,
+                # context=context,feedback=multi_feedback)
+        return { self.OUTPUT : output_path }
         

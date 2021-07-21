@@ -39,6 +39,8 @@ from .algs.LightPollutionToolbox_provider import LightPollutionToolboxProvider
 from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
 from PyQt5.QtGui import QIcon
 
+from .qgis_lib_mc import utils
+
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 
 if cmd_folder not in sys.path:
@@ -63,6 +65,7 @@ class LightPollutionToolboxPlugin(object):
     def initGui(self):
         if QgsApplication.locale() in ['fr','FR']:
             self.switchLang('fr')
+        utils.print_func = utils.doNothing
         self.initProcessing()
         
         # Switch language to english.
