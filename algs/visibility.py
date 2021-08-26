@@ -30,7 +30,7 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-import time
+import time, os
 from functools import partial
 
 from PyQt5.QtCore import QCoreApplication, QVariant
@@ -65,6 +65,7 @@ from qgis.core import (QgsProcessing,
                        #QgsProcessingParameterVectorDestination,
                        QgsProcessingParameterRasterLayer,
                        QgsProcessingParameterRasterDestination,
+                       QgsProcessingParameterFolderDestination,
                        #QgsFields,
                        QgsField)
 
@@ -96,6 +97,7 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
     PRECISION = 'PRECISION'
     ANALYSIS_TYPE = 'ANALYSIS_TYPE'
     OPERATOR = 'OPERATOR'
+    OUTPUT_DIR = 'OUTPUT_DIR'
     OUTPUT = 'OUTPUT'
 
     PRECISIONS = ['Coarse','Normal', 'Fine']   
@@ -138,10 +140,14 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
             self.tr('Combining multiple outputs'),
             self.OPERATORS,
             defaultValue=0))
+        # self.addParameter(
+            # QgsProcessingParameterFolderDestination(
+                # self.OUTPUT_DIR,
+                # self.tr("Output directory")))
         self.addParameter(
             QgsProcessingParameterRasterDestination(
                 self.OUTPUT,
-            self.tr("Output file")))
+                self.tr("Output file")))
 
     def processAlgorithm(self, parameters, context, feedback):
     
@@ -152,7 +158,12 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
         grid_source, grid_layer = self.parameterAsSourceLayer(parameters,self.GRID,context)
         parameters[self.DEM] = raster 
 
+        # output_dir = self.parameterAsFileOutput(parameters,self.OUTPUT_DIR,context)
         output_path = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+        # if output_path is None:
+        # output_path = os.path.join(output_dir,'res.tif')
+        
+        mod_base = 2
         
         if grid_layer:
             nb_feats = grid_layer.featureCount()
@@ -160,8 +171,7 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
                 raise QgsProcessingException("Empty reporting layer")
             multi_feedback = feedbacks.ProgressMultiStepFeedback(nb_feats, feedback)
             out_layers = []
-            for count, feat in enumerate(grid_layer.getFeatures()):
-                multi_feedback.setCurrentStep(count)
+            for count, feat in enumerate(grid_layer.getFeatures(),start=1):
                 feat_id = feat.id()
                 grid_layer.selectByIds([feat_id])
                 grid_selection = qgsUtils.mkProcTmpPath("grid" + str(feat_id) + ".gpkg")
@@ -182,16 +192,31 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
                 # if obs_layer.selectedFeatureCount() == 0:
                     # feedback.pushDebugInfo("Skipping empty grid " + str(feat_id))
                     # continue
+                # out_layer = os.path.join(output_dir,"visibility" + str(feat_id) + ".tif")
                 out_layer = qgsUtils.mkProcTmpPath("visibility" + str(feat_id) + ".tif")
                 parameters[self.OBSERVER_POINTS] = lamp_selection
                 parameters[self.OUTPUT] = out_layer
                 qgsTreatments.applyProcessingAlg(self.VISI_PROVIDER,self.VIEWSHED_ALGNAME,
                     parameters, context,multi_feedback)
                 out_layers.append(out_layer)
+                multi_feedback.pushDebugInfo("out_layers = " + str(out_layers))
+                if count % mod_base == 0:
+                    mod_iteration = int(count / mod_base)
+                    out_mod = qgsUtils.mkProcTmpPath('mod' + str(mod_iteration) + '.tif')
+                    qgsTreatments.applyRSeries(out_layers,10,out_mod,range=None,
+                        context=context,feedback=multi_feedback)
+                    if len(out_layers) > mod_base:
+                        old_mod = out_layers[0]
+                        multi_feedback.pushDebugInfo("old_mod = " + str(old_mod))
+                        qgsUtils.removeRaster(old_mod)
+                    out_layers = [out_mod]
+                multi_feedback.setCurrentStep(count)
             multi_feedback.pushDebugInfo("out_layers = " + str(out_layers))
             # aggr_func = 10 = sum
             qgsTreatments.applyRSeries(out_layers,10,output_path,range=None,
                 context=context,feedback=multi_feedback)
+            for l in out_layers:
+                qgsUtils.removeRaster(l)
         return { self.OUTPUT : output_path }
         
 MESSAGE_CATEGORY = 'My processing tasks'
