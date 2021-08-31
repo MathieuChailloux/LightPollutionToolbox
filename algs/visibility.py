@@ -34,7 +34,8 @@ import time, os
 from functools import partial
 
 from PyQt5.QtCore import QCoreApplication, QVariant
-from qgis.core import (QgsProcessing,
+from qgis.core import (Qgis,
+                       QgsProcessing,
                        QgsProcessingAlgRunnerTask,
                        QgsTask,
                        QgsApplication,
@@ -53,7 +54,7 @@ from qgis.core import (QgsProcessing,
                        #QgsProcessingException,
                        #QgsProcessingAlgorithm,
                        QgsProcessingFeatureSourceDefinition,
-                       #QgsProcessingParameterDefinition,
+                       QgsProcessingParameterDefinition,
                        QgsProcessingParameterBoolean,
                        #QgsProcessingParameterField,
                        QgsProcessingParameterFeatureSource,
@@ -69,7 +70,7 @@ from qgis.core import (QgsProcessing,
                        #QgsFields,
                        QgsField)
 
-from ..qgis_lib_mc import qgsUtils, qgsTreatments, feedbacks    
+from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, feedbacks    
 
 
 class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
@@ -104,15 +105,10 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
     TYPES = ['Binary viewshed', 'Depth below horizon','Horizon' ]
     OPERATORS = [ 'Addition', "Minimum", "Maximum"]
     
-    def initAlgorithm(self, config=None):
-
-        self.addParameter(QgsProcessingParameterEnum(
-            self.ANALYSIS_TYPE,
-            self.tr('Analysis type'),
-            self.TYPES, defaultValue=0))
+    def initInputParams(self):
         self.addParameter(QgsProcessingParameterFeatureSource(
             self.OBSERVER_POINTS,
-            self.tr('Light sources'),
+            self.tr('Light sources (observers)'),
             [QgsProcessing.TypeVectorPoint]))
         self.addParameter(QgsProcessingParameterFeatureSource(
             self.GRID,
@@ -122,32 +118,57 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterRasterLayer(
             self.DEM,
             self.tr('Digital elevation model ')))
-        self.addParameter(QgsProcessingParameterBoolean(
+    
+    def initAdvancedParams(self):
+        anaParam = QgsProcessingParameterEnum(
+            self.ANALYSIS_TYPE,
+            self.tr('Analysis type'),
+            self.TYPES, defaultValue=0)
+        curvParam = QgsProcessingParameterBoolean(
             self.USE_CURVATURE,
             self.tr('Take in account Earth curvature'),
-            False))
-        self.addParameter(QgsProcessingParameterNumber(
+            False)
+        refrParam = QgsProcessingParameterNumber(
             self.REFRACTION,
             self.tr('Atmoshpheric refraction'),
-            1, 0.13, False, 0.0, 1.0))
-##        self.addParameter(QgsProcessingParameterEnum (
-##            self.PRECISION,
-##            self.tr('Algorithm precision'),
-##            self.PRECISIONS,
-##            defaultValue=1))
-        self.addParameter(QgsProcessingParameterEnum (
+            1, 0.13, False, 0.0, 1.0)
+        # Unused for now => why ?
+        precParam = QgsProcessingParameterEnum (
+           self.PRECISION,
+           self.tr('Algorithm precision'),
+           self.PRECISIONS,
+           defaultValue=1)
+        opeParam = QgsProcessingParameterEnum(
             self.OPERATOR,
             self.tr('Combining multiple outputs'),
             self.OPERATORS,
-            defaultValue=0))
-        # self.addParameter(
-            # QgsProcessingParameterFolderDestination(
-                # self.OUTPUT_DIR,
-                # self.tr("Output directory")))
-        self.addParameter(
-            QgsProcessingParameterRasterDestination(
+            defaultValue=0)
+        # Initialize advanced params with falgs
+        advancedParams = [anaParam, curvParam, refrParam, opeParam]
+        for param in advancedParams:
+            param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            self.addParameter(param)
+            
+    def initOutputParams(self):
+        self.addParameter(QgsProcessingParameterFolderDestination(
+            self.OUTPUT_DIR,
+            self.tr("Output directory for temporary files"),
+            optional=True))
+        self.addParameter(QgsProcessingParameterRasterDestination(
                 self.OUTPUT,
                 self.tr("Output file")))
+    
+    def initAlgorithm(self, config=None):
+        self.initInputParams()
+        self.initAdvancedParams()
+        self.initOutputParams()
+        self.baseDir = None
+        
+    def mkTmpPath(self,fname):
+        if self.baseDir:
+            os.path.join(self.baseDir,fname)
+        else:
+            qgsUtils.mkProcTmpPath(fname)
 
     def processAlgorithm(self, parameters, context, feedback):
     
@@ -158,34 +179,32 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
         grid_source, grid_layer = self.parameterAsSourceLayer(parameters,self.GRID,context)
         parameters[self.DEM] = raster 
 
-        # output_dir = self.parameterAsFileOutput(parameters,self.OUTPUT_DIR,context)
+        output_dir = self.parameterAsFileOutput(parameters,self.OUTPUT_DIR,context)
+        self.baseDir = output_dir
         output_path = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
-        # if output_path is None:
-        # output_path = os.path.join(output_dir,'res.tif')
-        
-        mod_base = 2
+        out_tmp = utils.mkTmpPath(output_path)
         
         if grid_layer:
+            curr_grid = self.mkTmpPath('out_grid.gpkg')
+            curr_grid_layer = qgsUtils.createLayerFromExisting(grid_layer,curr_grid)
             nb_feats = grid_layer.featureCount()
             if nb_feats == 0:
-                raise QgsProcessingException("Empty reporting layer")
+                raise QgsProcessingException("Empty grid layer")
             multi_feedback = feedbacks.ProgressMultiStepFeedback(nb_feats, feedback)
-            out_layers = []
+            nb_viewsheds = 0
             for count, feat in enumerate(grid_layer.getFeatures(),start=1):
                 feat_id = feat.id()
+                # Grid feature selection
                 grid_layer.selectByIds([feat_id])
                 grid_selection = qgsUtils.mkProcTmpPath("grid" + str(feat_id) + ".gpkg")
                 qgsTreatments.saveSelectedFeatures(grid_layer,grid_selection,context,multi_feedback)
+                # Extracts lamp inside grid
                 lamp_selection =  qgsUtils.mkProcTmpPath("source" + str(feat_id) + ".gpkg")
-                qgsTreatments.extractByLoc(obs_layer,grid_selection,lamp_selection,
-                    context=context,feedback=multi_feedback)
-                    
                 qgsTreatments.selectByLoc(obs_layer,grid_selection,
                     context=context,feedback=multi_feedback)
                 if obs_layer.selectedFeatureCount() == 0:
                     feedback.pushDebugInfo("Skipping empty grid " + str(feat_id))
                     continue
-                lamp_selection =  qgsUtils.mkProcTmpPath("source" + str(feat_id) + ".gpkg")
                 qgsTreatments.saveSelectedFeatures(obs_layer,lamp_selection,context,multi_feedback)
                 # lamp_selection = QgsProcessingFeatureSourceDefinition(
                     # obs_layer.id(),selectedFeaturesOnly=True)
@@ -193,31 +212,39 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
                     # feedback.pushDebugInfo("Skipping empty grid " + str(feat_id))
                     # continue
                 # out_layer = os.path.join(output_dir,"visibility" + str(feat_id) + ".tif")
-                out_layer = qgsUtils.mkProcTmpPath("visibility" + str(feat_id) + ".tif")
+                # Call to viewshed alg
                 parameters[self.OBSERVER_POINTS] = lamp_selection
-                parameters[self.OUTPUT] = out_layer
+                parameters[self.OUTPUT] = out_tmp
                 qgsTreatments.applyProcessingAlg(self.VISI_PROVIDER,self.VIEWSHED_ALGNAME,
                     parameters, context,multi_feedback)
-                out_layers.append(out_layer)
-                multi_feedback.pushDebugInfo("out_layers = " + str(out_layers))
-                if count % mod_base == 0:
-                    mod_iteration = int(count / mod_base)
-                    out_mod = qgsUtils.mkProcTmpPath('mod' + str(mod_iteration) + '.tif')
-                    qgsTreatments.applyRSeries(out_layers,10,out_mod,range=None,
+                nb_viewsheds += 1
+                # Copy to output_path
+                # qgsTreatments.applyWarpReproject(out_tmp,output_path,
+                    # out_type=Qgis.UInt16,nodata_val=0,
+                    # context=context,feedback=multi_feedback)
+                # Merge to output
+                if nb_viewsheds > 1:
+                    layers = [output_path, out_tmp]
+                    # aggr_func = 10 = sum
+                    qgsTreatments.applyRSeries(layers,10,output_path,range=None,
                         context=context,feedback=multi_feedback)
-                    if len(out_layers) > mod_base:
-                        old_mod = out_layers[0]
-                        multi_feedback.pushDebugInfo("old_mod = " + str(old_mod))
-                        qgsUtils.removeRaster(old_mod)
-                    out_layers = [out_mod]
+                # Copy to output_path
+                elif nb_viewsheds == 1:
+                    qgsTreatments.applyWarpReproject(out_tmp,output_path,
+                    out_type=Qgis.UInt16,nodata_val=0,
+                    context=context,feedback=multi_feedback)
+
                 multi_feedback.setCurrentStep(count)
-            multi_feedback.pushDebugInfo("out_layers = " + str(out_layers))
-            # aggr_func = 10 = sum
-            qgsTreatments.applyRSeries(out_layers,10,output_path,range=None,
-                context=context,feedback=multi_feedback)
-            for l in out_layers:
-                qgsUtils.removeRaster(l)
+        else:
+            parameters[self.OBSERVER_POINTS] = obs_layer
+            parameters[self.OUTPUT] = output_path
+            qgsTreatments.applyProcessingAlg(self.VISI_PROVIDER,self.VIEWSHED_ALGNAME,
+                parameters, context,multi_feedback)
+            
+            qgsUtils.removeRaster(out_tmp)
         return { self.OUTPUT : output_path }
+
+
         
 MESSAGE_CATEGORY = 'My processing tasks'
 def testFUnc():
