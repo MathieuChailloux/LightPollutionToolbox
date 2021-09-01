@@ -166,9 +166,9 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
         
     def mkTmpPath(self,fname):
         if self.baseDir:
-            os.path.join(self.baseDir,fname)
+            return os.path.join(self.baseDir,fname)
         else:
-            qgsUtils.mkProcTmpPath(fname)
+            return qgsUtils.mkProcTmpPath(fname)
 
     def processAlgorithm(self, parameters, context, feedback):
     
@@ -186,11 +186,16 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
         
         if grid_layer:
             curr_grid = self.mkTmpPath('out_grid.gpkg')
+            feedback.pushDebugInfo("baseDir = " + str(self.baseDir))
+            feedback.pushDebugInfo("curr_grid = " + str(curr_grid))
             curr_grid_layer = qgsUtils.createLayerFromExisting(grid_layer,curr_grid)
+            curr_grid_pr = curr_grid_layer.dataProvider()
+            curr_grid_pr.addAttributes(grid_layer.fields())
+            curr_grid_layer.updateFields()
             nb_feats = grid_layer.featureCount()
             if nb_feats == 0:
                 raise QgsProcessingException("Empty grid layer")
-            multi_feedback = feedbacks.ProgressMultiStepFeedback(nb_feats, feedback)
+            multi_feedback = feedbacks.ProgressMultiStepFeedback(nb_feats * 3, feedback)
             nb_viewsheds = 0
             for count, feat in enumerate(grid_layer.getFeatures(),start=1):
                 feat_id = feat.id()
@@ -206,6 +211,7 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
                     feedback.pushDebugInfo("Skipping empty grid " + str(feat_id))
                     continue
                 qgsTreatments.saveSelectedFeatures(obs_layer,lamp_selection,context,multi_feedback)
+                multi_feedback.setCurrentStep(count * 3 - 2)
                 # lamp_selection = QgsProcessingFeatureSourceDefinition(
                     # obs_layer.id(),selectedFeaturesOnly=True)
                 # if obs_layer.selectedFeatureCount() == 0:
@@ -217,6 +223,7 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
                 parameters[self.OUTPUT] = out_tmp
                 qgsTreatments.applyProcessingAlg(self.VISI_PROVIDER,self.VIEWSHED_ALGNAME,
                     parameters, context,multi_feedback)
+                multi_feedback.setCurrentStep(count * 3 - 1)
                 nb_viewsheds += 1
                 # Copy to output_path
                 # qgsTreatments.applyWarpReproject(out_tmp,output_path,
@@ -233,15 +240,17 @@ class SourceVisibility(qgsUtils.BaseProcessingAlgorithm):
                     qgsTreatments.applyWarpReproject(out_tmp,output_path,
                     out_type=Qgis.UInt16,nodata_val=0,
                     context=context,feedback=multi_feedback)
-
-                multi_feedback.setCurrentStep(count)
+                curr_grid_pr.addFeature(feat)
+                multi_feedback.pushDebugInfo("Writing " + str(curr_grid))
+                qgsUtils.writeVectorLayer(curr_grid_layer,curr_grid)
+                multi_feedback.setCurrentStep(count * 3)
         else:
             parameters[self.OBSERVER_POINTS] = obs_layer
             parameters[self.OUTPUT] = output_path
             qgsTreatments.applyProcessingAlg(self.VISI_PROVIDER,self.VIEWSHED_ALGNAME,
-                parameters, context,multi_feedback)
+                parameters, context,feedback)
             
-            qgsUtils.removeRaster(out_tmp)
+        # qgsUtils.removeRaster(out_tmp)
         return { self.OUTPUT : output_path }
 
 
