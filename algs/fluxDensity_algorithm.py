@@ -53,7 +53,8 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterMultipleLayers,
                        QgsProcessingParameterVectorDestination,
                        QgsFields,
-                       QgsField)
+                       QgsField,
+                       QgsGraduatedSymbolRenderer)
 
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 from .mkRoadsExtent import FluxDenGrpAlg, RoadsExtent as RE
@@ -405,6 +406,10 @@ class DSFLSymbology(FluxDenGrpAlg):
     ALG_NAME = 'dsflSymbology'
 
     DSFL_FIELD = 'DSFL_FIELD'
+    STYLE = 'STYLE'
+    
+    CLASSES_DEFAULT = [10,20,25,35]
+    CLASSES_STRICT = [5,7,10,13,18,25]
         
     def shortHelpString(self):
         helpStr = "Apply symbology to DSFL layer"
@@ -424,20 +429,37 @@ class DSFLSymbology(FluxDenGrpAlg):
                 self.tr('DSFL field'),
                 defaultValue=self.FLUX_DEN,
                 parentLayerParameterName=self.INPUT))
+        styles = [ self.tr('Default'), self.tr('Strict'), self.tr('Quantile') ]
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                self.STYLE,
+                self.tr('Renderer style'),
+                options=styles,
+                defaultValue=0))
     
     
     def processAlgorithm(self, parameters, context, feedback):
         self.in_layer = self.parameterAsVectorLayer(parameters,self.INPUT,context)
-        self.dsfl_field = self.parameterAsString(parameters,self.DSFL_FIELD,context)
         if not self.in_layer:
             raise QgsProcessingException("No input layer")
+        self.dsfl_field = self.parameterAsString(parameters,self.DSFL_FIELD,context)
+        self.style = self.parameterAsEnum(parameters,self.STYLE,context)
         return { self.OUTPUT : None }
         
     
     def postProcessAlgorithm(self,context,feedback):
         if not self.in_layer:
             raise QgsProcessingException("No DSFL layer")
-        styles.setCustomClassesDSFL(self.in_layer,self.dsfl_field)
+        color_ramp = styles.getGradientColorRampRdYlGn()
+        if self.style == 0:
+            class_bounds = self.CLASSES_DEFAULT
+            styles.setCustomClasses2(self.in_layer,self.dsfl_field,color_ramp,class_bounds)
+        elif self.style == 1:
+            class_bounds = self.CLASSES_STRICT
+            styles.setCustomClasses2(self.in_layer,self.dsfl_field,color_ramp,class_bounds)
+        elif self.style == 2:
+            styles.setRdYlGnGraduatedStyle(self.in_layer,self.dsfl_field,invert_ramp=True,
+                classif_method=QgsGraduatedSymbolRenderer.Quantile)
         return { self.OUTPUT : None }
         
 
