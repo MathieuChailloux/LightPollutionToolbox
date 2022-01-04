@@ -27,12 +27,16 @@ import sys
 import traceback
 from io import StringIO
 import locale
+import xml.etree.ElementTree as ET
 
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtCore import QVariant, QAbstractTableModel, QModelIndex, Qt, QCoreApplication
+from PyQt5.QtWidgets import QTableWidget
 from qgis.gui import QgsFileWidget
+from qgis.core import QgsField
 
 from ..qgis_lib_mc import qgsUtils
+from ..qgis_lib_mc.abstract_model import ComboDelegate
 
 file_dir = os.path.dirname(__file__)
 if file_dir not in sys.path:
@@ -46,12 +50,14 @@ class FieldRename:
     INIT = 'init'
     DEST = 'dest'
     
-    def __init__(self, dest,fieldWidget,layerWidget):
+    def __init__(self, dest,fieldWidget,layerWidget=None,type=QVariant.Invalid,typeLen=0):
         """Constructor."""
         self.dest = dest
         self.fieldWidget = fieldWidget
         self.init = fieldWidget.currentField()
         self.layerWidget = layerWidget
+        self.type = type
+        self.typeLen = typeLen
         
     # Connects view and model components for each tab.
     # Connects global elements such as project file and language management.
@@ -60,11 +66,18 @@ class FieldRename:
         self.layerWidget.layerChanged.connect(self.setLayer)
         
     def setField(self,fieldname):
-        self.fieldWidget.setField = fieldname
+        self.fieldWidget.setField(fieldname)
+        # print("field " + str(fieldname))
         self.init = fieldname
         
     def setLayer(self,layer):
         self.fieldWidget.setLayer(layer)
+        
+    def mkField(self):
+       return QgsField(name=self.dest,type=self.type,len=self.typeLen)
+       
+    def featureFunc(self,f):
+        return f[self.init]
         
     # Initialize Graphic elements for each tab
     def toXML(self,indent=""):
@@ -73,6 +86,16 @@ class FieldRename:
         xmlStr += "\" " + self.DEST + "=\"" + str(self.dest)
         xmlStr += "\"/>"
         return xmlStr
+    def addToXML(self,parentElem):
+        attrib = { self.INIT : self.init, self.DEST : self.dest }
+        child = ET.SubElement(parentElem,self.__class__.__name__,attrib=attrib)
+        return child
+    def fromXML(self,root):
+        init = root.attrib[FieldRename.INIT]
+        if init:
+            self.setField(init)
+        
+        
         
     def tr(self, message):
         return QCoreApplication.translate('FieldRename', message)
@@ -82,14 +105,21 @@ class MappingModel(QAbstractTableModel):
     
     def __init__(self,feedback=None):
         QAbstractTableModel.__init__(self)
-        self.items = []
+        self.values = []
+        self.reclassValues = []
         self.nbValues = 0
         
     def loadValues(self,values):
-        print("values = " + str(values))
+        # print("values = " + str(values))
         self.values = list(values)
         self.nbValues = len(values)
         self.reclassValues = [None] * self.nbValues
+        
+    def getMatchingValue(self,key):
+        for (k, v) in zip(self.values, self.reclassValues):
+            if key == k:
+                return v
+        return None
         
     def rowCount(self,parent=QModelIndex()):
         return self.nbValues
@@ -139,21 +169,86 @@ class MappingModel(QAbstractTableModel):
             return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
         else:
             assert(False)
-    
+            
+    def addToXML(self,parentElem):
+        for (k, v) in zip(self.values, self.reclassValues):
+            attrib = { FieldRename.INIT : str(k), FieldRename.DEST : str(v) }
+            child = ET.SubElement(parentElem,self.__class__.__name__,attrib=attrib)
+          
+    # @classmethod
+    # def fromXML(cls,root):
+        # model = cls()
+        # for child in root:
+            # dist = child.attrib[FieldRename.DIST]
+            # model.values = list(values)
+            # model.reclassValues = [None] * self.nbValues
+        
         
 class FieldMapping(FieldRename):
 
-    def __init__(self,dest,fieldWidget,layerWidget,mappingView):
-        super().__init__(dest,fieldWidget,layerWidget)
-        self.mappingView = mappingView
+    def __init__(self,dest,fieldWidget,view=None,layerWidget=None,type=QVariant.Invalid,typeLen=0,values=[]):
+        super().__init__(dest,fieldWidget,layerWidget=layerWidget,type=type)
+        self.mappingView = view
+        if values:
+            self.mappingView.setItemDelegate(ComboDelegate(values))
         self.model = MappingModel()
         self.mappingView.setModel(self.model)
         
     def setField(self,fieldname):
+        print("setField " + str(fieldname))
         super().setField(fieldname)
         layer = self.layerWidget.currentLayer()
-        values = qgsUtils.getLayerFieldUniqueValues(layer,fieldname)
+        if layer and fieldname in layer.fields().names():
+            values = qgsUtils.getLayerFieldUniqueValues(layer,fieldname)
+        else:
+            values = []
+        print("setField2 " + str(values))
         self.model.loadValues(values)
         self.model.layoutChanged.emit()
-        
+       
+    # def mkField(self):
+       # return QgsField(name=self.dest,type=self.type)
+       
+    def featureFunc(self,f):
+        # print(str(f))
+        # print(str(f.fields().names()))
+        # print(str(self.init))
+        val = self.model.getMatchingValue(f[self.init])
+        if self.type == QVariant.Bool:
+            return bool(val)
+        elif self.type == QVariant.Int:
+            return int(val)
+        elif self.type == QVariant.Double:
+            return double(val)
+        else:
+            return val
 
+    # Initialize Graphic elements for each tab
+    def toXML(self,indent=""):
+        xmlStr = indent + "<" + self.__class__.__name__
+        xmlStr += " " + self.INIT + "=\"" + str(self.init)
+        xmlStr += "\" " + self.DEST + "=\"" + str(self.dest) + "\""
+        xmlStr += self.model.toXML()
+        xmlStr += "/>\n"
+        return xmlStr
+    def addToXML(self,parentElem):
+        child = super().addToXML(parentElem)
+        if self.init:
+            self.model.addToXML(child)
+        return child
+    def fromXML(self,root):
+        init = root.attrib[FieldRename.INIT]
+        if init:
+            self.setField(init)
+            values = []
+            reclassValues = []
+            for child in root:
+                values.append(child.attrib[self.INIT])
+                reclassValues.append(child.attrib[self.DEST])
+            self.model.loadValues(values)
+            self.model.reclassValues = reclassValues
+            self.model.layoutChanged.emit()
+        
+    # @classmethod
+    # def fromXML(cls,root):
+        

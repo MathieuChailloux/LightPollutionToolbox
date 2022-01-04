@@ -27,11 +27,15 @@ import sys
 import traceback
 from io import StringIO
 import locale
+import xml.etree.ElementTree as ET
 
 from PyQt5 import uic
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QVariant
 from qgis.gui import QgsFileWidget
+from qgis.core import QgsFeature, QgsFields
 
+from ..qgis_lib_mc import qgsUtils
 from .EclExt_model import FieldRename, FieldMapping
 
 file_dir = os.path.dirname(__file__)
@@ -43,6 +47,23 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     
 class EclExtDialog(QtWidgets.QDialog,FORM_CLASS):
 
+    LAYER = "layer"
+    OUTPUT = "output"
+
+    INSTALL_VALS = [ 'A', 'B1', 'B2', 'B3', 'C', 'D', 'E', 'F', 'G', 'NA' ]
+    SOURCE_VALS = [ 'SHP',
+        'SBP',
+        'LED',
+        'IM',
+        'PGZ12', 
+        'INC',
+        'HAL',
+        'F',
+        'G',
+        'NA' ]
+    TYPE_ADAPTATIF_VALS = [ 'AV', 'EN', 'CO', 'NA' ]
+    BOOL_VALS = [ True, False ]
+
     def __init__(self, parent=None):
         """Constructor."""
         super().__init__(parent)
@@ -53,29 +74,149 @@ class EclExtDialog(QtWidgets.QDialog,FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-        self.fields = []
-        self.addField('modele',self.modelField)
-        self.addField('marque',self.brandField)
-        self.addField('typeInstallation',self.installTypeField,self.installTypeView)
-        self.addField('typeSource',self.sourceTypeField,self.sourceTypeView)
-        self.addField('eclairagePublic',self.publicField,self.publicView)
+        self.fields = [
+            FieldRename('modele',self.modelField,type=QVariant.String),
+            FieldRename('marque',self.brandField,type=QVariant.String),
+            FieldMapping('typeInstallation',self.installTypeField,
+                view=self.installTypeView,values=self.INSTALL_VALS,
+                type=QVariant.String,typeLen=2),
+            FieldMapping('typeSource',self.sourceTypeField,
+                view=self.sourceTypeView,values=self.SOURCE_VALS,
+                type=QVariant.String,typeLen=5),
+            FieldMapping('eclairagePublic',self.publicField,
+                view=self.publicView,type=QVariant.Bool,
+                values=self.BOOL_VALS),
+            # Photometrie
+            FieldRename('hauteurFeu',self.hauteurField,type=QVariant.Double),
+            FieldRename('puissance',self.puissanceField,type=QVariant.Double),
+            FieldRename('temperatureCouleur',self.tempCoulField,type=QVariant.Double),
+            FieldRename('fluxSource',self.fluxSourceField,type=QVariant.Double),
+            FieldRename('fluxLuminaire',self.fluxLuminaireField,type=QVariant.Double),
+            FieldRename('cie3',self.cie3Field,type=QVariant.Double),
+            # Date
+            FieldRename('dateInstallation',self.dateRenovationField,type=QVariant.Date),
+            # Gestion temporelle
+            FieldMapping('extinctionNuit',self.extinctionField,
+                view=self.extinctionView,values=self.BOOL_VALS,
+                type=QVariant.Bool),
+            FieldMapping('estAdaptatif',self.adaptatifField,
+                view=self.adaptatifView,values=self.BOOL_VALS,
+                type=QVariant.Bool),
+            FieldMapping('profilNocturne',self.profilField,
+                view=self.profilView,type=QVariant.String),
+            FieldMapping('profilNocturne',self.typeAdaptatifField,
+                view=self.typeAdaptatifView,type=QVariant.String,
+                typeLen=2,values=self.TYPE_ADAPTATIF_VALS)
+        ]
+        for f in self.fields:
+            f.layerWidget = self.layerCombo
         
-    def addField(self,fieldName,fieldWidget,mappingView=None):
-        if mappingView:
-            field = FieldMapping(fieldName,fieldWidget,self.layerCombo,mappingView)
-        else:
-            field = FieldRename(fieldName,fieldWidget,self.layerCombo)
-        self.fields.append(field)
+        
+    def getField(self,fieldname):
+        for f in self.fields:
+            if f.dest == fieldname:
+                return f
+        return None
         
     # Initialize Graphic elements for each tab
     def initGui(self):
         pass
         
+    def setLayer(self,layerPath):
+        layer = qgsUtils.loadVectorLayer(layerPath,loadProject=True)
+        self.layerCombo.setLayer(layer)
+        
+    def getLayer(self):
+        return self.layerCombo.currentLayer()
+    def getLayerPath(self):
+        layer = self.getLayer()
+        layerPath = qgsUtils.pathOfLayer(layer)
+        return layerPath
+        
+    def getOutput(self):
+        return self.output.filePath()
+        
+    def toXML(self,outputFile=None):
+        attrib = {}
+        if self.getLayer():
+            attrib[self.LAYER] = self.getLayerPath()
+        if self.getOutput():
+            attrib[self.OUTPUT] = self.getOutput()
+        rootElem = ET.Element("EclExt",attrib=attrib)
+        for f in self.fields:
+            f.addToXML(rootElem)
+        if outputFile:
+            tree = ET.ElementTree(element=rootElem)
+            tree.write(outputFile)
+    def saveXML(self):
+        fname = qgsUtils.saveFileDialog(parent=self,msg="Sauvegarder la configuration",filter="*.xml")
+        if fname:
+            self.toXML(outputFile=fname)
+            
+    def fromXML(self,filepath,ignoreFiles=False):
+        tree = ET.ElementTree()
+        tree.parse(filepath)
+        root = tree.getroot()
+        # Attribs
+        if self.LAYER in root.attrib and not ignoreFiles:
+            self.setLayer(root.attrib[self.LAYER])
+        if self.OUTPUT in root.attrib and not ignoreFiles:
+            self.output.setFilePath(root.attrib[self.OUTPUT])
+        # Children
+        for child in root:
+            dest = child.attrib[FieldRename.DEST]
+            field = self.getField(dest)
+            field.fromXML(child)
+            
+    def loadXML(self):
+        fname = qgsUtils.openFileDialog(parent=self,msg="Charger la configuration",filter="*.xml")
+        if fname:
+            self.fromXML(fname)
+            
+    def loadXMLIgnoreFile(self):
+        fname = qgsUtils.openFileDialog(parent=self,msg="Charger la configuration",filter="*.xml")
+        if fname:
+            self.fromXML(fname,ignoreFiles=True)
+        
     # Connects view and model components for each tab.
     # Connects global elements such as project file and language management.
     def connectComponents(self):
+        self.saveButton.clicked.connect(self.saveXML)
+        self.loadButton.clicked.connect(self.loadXML)
+        self.loadButtonIgnoreFiles.clicked.connect(self.loadXMLIgnoreFile)
+        self.runButton.clicked.connect(self.applyReclass)
         for f in self.fields:
             f.connectComponents()
         
     def tr(self, message):
         return QCoreApplication.translate('EclExtDialog', message)
+        
+    def applyReclass(self):
+        layer = self.getLayer()
+        output = self.getOutput()
+        if not output:
+            output = qgsUtils.mkTmpPath('EclExt.gpkg')
+        fields = [f.mkField() for f in self.fields]
+        qgsFields = QgsFields()
+        for f in fields:
+            qgsFields.append(f)
+        print(str([f.name() for f in fields]))
+        outLayer = qgsUtils.createLayerFromExisting(layer,output)
+        # pr = outLayer.dataProvider()
+        outLayer.startEditing()
+        for f in fields:
+            res = outLayer.addAttribute(f)
+            if not res:
+                print("Could not add " + str(f.name()))
+        outLayer.updateFields()
+        print(outLayer.fields().names())
+        for feat in layer.getFeatures():
+            outFeat = QgsFeature(outLayer.fields())
+            outFeat.setGeometry(feat.geometry())
+            # print(str(outFeat.fields().names()))
+            for field in self.fields:
+                outFeat[field.dest] = field.featureFunc(feat)
+            outLayer.addFeature(outFeat)
+        outLayer.commitChanges()
+        qgsUtils.writeVectorLayer(outLayer,output)
+        qgsUtils.loadVectorLayer(output,loadProject=True)
