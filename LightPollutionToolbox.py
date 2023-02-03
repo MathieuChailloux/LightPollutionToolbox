@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
+TEST
 /***************************************************************************
  LightPollutionToolbox
                                  A QGIS plugin
