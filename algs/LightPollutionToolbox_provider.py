@@ -44,7 +44,8 @@ from .viirs import VIIRS_Untar
 from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
 from .classifyLamps import ClassifyLightingAlg
 from .viewshed_raster import ViewshedRaster
-from .statistics_R_B import StatisticsRBGrid
+from .statistics_R_B_grid import StatisticsRBGrid
+from .statistics_radiance_grid import StatisticsRadianceGrid
 from .radiance_stats import RadianceStats
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
@@ -69,6 +70,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             RadianceStats(),
             ClassifyLightingAlg(),
             StatisticsRBGrid(),
+            StatisticsRadianceGrid(),
             ViewshedRaster()]
         self.alglist2 = [
             VIIRS_Untar(),

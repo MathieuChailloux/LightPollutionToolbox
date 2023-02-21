@@ -321,10 +321,10 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
         return results
 
     def name(self):
-        return self.tr('Statistics of radiance per grid')
+        return self.tr('Statistics of R/B per grid')
 
     def displayName(self):
-        return self.tr('Statistics of radiance per grid')
+        return self.tr('Statistics of R/B per grid')
 
     def group(self):
         return 'ASE'
