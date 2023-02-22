@@ -25,6 +25,9 @@ import processing
 class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     
     RASTER_INPUT = 'ImageJILINradianceRGB'
+    RED_BAND_INPUT = 'RedBandInput'
+    GREEN_BAND_INPUT = 'GreenBandInput'
+    BLUE_BAND_INPUT = 'BlueBandInput'
     SYMBOLOGY_STAT = 'SymbolStat'
     DIM_GRID = 'DiameterGrid'
     TYPE_GRID = 'TypeOfGrid'
@@ -40,6 +43,16 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry))
+        
+        param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=1)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterNumber(self.GREEN_BAND_INPUT, self.tr('Index of the green band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=2)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterNumber(self.BLUE_BAND_INPUT, self.tr('Index of the blue band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=3)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
 
 
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -133,9 +146,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             
         # Calculatrice Raster Radiance totale
         alg_params = {
-            'BAND_A': 1,
-            'BAND_B': 2,
-            'BAND_C': 3,
+            'BAND_A': parameters[self.RED_BAND_INPUT], #1
+            'BAND_B': parameters[self.GREEN_BAND_INPUT], #2
+            'BAND_C': parameters[self.BLUE_BAND_INPUT], #3
             'BAND_D': None,
             'BAND_E': None,
             'BAND_F': None,
@@ -292,7 +305,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'COLUMN_PREFIX': 'R_',
             'INPUT': outputs['ExtractLightGrid']['OUTPUT'],
             'INPUT_RASTER': outputs[self.SLICED_RASTER],
-            'RASTER_BAND': 1,
+            'RASTER_BAND': parameters[self.RED_BAND_INPUT], #1
             'STATISTICS': [1,2],  # Somme,Moyenne
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -308,7 +321,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'COLUMN_PREFIX': 'V_',
             'INPUT': outputs['StatisticsRedBand']['OUTPUT'],
             'INPUT_RASTER': outputs[self.SLICED_RASTER],
-            'RASTER_BAND': 2,
+            'RASTER_BAND': parameters[self.GREEN_BAND_INPUT], #2
             'STATISTICS': [1,2],  # Somme,Moyenne
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -324,7 +337,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'COLUMN_PREFIX': 'B_',
             'INPUT': outputs['StatisticsGreenBand']['OUTPUT'],
             'INPUT_RASTER': outputs[self.SLICED_RASTER],
-            'RASTER_BAND': 3,
+            'RASTER_BAND': parameters[self.BLUE_BAND_INPUT], #3
             'STATISTICS': [1,2],  # Somme,Moyenne
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
