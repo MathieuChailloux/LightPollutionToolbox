@@ -18,6 +18,7 @@ from qgis.core import QgsProcessingParameterEnum
 from qgis.core import QgsProcessingParameterNumber
 from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
+from qgis.core import QgsProcessingParameterVectorDestination
 import processing
 
 
@@ -38,7 +39,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Diameter grid (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry))
 
 
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -48,6 +49,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         feedback = QgsProcessingMultiStepFeedback(21, model_feedback)
         results = {}
         outputs = {}
+        outputStat = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT,context)
         
         if parameters[self.EXTENT_ZONE] is None or parameters[self.EXTENT_ZONE] == NULL:
             # Extraire l'emprise de la couche raster
@@ -370,7 +372,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         alg_params = {
             'CRS': outputs['CalculFieldIndiceRadiance']['OUTPUT'],
             'LAYERS': [outputs['CalculFieldIndiceRadiance']['OUTPUT'],outputs['CalculFieldIndiceRadianceNull']['OUTPUT']],
-            'OUTPUT': parameters[self.OUTPUT_STAT]
+            'OUTPUT': outputStat
         }
         outputs['MergeVectorLayer'] = processing.run('native:mergevectorlayers', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results[self.OUTPUT_STAT] = outputs['MergeVectorLayer']['OUTPUT']

@@ -17,11 +17,14 @@ from qgis.core import QgsProcessingParameterNumber
 from qgis.core import QgsProcessingParameterVectorLayer
 from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
+from qgis.core import QgsProcessingParameterVectorDestination
 import processing
 
 
 class StatisticsRBGrid(QgsProcessingAlgorithm):
     RASTER_INPUT = 'ImageJILINradianceRGB'
+    RED_BAND_INPUT = 'RedBandInput'
+    BLUE_BAND_INPUT = 'BlueBandInput'
     SYMBOLOGY_STAT = 'SymbolStat'
     DIM_GRID_CALC = 'DiameterGridCalcul'
     DIM_GRID_RES = 'DiameterGridResultat'
@@ -39,16 +42,22 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID_RES, self.tr('Diameter grid result (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT_STAT_CALC, self.tr('statistics R/B'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT_STAT_RES, self.tr('statistics R/B 50m'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
-        
+        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_CALC, self.tr('statistics R/B'), type=QgsProcessing.TypeVectorAnyGeometry))
+        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_RES, self.tr('statistics R/B 50m'), type=QgsProcessing.TypeVectorAnyGeometry))
+       
+        param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=1)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterNumber(self.BLUE_BAND_INPUT, self.tr('Index of the blue band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=3)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
         
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 1
         feedback = QgsProcessingMultiStepFeedback(16, model_feedback)
-       
+
         results = {}
         outputs = {}
        
@@ -178,7 +187,7 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
             'COLUMN_PREFIX': 'R_',
             'INPUT': outputs['GridTempCalcIndex']['OUTPUT'],
             'INPUT_RASTER': outputs[self.SLICED_RASTER],
-            'RASTER_BAND': 1,
+            'RASTER_BAND': parameters[self.RED_BAND_INPUT], #1
             'STATISTICS': [2,4,1],  # Moyenne,Ecart-type,Somme
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -194,7 +203,7 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
             'COLUMN_PREFIX': 'B_',
             'INPUT': outputs['StatisticsRedBand']['OUTPUT'],
             'INPUT_RASTER': outputs[self.SLICED_RASTER],
-            'RASTER_BAND': 3,
+            'RASTER_BAND': parameters[self.BLUE_BAND_INPUT],#3
             'STATISTICS': [1,2,4],  # Somme,Moyenne,Ecart-type
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -241,7 +250,7 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
             return {}
 
         # Calculatrice de champ indice bleu pour la couche de calcul
-        # output1 = self.parameterAsOutputLayer(parameters, self.OUTPUT_STAT_CALC, context) # TODO marche pas : pour récupérer le nom temporaire de la couche (faire aussi pour couhce resultat)
+        outputStatCalc = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT_CALC,context)
         alg_params = {
             'FIELD_LENGTH': 6,
             'FIELD_NAME': 'indice_pol',
@@ -249,7 +258,7 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
             'FIELD_TYPE': 1,  # Entier
             'FORMULA': 'with_variable(\r\n\'percentile\',\r\narray_find(array_agg("R/B_mean",order_by:="R/B_mean"),"R/B_mean") / array_length(array_agg("R/B_mean")),\r\n    CASE\r\n    WHEN @percentile < 0.2 THEN 1\r\n    WHEN @percentile < 0.4 THEN 2\r\n    WHEN @percentile < 0.6 THEN 3\r\n    WHEN @percentile < 0.8 THEN 4\r\n    WHEN @percentile <= 1 THEN 5\r\n    ELSE 0\r\n    END\r\n)',
             'INPUT': outputs['CalculFieldRb_q3']['OUTPUT'],
-            'OUTPUT': parameters[self.OUTPUT_STAT_CALC] #output1
+            'OUTPUT': outputStatCalc
         }
         outputs['CalculFieldIndicatorCalc'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results[self.OUTPUT_STAT_CALC] = outputs['CalculFieldIndicatorCalc']['OUTPUT']
@@ -279,6 +288,7 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
                 return {}
         
             # Calculatrice de champ indice bleu pour la couche de résultat
+            outputStatRes = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT_RES,context)
             alg_params = {
                 'FIELD_LENGTH': 6,
                 'FIELD_NAME': 'indice_pol',
@@ -286,7 +296,7 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
                 'FIELD_TYPE': 1,  # Entier
                 'FORMULA': 'with_variable(\r\n\'percentile\',\r\narray_find(array_agg("R/B_mean_mean",order_by:="R/B_mean_mean"),"R/B_mean_mean") / array_length(array_agg("R/B_mean_mean")),\r\n    CASE\r\n    WHEN @percentile < 0.2 THEN 1\r\n    WHEN @percentile < 0.4 THEN 2\r\n    WHEN @percentile < 0.6 THEN 3\r\n    WHEN @percentile < 0.8 THEN 4\r\n    WHEN @percentile <= 1 THEN 5\r\n    ELSE 0\r\n    END\r\n)',
                 'INPUT': outputs['JoinFieldsLocalisationCalculResult']['OUTPUT'],
-                'OUTPUT': parameters[self.OUTPUT_STAT_RES]
+                'OUTPUT': outputStatRes
             }
             outputs['CalculFieldIndicatorRes'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
             results[self.OUTPUT_STAT_RES] = outputs['CalculFieldIndicatorRes']['OUTPUT']
