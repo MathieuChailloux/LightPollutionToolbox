@@ -1,6 +1,6 @@
 """
 Model exported as python.
-Name : Analyse R/B par maille
+Name : Analyse blue emission per grid
 Group : ASE
 With QGIS : 32215
 """
@@ -21,7 +21,7 @@ from qgis.core import QgsProcessingParameterVectorDestination
 import processing
 
 
-class StatisticsRBGrid(QgsProcessingAlgorithm):
+class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
     RASTER_INPUT = 'ImageJILINradianceRGB'
     RED_BAND_INPUT = 'RedBandInput'
     BLUE_BAND_INPUT = 'BlueBandInput'
@@ -42,8 +42,8 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID_RES, self.tr('Diameter grid result (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_CALC, self.tr('statistics R/B'), type=QgsProcessing.TypeVectorAnyGeometry))
-        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_RES, self.tr('statistics R/B 50m'), type=QgsProcessing.TypeVectorAnyGeometry))
+        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_CALC, self.tr('statistics blue emission'), type=QgsProcessing.TypeVectorAnyGeometry))
+        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_RES, self.tr('statistics blue emission 50m'), type=QgsProcessing.TypeVectorAnyGeometry))
        
         param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=1)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
@@ -331,10 +331,10 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
         return results
 
     def name(self):
-        return self.tr('Statistics of R/B per grid')
+        return self.tr('Statistics of blue emission per grid')
 
     def displayName(self):
-        return self.tr('Statistics of R/B per grid')
+        return self.tr('Statistics of blue emission per grid')
 
     def group(self):
         return 'ASE'
@@ -349,4 +349,4 @@ class StatisticsRBGrid(QgsProcessingAlgorithm):
         return QCoreApplication.translate('Processing', string)
 
     def createInstance(self):
-        return StatisticsRBGrid()
+        return StatisticsBlueEmissionGrid()
