@@ -18,12 +18,17 @@ from qgis.core import QgsProcessingParameterVectorLayer
 from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterVectorDestination
-import processing
+from qgis.core import QgsProcessingParameterRasterDestination
+from qgis.core import QgsProcessingUtils
+from qgis import processing
+from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+
 
 
 class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
     RASTER_INPUT = 'ImageJILINradianceRGB'
     RED_BAND_INPUT = 'RedBandInput'
+    GREEN_BAND_INPUT = 'GreenBandInput'
     BLUE_BAND_INPUT = 'BlueBandInput'
     SYMBOLOGY_STAT = 'SymbolStat'
     DIM_GRID_CALC = 'DiameterGridCalcul'
@@ -32,6 +37,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
     EXTENT_ZONE = 'ExtentZone'
     OUTPUT_STAT_CALC = 'OutputStatCalcul'
     OUTPUT_STAT_RES = 'OutputStatResult'
+    
+    MAJORITY_FIELD = "_majority"
+    
     
     SLICED_RASTER = 'SlicedRaster'
     
@@ -44,8 +52,11 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_CALC, self.tr('statistics blue emission'), type=QgsProcessing.TypeVectorAnyGeometry))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_RES, self.tr('statistics blue emission 50m'), type=QgsProcessing.TypeVectorAnyGeometry))
-       
+                
         param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=1)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterNumber(self.GREEN_BAND_INPUT, self.tr('Index of the green band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=2)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterNumber(self.BLUE_BAND_INPUT, self.tr('Index of the blue band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=3)
@@ -56,7 +67,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 1
-        feedback = QgsProcessingMultiStepFeedback(16, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(19, model_feedback)
 
         results = {}
         outputs = {}
@@ -182,13 +193,75 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
+
+        # Statistiques de zone pour les 3 bandes afin de récupérer les pixels majoritaires
+        majorityBand1 = self.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT], context, feedback)
+        majorityBand2 = self.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.GREEN_BAND_INPUT], context, feedback)
+        majorityBand3 = self.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.BLUE_BAND_INPUT], context, feedback)
+
+        # Calculatrice Raster masque pour enlever les zones non éclairées
+        alg_params = {
+            'BAND_A': 1,
+            'BAND_B': 2,
+            'BAND_C': 3,
+            'BAND_D': None,
+            'BAND_E': None,
+            'BAND_F': None,
+            'EXTRA': '',
+            'FORMULA': '1*logical_and(logical_and((A>='+str(majorityBand1+1)+'), (B>='+str(majorityBand2+1)+')), (C >='+str(majorityBand3+1)+'))',
+            'INPUT_A': outputs[self.SLICED_RASTER],
+            'INPUT_B': outputs[self.SLICED_RASTER],
+            'INPUT_C': outputs[self.SLICED_RASTER],
+            'INPUT_D': None,
+            'INPUT_E': None,
+            'INPUT_F': None,
+            'NO_DATA': None,
+            'OPTIONS': '',
+            'RTYPE': 1,  # Int16
+            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        }
+        outputs['CalculRasterMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        
+        feedback.setCurrentStep(1)
+        if feedback.isCanceled():
+            return {}
+
+        # Calculatrice Raster B1 avec masque
+        alg_params = {
+            'BAND_A': parameters[self.RED_BAND_INPUT],
+            'BAND_B': 1,
+            'BAND_C': None,
+            'BAND_D': None,
+            'BAND_E': None,
+            'BAND_F': None,
+            'EXTRA': '',
+            'FORMULA': 'A*B',
+            'INPUT_A': outputs[self.SLICED_RASTER],
+            'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],#parameters['masquezonesombre'],
+            'INPUT_C': None,
+            'INPUT_D': None,
+            'INPUT_E': None,
+            'INPUT_F': None,
+            'NO_DATA': None,
+            'OPTIONS': '',
+            'RTYPE': 5,  # Float32
+            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        }
+        outputs['CalculRasterB1'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        
+        feedback.setCurrentStep(step)
+        step+=1
+        if feedback.isCanceled():
+            return {}
+        
+        
         # Statistiques de zone bande rouge
         alg_params = {
             'COLUMN_PREFIX': 'R_',
             'INPUT': outputs['GridTempCalcIndex']['OUTPUT'],
-            'INPUT_RASTER': outputs[self.SLICED_RASTER],
-            'RASTER_BAND': parameters[self.RED_BAND_INPUT], #1
-            'STATISTICS': [2,4,1],  # Moyenne,Ecart-type,Somme
+            'INPUT_RASTER': outputs['CalculRasterB1']['OUTPUT'], #outputs[self.SLICED_RASTER],
+            'RASTER_BAND': 1,
+            'STATISTICS': [1,2,3,4],  # Somme,Moyenne, Médiane, Ecart-type
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsRedBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
@@ -197,14 +270,42 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         step+=1
         if feedback.isCanceled():
             return {}
-
+        
+        # Calculatrice Raster B3 avec masque
+        alg_params = {
+            'BAND_A': parameters[self.BLUE_BAND_INPUT],
+            'BAND_B': 1,
+            'BAND_C': None,
+            'BAND_D': None,
+            'BAND_E': None,
+            'BAND_F': None,
+            'EXTRA': '',
+            'FORMULA': 'A*B',
+            'INPUT_A': outputs[self.SLICED_RASTER],
+            'INPUT_B': outputs['CalculRasterMask']['OUTPUT'], #parameters['masquezonesombre'],
+            'INPUT_C': None,
+            'INPUT_D': None,
+            'INPUT_E': None,
+            'INPUT_F': None,
+            'NO_DATA': None,
+            'OPTIONS': '',
+            'RTYPE': 5,  # Float32
+            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        }
+        outputs['CalculRasterB3'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        
+        feedback.setCurrentStep(step)
+        step+=1
+        if feedback.isCanceled():
+            return {}
+        
         # Statistiques de zone bande bleu
         alg_params = {
             'COLUMN_PREFIX': 'B_',
             'INPUT': outputs['StatisticsRedBand']['OUTPUT'],
-            'INPUT_RASTER': outputs[self.SLICED_RASTER],
-            'RASTER_BAND': parameters[self.BLUE_BAND_INPUT],#3
-            'STATISTICS': [1,2,4],  # Somme,Moyenne,Ecart-type
+            'INPUT_RASTER': outputs['CalculRasterB3']['OUTPUT'], #outputs[self.SLICED_RASTER],
+            'RASTER_BAND': 1,
+            'STATISTICS': [1,2,3,4],  # Somme,Moyenne, Médiane, Ecart-type
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsBlueBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
@@ -215,12 +316,13 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             return {}
 
         # Calcul champ R/B_mean
+        # NULL si R_mean ou B_mean = 0
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'R/B_mean',
             'FIELD_PRECISION': 4,
             'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': '"R_mean"/"B_mean"',
+            'FORMULA': 'CASE\r\n\tWHEN "R_mean" = 0 or "B_mean" = 0 THEN NULL\r\n\tELSE "R_mean"/"B_mean"\r\nEND',# TEST INDICE NORMALISE B-R/B+R : ("B_mean"-"R_mean")/("B_mean"+"R_mean")
             'INPUT': outputs['StatisticsBlueBand']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -232,13 +334,14 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             return {}
 
         # Calcul champ R/B_Q3
+        # NULL si R_mean ou B_mean = 0
         # TODO : trouver comment récupérer le q3 du raster
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'R/B_Q3',
             'FIELD_PRECISION': 4,
             'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': '"R_stdev"/"B_stdev"',
+            'FORMULA': 'CASE\r\n\tWHEN "R_stdev" = 0 or "B_stdev" = 0 THEN NULL\r\n\tELSE "R_stdev"/"B_stdev"\r\nEND',
             'INPUT': outputs['CalculFieldRb_mean']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -250,13 +353,14 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             return {}
 
         # Calculatrice de champ indice bleu pour la couche de calcul
+        # quantiles inversés
         outputStatCalc = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT_CALC,context)
         alg_params = {
             'FIELD_LENGTH': 6,
             'FIELD_NAME': 'indice_pol',
             'FIELD_PRECISION': 0,
             'FIELD_TYPE': 1,  # Entier
-            'FORMULA': 'with_variable(\r\n\'percentile\',\r\narray_find(array_agg("R/B_mean",order_by:="R/B_mean"),"R/B_mean") / array_length(array_agg("R/B_mean")),\r\n    CASE\r\n    WHEN @percentile < 0.2 THEN 1\r\n    WHEN @percentile < 0.4 THEN 2\r\n    WHEN @percentile < 0.6 THEN 3\r\n    WHEN @percentile < 0.8 THEN 4\r\n    WHEN @percentile <= 1 THEN 5\r\n    ELSE 0\r\n    END\r\n)',
+            'FORMULA': 'with_variable(\r\n\'percentile\',\r\narray_find(array_agg("R/B_mean",order_by:="R/B_mean"),"R/B_mean") / array_length(array_agg("R/B_mean")),\r\n    CASE\r\n    WHEN @percentile < 0.2 THEN 5\r\n    WHEN @percentile < 0.4 THEN 4\r\n    WHEN @percentile < 0.6 THEN 3\r\n    WHEN @percentile < 0.8 THEN 2\r\n    WHEN @percentile <= 1 THEN 1\r\n    ELSE 0\r\n    END\r\n)',
             'INPUT': outputs['CalculFieldRb_q3']['OUTPUT'],
             'OUTPUT': outputStatCalc
         }
@@ -288,13 +392,14 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
                 return {}
         
             # Calculatrice de champ indice bleu pour la couche de résultat
+            # quantiles inversés
             outputStatRes = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT_RES,context)
             alg_params = {
                 'FIELD_LENGTH': 6,
                 'FIELD_NAME': 'indice_pol',
                 'FIELD_PRECISION': 0,
                 'FIELD_TYPE': 1,  # Entier
-                'FORMULA': 'with_variable(\r\n\'percentile\',\r\narray_find(array_agg("R/B_mean_mean",order_by:="R/B_mean_mean"),"R/B_mean_mean") / array_length(array_agg("R/B_mean_mean")),\r\n    CASE\r\n    WHEN @percentile < 0.2 THEN 1\r\n    WHEN @percentile < 0.4 THEN 2\r\n    WHEN @percentile < 0.6 THEN 3\r\n    WHEN @percentile < 0.8 THEN 4\r\n    WHEN @percentile <= 1 THEN 5\r\n    ELSE 0\r\n    END\r\n)',
+                'FORMULA': 'with_variable(\r\n\'percentile\',\r\narray_find(array_agg("R/B_mean_mean",order_by:="R/B_mean_mean"),"R/B_mean_mean") / array_length(array_agg("R/B_mean_mean")),\r\n    CASE\r\n    WHEN @percentile < 0.2 THEN 5\r\n    WHEN @percentile < 0.4 THEN 4\r\n    WHEN @percentile < 0.6 THEN 3\r\n    WHEN @percentile < 0.8 THEN 2\r\n    WHEN @percentile <= 1 THEN 1\r\n    ELSE 0\r\n    END\r\n)',
                 'INPUT': outputs['JoinFieldsLocalisationCalculResult']['OUTPUT'],
                 'OUTPUT': outputStatRes
             }
@@ -329,6 +434,19 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         
         print(step)
         return results
+        
+    def getMajorityValue(self, inputVector, inputRaster, band, context, feedback):
+        zonal_stats = QgsProcessingUtils.generateTempFilename('zonal_stats_band_'+str(band)+'.gpkg')
+        qgsTreatments.rasterZonalStats(inputVector, inputRaster,zonal_stats,prefix="_",band=band,stats=[9],context=context,feedback=feedback)
+        stats_layer = qgsUtils.loadVectorLayer(zonal_stats)
+        stats_fields = stats_layer.fields()
+        stats_fieldnames = stats_fields.names()
+        majority = 1 # valeur par défault
+        if self.MAJORITY_FIELD in stats_fieldnames:
+            for f in stats_layer.getFeatures():
+                majority = f[self.MAJORITY_FIELD]
+                break
+        return majority
 
     def name(self):
         return self.tr('Statistics of blue emission per grid')
