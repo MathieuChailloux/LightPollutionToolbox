@@ -195,15 +195,15 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
 
 
         # Statistiques de zone pour les 3 bandes afin de récupérer les pixels majoritaires
-        majorityBand1 = self.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT], context, feedback)
-        majorityBand2 = self.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.GREEN_BAND_INPUT], context, feedback)
-        majorityBand3 = self.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.BLUE_BAND_INPUT], context, feedback)
-
+        majorityBand1 = qgsTreatments.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        majorityBand2 = qgsTreatments.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.GREEN_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        majorityBand3 = qgsTreatments.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.BLUE_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        
         # Calculatrice Raster masque pour enlever les zones non éclairées
         alg_params = {
-            'BAND_A': 1,
-            'BAND_B': 2,
-            'BAND_C': 3,
+            'BAND_A': parameters[self.RED_BAND_INPUT], #1
+            'BAND_B': parameters[self.GREEN_BAND_INPUT], #2
+            'BAND_C': parameters[self.BLUE_BAND_INPUT], #3
             'BAND_D': None,
             'BAND_E': None,
             'BAND_F': None,
@@ -435,18 +435,6 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         print(step)
         return results
         
-    def getMajorityValue(self, inputVector, inputRaster, band, context, feedback):
-        zonal_stats = QgsProcessingUtils.generateTempFilename('zonal_stats_band_'+str(band)+'.gpkg')
-        qgsTreatments.rasterZonalStats(inputVector, inputRaster,zonal_stats,prefix="_",band=band,stats=[9],context=context,feedback=feedback)
-        stats_layer = qgsUtils.loadVectorLayer(zonal_stats)
-        stats_fields = stats_layer.fields()
-        stats_fieldnames = stats_fields.names()
-        majority = 1 # valeur par défault
-        if self.MAJORITY_FIELD in stats_fieldnames:
-            for f in stats_layer.getFeatures():
-                majority = f[self.MAJORITY_FIELD]
-                break
-        return majority
 
     def name(self):
         return self.tr('Statistics of blue emission per grid')
