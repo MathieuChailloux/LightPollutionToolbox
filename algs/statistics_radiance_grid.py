@@ -29,7 +29,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     GREEN_BAND_INPUT = 'GreenBandInput'
     BLUE_BAND_INPUT = 'BlueBandInput'
     SYMBOLOGY_STAT = 'SymbolStat'
-    DIM_GRID = 'DiameterGrid'
+    DIM_GRID = 'GridDiameter'
     TYPE_GRID = 'TypeOfGrid'
     EXTENT_ZONE = 'ExtentZone'
     OUTPUT_STAT= 'OutputStat'
@@ -42,11 +42,11 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
         self.addParameter(QgsProcessingParameterFile(self.SYMBOLOGY_STAT, self.tr('Apply a symbology to the result'), optional=True, behavior=QgsProcessingParameterFile.File, fileFilter=self.tr('Style file (*.qml)'), defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Diameter grid (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
+        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry))
-        
+                
         param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=1)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
@@ -426,11 +426,11 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'INPUT': outputs['ExtractLightGrid']['OUTPUT'],
             'INPUT_RASTER': outputs['CalculRasterB1']['OUTPUT'], #outputs[self.SLICED_RASTER],
             'RASTER_BAND': 1, #parameters[self.RED_BAND_INPUT],
-            'STATISTICS': [1,2],  # Somme,Moyenne
+            'STATISTICS': [0,1,2],  # Count, Somme,Moyenne
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsRedBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
+                
         feedback.setCurrentStep(step)
         step+=1
         if feedback.isCanceled():
@@ -442,7 +442,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'INPUT': outputs['StatisticsRedBand']['OUTPUT'],
             'INPUT_RASTER': outputs['CalculRasterB2']['OUTPUT'], #outputs[self.SLICED_RASTER],
             'RASTER_BAND': 1, #parameters[self.GREEN_BAND_INPUT],
-            'STATISTICS': [1,2],  # Somme,Moyenne
+            'STATISTICS': [0,1,2],  # Count, Somme,Moyenne
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsGreenBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
@@ -458,7 +458,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'INPUT': outputs['StatisticsGreenBand']['OUTPUT'],
             'INPUT_RASTER': outputs['CalculRasterB3']['OUTPUT'], #outputs[self.SLICED_RASTER],
             'RASTER_BAND': 1, #parameters[self.BLUE_BAND_INPUT],
-            'STATISTICS': [1,2],  # Somme,Moyenne
+            'STATISTICS': [0,1,2],  # Count, Somme,Moyenne
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsBlueBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
