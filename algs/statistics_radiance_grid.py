@@ -9,6 +9,7 @@ from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
 from qgis.core import QgsProcessingAlgorithm
+from qgis.core import QgsProcessingUtils
 from qgis.core import QgsProcessingMultiStepFeedback
 from qgis.core import QgsProcessingParameterString
 from qgis.core import QgsProcessingParameterVectorLayer
@@ -28,7 +29,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     RED_BAND_INPUT = 'RedBandInput'
     GREEN_BAND_INPUT = 'GreenBandInput'
     BLUE_BAND_INPUT = 'BlueBandInput'
-    SYMBOLOGY_STAT = 'SymbolStat'
     DIM_GRID = 'GridDiameter'
     TYPE_GRID = 'TypeOfGrid'
     EXTENT_ZONE = 'ExtentZone'
@@ -39,10 +39,12 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     
     SLICED_RASTER = 'SlicedRaster'
     
+    IND_FIELD_POL = 'indice_pol'
+    results = {}
+    
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
-        self.addParameter(QgsProcessingParameterFile(self.SYMBOLOGY_STAT, self.tr('Apply a symbology to the result'), optional=True, behavior=QgsProcessingParameterFile.File, fileFilter=self.tr('Style file (*.qml)'), defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry))
@@ -67,7 +69,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # overall progress through the model
         step = 1
         feedback = QgsProcessingMultiStepFeedback(21, model_feedback)
-        results = {}
+        
         outputs = {}
         
         self.parseParams(parameters,context)
@@ -404,7 +406,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Calculatrice de champ indice radiance null
         alg_params = {
             'FIELD_LENGTH': 6,
-            'FIELD_NAME': 'indice_pol',
+            'FIELD_NAME': self.IND_FIELD_POL,
             'FIELD_PRECISION': 0,
             'FIELD_TYPE': 1,  # Entier
             'FORMULA': '0',
@@ -499,7 +501,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Calculatrice de champ indice radiance
         alg_params = {
             'FIELD_LENGTH': 6,
-            'FIELD_NAME': 'indice_pol',
+            'FIELD_NAME': self.IND_FIELD_POL,
             'FIELD_PRECISION': 0,
             'FIELD_TYPE': 1,  # Entier
             'FORMULA': 'with_variable(\r\n\'percentile\',\r\narray_find(array_agg("tot_mean",order_by:="tot_mean"),"tot_mean") / array_length(array_agg("tot_mean")),\r\n    CASE\r\n    WHEN @percentile < 0.2 THEN 1\r\n    WHEN @percentile < 0.4 THEN 2\r\n    WHEN @percentile < 0.6 THEN 3\r\n    WHEN @percentile < 0.8 THEN 4\r\n    WHEN @percentile <= 1 THEN 5\r\n    ELSE 0\r\n    END\r\n)',
@@ -520,24 +522,11 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': self.outputStat
         }
         outputs['MergeVectorLayer'] = processing.run('native:mergevectorlayers', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results[self.OUTPUT_STAT] = outputs['MergeVectorLayer']['OUTPUT']
+        self.results[self.OUTPUT_STAT] = outputs['MergeVectorLayer']['OUTPUT']
 
-        feedback.setCurrentStep(step)
-        step+=1
-        if feedback.isCanceled():
-            return {}
-        
-        if parameters[self.SYMBOLOGY_STAT] is not None and parameters[self.SYMBOLOGY_STAT] != NULL: # vérifie si la symbologie est entrée
-            # Définir le style de la couche résutlat
-            alg_params = {
-                'INPUT': outputs['MergeVectorLayer']['OUTPUT'],
-                'STYLE': parameters[self.SYMBOLOGY_STAT]
-            }
-            outputs['setStyleLayerRes'] = processing.run('native:setlayerstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
         
         print(step)
-        return results
+        return self.results
 
     def name(self):
         return self.tr('Statistics of radiance per grid')
@@ -559,3 +548,12 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
     def createInstance(self):
         return StatisticsRadianceGrid()
+
+    def postProcessAlgorithm(self,context,feedback):
+        out_layer = QgsProcessingUtils.mapLayerFromString(self.results[self.OUTPUT_STAT],context)
+        if not out_layer:
+            raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_STAT]))
+        
+        # Applique la symbologie par défault
+        styles.setCustomClassesInd_Pol(out_layer, self.IND_FIELD_POL)
+        return self.results
