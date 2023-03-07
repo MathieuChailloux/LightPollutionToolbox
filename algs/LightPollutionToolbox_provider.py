@@ -35,14 +35,14 @@ import inspect
 from PyQt5.QtGui import QIcon
 
 from qgis.core import QgsProcessingProvider
-from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology, DSFLSurface, DSFLRaw
+from .fluxDensity_algorithm import DSFLRaw#, FluxDensityAlgorithm, DSFLSymbology, DSFLSurface
 # from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
 # from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
 # from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
 # from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
 # from .viirs import VIIRS_Untar
 # from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
-# from .classifyLamps import ClassifyLightingAlg
+from .classifyLamps import ClassifyLightingAlg
 # from .radiance_stats import RadianceStats
 from .pretreatments_dark_zones import PretreatmentsDarkZones
 from .statistics_radiance_grid import StatisticsRadianceGrid
@@ -55,10 +55,10 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         """
         Default constructor.
         """
-        self.alglist = [FluxDensityAlgorithm(),
-            DSFLSurface(),
-            DSFLRaw(),
-            DSFLSymbology(),
+        self.alglist = [DSFLRaw(),
+            # FluxDensityAlgorithm(),
+            # DSFLSurface(),
+            # DSFLSymbology(),
             # CreateMeshAlgorithm(),
             # RoadsReporting(),
             # MergeGeometryAlgorithm(),
@@ -69,7 +69,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             # RoadsExtentFromCadastre(),
             # AddParcellesAlg(),
             # RadianceStats(),
-            # ClassifyLightingAlg(),
+            ClassifyLightingAlg(),
             PretreatmentsDarkZones(),
             StatisticsRadianceGrid(),
             StatisticsBlueEmissionGrid(),

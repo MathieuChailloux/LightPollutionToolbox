@@ -592,9 +592,9 @@ class DSFLRaw(DSFLSurface):
         return self.tr('Light Flux Surfacic Density (from raw data)')
         
     def group(self):
-        return None
+        return 'DSFLI'
     def groupId(self):
-        return None
+        return 'DSFLI'
 
     def initAlgorithm(self, config=None):
         # Inputs

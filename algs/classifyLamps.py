@@ -151,3 +151,9 @@ class ClassifyLightingAlg(qgsUtils.BaseProcessingAlgorithm):
     def shortHelpString(self):
         helpStr = "Classify lighting layer according to selected mode (flux, color temperature, ULR)"
         return self.tr(helpStr)
+
+    def group(self):
+        return 'DSFLI'
+
+    def groupId(self):
+        return 'DSFLI'
