@@ -43,10 +43,11 @@ from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadast
 from .viirs import VIIRS_Untar
 from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
 from .classifyLamps import ClassifyLightingAlg
+from .radiance_stats import RadianceStats
 from .viewshed_raster import ViewshedRaster
 from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
 from .statistics_radiance_grid import StatisticsRadianceGrid
-from .radiance_stats import RadianceStats
+from .pretreatments_dark_zones import PretreatmentsDarkZones
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
 
@@ -71,7 +72,8 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             ClassifyLightingAlg(),
             StatisticsBlueEmissionGrid(),
             StatisticsRadianceGrid(),
-            ViewshedRaster()]
+            ViewshedRaster(),
+            PretreatmentsDarkZones()]
         self.alglist2 = [
             VIIRS_Untar(),
             FluxDispAlg(),

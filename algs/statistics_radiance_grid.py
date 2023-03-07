@@ -32,19 +32,19 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     DIM_GRID = 'GridDiameter'
     TYPE_GRID = 'TypeOfGrid'
     EXTENT_ZONE = 'ExtentZone'
-    OUTPUT_STAT= 'OutputStat'
+    OUTPUT_STAT = 'OutputStat'
     
-    MAJORITY_FIELD = "_majority"
+    # MAJORITY_FIELD = "_majority"
 
     
     SLICED_RASTER = 'SlicedRaster'
     
     def initAlgorithm(self, config=None):
+        self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
         self.addParameter(QgsProcessingParameterFile(self.SYMBOLOGY_STAT, self.tr('Apply a symbology to the result'), optional=True, behavior=QgsProcessingParameterFile.File, fileFilter=self.tr('Style file (*.qml)'), defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
-        self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry))
                 
         param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=1)
@@ -57,25 +57,30 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
 
-
+    def parseParams(self, parameters, context):
+        self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
+        self.inputRaster = self.parameterAsRasterLayer(parameters, self.RASTER_INPUT, context)
+        self.outputStat = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT,context)
+       
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 1
-        feedback = QgsProcessingMultiStepFeedback(25, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(21, model_feedback)
         results = {}
         outputs = {}
-        outputStat = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT,context)
         
-        if parameters[self.EXTENT_ZONE] is None or parameters[self.EXTENT_ZONE] == NULL:
+        self.parseParams(parameters,context)
+        
+        if self.inputExtent is None or self.inputExtent == NULL:
             # Extraire l'emprise de la couche raster
             # Si emprise non présente
             alg_params = {
-                'INPUT': parameters[self.RASTER_INPUT],
+                'INPUT': self.inputRaster,
                 'ROUND_TO': 0,
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
-            parameters[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+            outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
             
             outputs[self.SLICED_RASTER] = parameters[self.RASTER_INPUT] # le raster n'est pas découpé
             
@@ -88,16 +93,16 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             alg_params = {
                 'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
                 'EXTRA': '',
-                'INPUT': parameters[self.RASTER_INPUT],
+                'INPUT': self.inputRaster,
                 'NODATA': None,
                 'OPTIONS': '',
                 'OVERCRS': False,
-                'PROJWIN': parameters[self.EXTENT_ZONE],
+                'PROJWIN': self.inputExtent,
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
             
-            outputs[self.EXTENT_ZONE] = parameters[self.EXTENT_ZONE]
+            outputs[self.EXTENT_ZONE] = self.inputExtent
 
             feedback.setCurrentStep(step)
             step+=1
@@ -106,8 +111,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
 
         # Créer une grille
         alg_params = {
-            'CRS': parameters[self.EXTENT_ZONE],
-            'EXTENT': parameters[self.EXTENT_ZONE],
+            'CRS': outputs[self.EXTENT_ZONE],
+            'EXTENT': outputs[self.EXTENT_ZONE],
             'HOVERLAY': 0,
             'HSPACING': parameters[self.DIM_GRID],
             'TYPE': parameters[self.TYPE_GRID]+2,  # Ajoute +2 pour aligner le bon type de grille
@@ -125,7 +130,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Extraire les grilles par localisation de l'emprise
         alg_params = {
             'INPUT': outputs['GridTemp']['OUTPUT'],
-            'INTERSECT': parameters[self.EXTENT_ZONE],
+            'INTERSECT': outputs[self.EXTENT_ZONE],
             'PREDICATE': [0],  # intersecte
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -147,136 +152,143 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
         
+        # ########################################################################## PRETRAITEMENTS A SORTIR ##########################################################################
+        
+        # # Statistiques de zone pour les 3 bandes afin de récupérer les pixels majoritaires
+        # majorityBand1 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        # majorityBand2 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.GREEN_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        # majorityBand3 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.BLUE_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
 
-        # Statistiques de zone pour les 3 bandes afin de récupérer les pixels majoritaires
-        majorityBand1 = qgsTreatments.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
-        majorityBand2 = qgsTreatments.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.GREEN_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
-        majorityBand3 = qgsTreatments.getMajorityValue(parameters[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.BLUE_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
-
-        # Calculatrice Raster masque pour enlever les zones non éclairées
-        alg_params = {
-            'BAND_A': parameters[self.RED_BAND_INPUT], #1
-            'BAND_B': parameters[self.GREEN_BAND_INPUT], #2
-            'BAND_C': parameters[self.BLUE_BAND_INPUT], #3
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': '1*logical_and(logical_and((A>='+str(majorityBand1+1)+'), (B>='+str(majorityBand2+1)+')), (C >='+str(majorityBand3+1)+'))',
-            'INPUT_A': outputs[self.SLICED_RASTER],
-            'INPUT_B': outputs[self.SLICED_RASTER],
-            'INPUT_C': outputs[self.SLICED_RASTER],
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 1,  # Int16
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        # # Calculatrice Raster masque pour enlever les zones non éclairées
+        # # Si les 3 pixels des 3 bandes < majortité+1 alors 0, sinon 1 
+        # # Ici la condition indique l'inverse : pour mettre les pixels à 1, il faut qu'au moins 1 des 3 soit > majorité
+        # alg_params = {
+            # 'BAND_A': parameters[self.RED_BAND_INPUT], #1
+            # 'BAND_B': parameters[self.GREEN_BAND_INPUT], #2
+            # 'BAND_C': parameters[self.BLUE_BAND_INPUT], #3
+            # 'BAND_D': None,
+            # 'BAND_E': None,
+            # 'BAND_F': None,
+            # 'EXTRA': '',
+            # 'FORMULA': '1*logical_or(logical_or((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')), (C >'+str(majorityBand3)+'))',
+            # 'INPUT_A': outputs[self.SLICED_RASTER],
+            # 'INPUT_B': outputs[self.SLICED_RASTER],
+            # 'INPUT_C': outputs[self.SLICED_RASTER],
+            # 'INPUT_D': None,
+            # 'INPUT_E': None,
+            # 'INPUT_F': None,
+            # 'NO_DATA': None,
+            # 'OPTIONS': '',
+            # 'RTYPE': 1,  # Int16
+            # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        # }
+        # outputs['CalculRasterMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        feedback.setCurrentStep(1)
-        if feedback.isCanceled():
-            return {}
+        # feedback.setCurrentStep(step)
+        # step+=1
+        # if feedback.isCanceled():
+            # return {}
         
-        # Calculatrice Raster B1 avec masque
-        alg_params = {
-            'BAND_A': parameters[self.RED_BAND_INPUT],
-            'BAND_B': 1,
-            'BAND_C': None,
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': 'A*B',
-            'INPUT_A': outputs[self.SLICED_RASTER],
-            'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],#parameters['masquezonesombre'],
-            'INPUT_C': None,
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterB1'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        # # Calculatrice Raster B1 avec masque
+        # alg_params = {
+            # 'BAND_A': parameters[self.RED_BAND_INPUT],
+            # 'BAND_B': 1,
+            # 'BAND_C': None,
+            # 'BAND_D': None,
+            # 'BAND_E': None,
+            # 'BAND_F': None,
+            # 'EXTRA': '',
+            # 'FORMULA': 'A*B',
+            # 'INPUT_A': outputs[self.SLICED_RASTER],
+            # 'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],
+            # 'INPUT_C': None,
+            # 'INPUT_D': None,
+            # 'INPUT_E': None,
+            # 'INPUT_F': None,
+            # 'NO_DATA': None,
+            # 'OPTIONS': '',
+            # 'RTYPE': 5,  # Float32
+            # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        # }
+        # outputs['CalculRasterB1'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        feedback.setCurrentStep(step)
-        step+=1
-        if feedback.isCanceled():
-            return {}
+        # feedback.setCurrentStep(step)
+        # step+=1
+        # if feedback.isCanceled():
+            # return {}
             
-        # Calculatrice Raster B2 avec masque
-        alg_params = {
-            'BAND_A': parameters[self.GREEN_BAND_INPUT],
-            'BAND_B': 1,
-            'BAND_C': None,
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': 'A*B',
-            'INPUT_A': outputs[self.SLICED_RASTER],
-            'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],#parameters['masquezonesombre'],
-            'INPUT_C': None,
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterB2'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        # # Calculatrice Raster B2 avec masque
+        # alg_params = {
+            # 'BAND_A': parameters[self.GREEN_BAND_INPUT],
+            # 'BAND_B': 1,
+            # 'BAND_C': None,
+            # 'BAND_D': None,
+            # 'BAND_E': None,
+            # 'BAND_F': None,
+            # 'EXTRA': '',
+            # 'FORMULA': 'A*B',
+            # 'INPUT_A': outputs[self.SLICED_RASTER],
+            # 'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],
+            # 'INPUT_C': None,
+            # 'INPUT_D': None,
+            # 'INPUT_E': None,
+            # 'INPUT_F': None,
+            # 'NO_DATA': None,
+            # 'OPTIONS': '',
+            # 'RTYPE': 5,  # Float32
+            # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        # }
+        # outputs['CalculRasterB2'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        feedback.setCurrentStep(step)
-        step+=1
-        if feedback.isCanceled():
-            return {}
+        # feedback.setCurrentStep(step)
+        # step+=1
+        # if feedback.isCanceled():
+            # return {}
             
-        # Calculatrice Raster B3 avec masque
-        alg_params = {
-            'BAND_A': parameters[self.BLUE_BAND_INPUT],
-            'BAND_B': 1,
-            'BAND_C': None,
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': 'A*B',
-            'INPUT_A': outputs[self.SLICED_RASTER],
-            'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],#parameters['masquezonesombre'],
-            'INPUT_C': None,
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterB3'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        # # Calculatrice Raster B3 avec masque
+        # alg_params = {
+            # 'BAND_A': parameters[self.BLUE_BAND_INPUT],
+            # 'BAND_B': 1,
+            # 'BAND_C': None,
+            # 'BAND_D': None,
+            # 'BAND_E': None,
+            # 'BAND_F': None,
+            # 'EXTRA': '',
+            # 'FORMULA': 'A*B',
+            # 'INPUT_A': outputs[self.SLICED_RASTER],
+            # 'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],
+            # 'INPUT_C': None,
+            # 'INPUT_D': None,
+            # 'INPUT_E': None,
+            # 'INPUT_F': None,
+            # 'NO_DATA': None,
+            # 'OPTIONS': '',
+            # 'RTYPE': 5,  # Float32
+            # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        # }
+        # outputs['CalculRasterB3'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        feedback.setCurrentStep(step)
-        step+=1
-        if feedback.isCanceled():
-            return {}
+        # feedback.setCurrentStep(step)
+        # step+=1
+        # if feedback.isCanceled():
+            # return {}
+        
+        # ##############################################################################################################################################################################################################################
+        
         
         # Calculatrice Raster Radiance totale
         alg_params = {
-            'BAND_A': 1, #parameters[self.RED_BAND_INPUT],
-            'BAND_B': 1, #parameters[self.GREEN_BAND_INPUT],
-            'BAND_C': 1, #parameters[self.BLUE_BAND_INPUT],
+            'BAND_A': parameters[self.RED_BAND_INPUT], #1
+            'BAND_B': parameters[self.GREEN_BAND_INPUT], #1
+            'BAND_C': parameters[self.BLUE_BAND_INPUT], #1
             'BAND_D': None,
             'BAND_E': None,
             'BAND_F': None,
             'EXTRA': '',
             'FORMULA': 'A*0.2989+B*0.5870+C*0.1140',
-            'INPUT_A': outputs['CalculRasterB1']['OUTPUT'], #outputs[self.SLICED_RASTER],
-            'INPUT_B': outputs['CalculRasterB2']['OUTPUT'], #outputs[self.SLICED_RASTER],
-            'INPUT_C': outputs['CalculRasterB3']['OUTPUT'], #outputs[self.SLICED_RASTER],
+            'INPUT_A': outputs[self.SLICED_RASTER], #outputs['CalculRasterB1']['OUTPUT']
+            'INPUT_B': outputs[self.SLICED_RASTER], #outputs['CalculRasterB1']['OUTPUT']
+            'INPUT_C': outputs[self.SLICED_RASTER], #outputs['CalculRasterB1']['OUTPUT']
             'INPUT_D': None,
             'INPUT_E': None,
             'INPUT_F': None,
@@ -424,8 +436,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         alg_params = {
             'COLUMN_PREFIX': 'R_',
             'INPUT': outputs['ExtractLightGrid']['OUTPUT'],
-            'INPUT_RASTER': outputs['CalculRasterB1']['OUTPUT'], #outputs[self.SLICED_RASTER],
-            'RASTER_BAND': 1, #parameters[self.RED_BAND_INPUT],
+            'INPUT_RASTER': outputs[self.SLICED_RASTER], #outputs['CalculRasterB1']['OUTPUT'],
+            'RASTER_BAND': parameters[self.RED_BAND_INPUT], #1,
             'STATISTICS': [0,1,2],  # Count, Somme,Moyenne
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -440,8 +452,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         alg_params = {
             'COLUMN_PREFIX': 'V_',
             'INPUT': outputs['StatisticsRedBand']['OUTPUT'],
-            'INPUT_RASTER': outputs['CalculRasterB2']['OUTPUT'], #outputs[self.SLICED_RASTER],
-            'RASTER_BAND': 1, #parameters[self.GREEN_BAND_INPUT],
+            'INPUT_RASTER': outputs[self.SLICED_RASTER], # outputs['CalculRasterB2']['OUTPUT'],
+            'RASTER_BAND': parameters[self.GREEN_BAND_INPUT], #1,
             'STATISTICS': [0,1,2],  # Count, Somme,Moyenne
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -456,8 +468,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         alg_params = {
             'COLUMN_PREFIX': 'B_',
             'INPUT': outputs['StatisticsGreenBand']['OUTPUT'],
-            'INPUT_RASTER': outputs['CalculRasterB3']['OUTPUT'], #outputs[self.SLICED_RASTER],
-            'RASTER_BAND': 1, #parameters[self.BLUE_BAND_INPUT],
+            'INPUT_RASTER': outputs[self.SLICED_RASTER], #outputs['CalculRasterB3']['OUTPUT'],
+            'RASTER_BAND': parameters[self.BLUE_BAND_INPUT], #1, 
             'STATISTICS': [0,1,2],  # Count, Somme,Moyenne
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -505,7 +517,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         alg_params = {
             'CRS': outputs['CalculFieldIndiceRadiance']['OUTPUT'],
             'LAYERS': [outputs['CalculFieldIndiceRadiance']['OUTPUT'],outputs['CalculFieldIndiceRadianceNull']['OUTPUT']],
-            'OUTPUT': outputStat
+            'OUTPUT': self.outputStat
         }
         outputs['MergeVectorLayer'] = processing.run('native:mergevectorlayers', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results[self.OUTPUT_STAT] = outputs['MergeVectorLayer']['OUTPUT']
