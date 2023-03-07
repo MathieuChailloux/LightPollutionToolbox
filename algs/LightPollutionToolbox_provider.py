@@ -36,18 +36,18 @@ from PyQt5.QtGui import QIcon
 
 from qgis.core import QgsProcessingProvider
 from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology, DSFLSurface, DSFLRaw
-from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
-from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
-from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
-from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
-from .viirs import VIIRS_Untar
-from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
-from .classifyLamps import ClassifyLightingAlg
-from .radiance_stats import RadianceStats
-from .viewshed_raster import ViewshedRaster
-from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
-from .statistics_radiance_grid import StatisticsRadianceGrid
+# from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
+# from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
+# from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
+# from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
+# from .viirs import VIIRS_Untar
+# from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
+# from .classifyLamps import ClassifyLightingAlg
+# from .radiance_stats import RadianceStats
 from .pretreatments_dark_zones import PretreatmentsDarkZones
+from .statistics_radiance_grid import StatisticsRadianceGrid
+from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
+from .viewshed_raster import ViewshedRaster
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
 
@@ -59,29 +59,29 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             DSFLSurface(),
             DSFLRaw(),
             DSFLSymbology(),
-            CreateMeshAlgorithm(),
-            RoadsReporting(),
-            MergeGeometryAlgorithm(),
-            MergeGeometryDissolveAlgorithm(),
-            MergeGeometryNoOverlapAlgorithm(),
-            RoadsExtent(),
-            RoadsExtentBDTOPO(),
-            RoadsExtentFromCadastre(),
-            AddParcellesAlg(),
-            RadianceStats(),
-            ClassifyLightingAlg(),
-            StatisticsBlueEmissionGrid(),
+            # CreateMeshAlgorithm(),
+            # RoadsReporting(),
+            # MergeGeometryAlgorithm(),
+            # MergeGeometryDissolveAlgorithm(),
+            # MergeGeometryNoOverlapAlgorithm(),
+            # RoadsExtent(),
+            # RoadsExtentBDTOPO(),
+            # RoadsExtentFromCadastre(),
+            # AddParcellesAlg(),
+            # RadianceStats(),
+            # ClassifyLightingAlg(),
+            PretreatmentsDarkZones(),
             StatisticsRadianceGrid(),
-            ViewshedRaster(),
-            PretreatmentsDarkZones()]
-        self.alglist2 = [
-            VIIRS_Untar(),
-            FluxDispAlg(),
-            FluxDispTempCoulAlg(),
-            FluxEstimationAlgorithm(),
-            FluxTimeAlgorithm(),
-            LightDispSymbology()
-            ]
+            StatisticsBlueEmissionGrid(),
+            ViewshedRaster()]
+        # self.alglist2 = [
+            # VIIRS_Untar(),
+            # FluxDispAlg(),
+            # FluxDispTempCoulAlg(),
+            # FluxEstimationAlgorithm(),
+            # FluxTimeAlgorithm(),
+            # LightDispSymbology()
+            # ]
         for a in self.alglist:
             a.initAlgorithm()
         QgsProcessingProvider.__init__(self)
