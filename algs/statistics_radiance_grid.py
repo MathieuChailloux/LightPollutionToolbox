@@ -20,6 +20,7 @@ from qgis.core import QgsProcessingParameterNumber
 from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterVectorDestination
+from qgis.core import QgsProcessingParameterFeatureSource
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
@@ -44,6 +45,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     results = {}
     
     def initAlgorithm(self, config=None):
+        # Utiliser QgsProcessingParameterFeatureSource si on veut uniquement les entitées selectionnées : mais la sélection ne marche pas
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
         self.addParameter(QgsProcessingParameterVectorLayer(self.GRID_LAYER, self.tr('Grid Layer'), optional=True, defaultValue=None))
@@ -92,7 +94,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
                 outputs[self.SLICED_RASTER] = parameters[self.RASTER_INPUT] # le raster n'est pas découpé
              # Sinon prendre l'emprise de la grille
             else:
-                print("grid")
                  # Découper un raster selon une emprise (celle de la grille)
                 alg_params = {
                     'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
