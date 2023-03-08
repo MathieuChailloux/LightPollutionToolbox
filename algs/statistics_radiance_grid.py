@@ -32,6 +32,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     DIM_GRID = 'GridDiameter'
     TYPE_GRID = 'TypeOfGrid'
     EXTENT_ZONE = 'ExtentZone'
+    GRID_LAYER = 'GridLayer'
     OUTPUT_STAT = 'OutputStat'
     
     # MAJORITY_FIELD = "_majority"
@@ -45,8 +46,11 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
-        self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
+        self.addParameter(QgsProcessingParameterVectorLayer(self.GRID_LAYER, self.tr('Grid Layer'), optional=True, defaultValue=None))
+        
+        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
+        self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
+        
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry))
                 
         param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=1)
@@ -61,6 +65,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
 
     def parseParams(self, parameters, context):
         self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
+        self.inputGrid = self.parameterAsVectorLayer(parameters, self.GRID_LAYER, context)
         self.inputRaster = self.parameterAsRasterLayer(parameters, self.RASTER_INPUT, context)
         self.outputStat = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT,context)
        
@@ -74,18 +79,34 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         self.parseParams(parameters,context)
         
+        # Si emprise non présente
         if self.inputExtent is None or self.inputExtent == NULL:
-            # Extraire l'emprise de la couche raster
-            # Si emprise non présente
-            alg_params = {
-                'INPUT': self.inputRaster,
-                'ROUND_TO': 0,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-            
-            outputs[self.SLICED_RASTER] = parameters[self.RASTER_INPUT] # le raster n'est pas découpé
-            
+            # Si grille non présente prendre l'emprise de la couche raster
+            if self.inputGrid is None or self.inputGrid == NULL:
+                alg_params = {
+                    'INPUT': self.inputRaster,
+                    'ROUND_TO': 0,
+                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+                }
+                outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+                outputs[self.SLICED_RASTER] = parameters[self.RASTER_INPUT] # le raster n'est pas découpé
+             # Sinon prendre l'emprise de la grille
+            else:
+                print("grid")
+                 # Découper un raster selon une emprise (celle de la grille)
+                alg_params = {
+                    'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
+                    'EXTRA': '',
+                    'INPUT': self.inputRaster,
+                    'NODATA': None,
+                    'OPTIONS': '',
+                    'OVERCRS': False,
+                    'PROJWIN': self.inputGrid,
+                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+                }
+                outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+                outputs[self.EXTENT_ZONE] = self.inputGrid
+                
             feedback.setCurrentStep(step)
             step+=1
             if feedback.isCanceled():
@@ -103,35 +124,38 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-            
             outputs[self.EXTENT_ZONE] = self.inputExtent
 
             feedback.setCurrentStep(step)
             step+=1
             if feedback.isCanceled():
                 return {}
-
-        # Créer une grille
-        alg_params = {
-            'CRS': outputs[self.EXTENT_ZONE],
-            'EXTENT': outputs[self.EXTENT_ZONE],
-            'HOVERLAY': 0,
-            'HSPACING': parameters[self.DIM_GRID],
-            'TYPE': parameters[self.TYPE_GRID]+2,  # Ajoute +2 pour aligner le bon type de grille
-            'VOVERLAY': 0,
-            'VSPACING': parameters[self.DIM_GRID],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['GridTemp'] = processing.run('native:creategrid', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
-        step+=1
-        if feedback.isCanceled():
-            return {}
         
+        if self.inputGrid is None or self.inputGrid == NULL:
+            # Créer une grille
+            alg_params = {
+                'CRS': outputs[self.EXTENT_ZONE],
+                'EXTENT': outputs[self.EXTENT_ZONE],
+                'HOVERLAY': 0,
+                'HSPACING': parameters[self.DIM_GRID],
+                'TYPE': parameters[self.TYPE_GRID]+2,  # Ajoute +2 pour aligner le bon type de grille
+                'VOVERLAY': 0,
+                'VSPACING': parameters[self.DIM_GRID],
+                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+            }
+            outputs['GridTemp'] = processing.run('native:creategrid', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+
+            feedback.setCurrentStep(step)
+            step+=1
+            if feedback.isCanceled():
+                return {}
+        else:
+        # Sinon on prend la grille donnée en paramètre
+            outputs['GridTemp'] = self.inputGrid
+            
         # Extraire les grilles par localisation de l'emprise
         alg_params = {
-            'INPUT': outputs['GridTemp']['OUTPUT'],
+            'INPUT': outputs['GridTemp'],
             'INTERSECT': outputs[self.EXTENT_ZONE],
             'PREDICATE': [0],  # intersecte
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
@@ -389,37 +413,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
-        # Extraire par maille non éclairée
-        alg_params = {
-            'INPUT': outputs['GridIndex']['OUTPUT'],
-            'INTERSECT': outputs['LightZoneIndex']['OUTPUT'],
-            'PREDICATE': [2],  # est disjoint
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['ExtractDarkGrid'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
-        step+=1
-        if feedback.isCanceled():
-            return {}
-
-        # Calculatrice de champ indice radiance null
-        alg_params = {
-            'FIELD_LENGTH': 6,
-            'FIELD_NAME': self.IND_FIELD_POL,
-            'FIELD_PRECISION': 0,
-            'FIELD_TYPE': 1,  # Entier
-            'FORMULA': '0',
-            'INPUT': outputs['ExtractDarkGrid']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculFieldIndiceRadianceNull'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
-        step+=1
-        if feedback.isCanceled():
-            return {}
-
         # Extraire maille éclairée
         alg_params = {
             'INPUT': outputs['GridIndex']['OUTPUT'],
@@ -509,6 +502,37 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculFieldIndiceRadiance'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+
+        feedback.setCurrentStep(step)
+        step+=1
+        if feedback.isCanceled():
+            return {}
+            
+         # Extraire par maille non éclairée (utilisé ensuite pour fusionner avec mailles éclairées)
+        alg_params = {
+            'INPUT': outputs['GridIndex']['OUTPUT'],
+            'INTERSECT': outputs['LightZoneIndex']['OUTPUT'],
+            'PREDICATE': [2],  # est disjoint
+            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        }
+        outputs['ExtractDarkGrid'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+
+        feedback.setCurrentStep(step)
+        step+=1
+        if feedback.isCanceled():
+            return {}
+
+        # Calculatrice de champ indice radiance null sur les mailles non éclairées
+        alg_params = {
+            'FIELD_LENGTH': 6,
+            'FIELD_NAME': self.IND_FIELD_POL,
+            'FIELD_PRECISION': 0,
+            'FIELD_TYPE': 1,  # Entier
+            'FORMULA': '0',
+            'INPUT': outputs['ExtractDarkGrid']['OUTPUT'],
+            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        }
+        outputs['CalculFieldIndiceRadianceNull'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
 
         feedback.setCurrentStep(step)
         step+=1

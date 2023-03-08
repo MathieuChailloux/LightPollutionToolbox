@@ -72,10 +72,9 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         
         self.parseParams(parameters,context)
 
-        
+        # Si emprise non présente
         if self.inputExtent is None or self.inputExtent == NULL:
             # Extraire l'emprise de la couche raster
-            # Si emprise non présente
             extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
             alg_params = {
                 'INPUT': self.inputRaster,
