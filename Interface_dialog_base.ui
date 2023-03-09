@@ -6,44 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>417</width>
+    <height>296</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Interface</string>
   </property>
-  <widget class="QDialogButtonBox" name="button_box">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>240</y>
-     <width>341</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QgsFileWidget" name="gridFile">
-   <property name="geometry">
-    <rect>
-     <x>180</x>
-     <y>160</y>
-     <width>90</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pushButtonRun">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>200</y>
+     <x>150</x>
+     <y>260</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -52,46 +26,135 @@
     <string>Run</string>
    </property>
   </widget>
-  <widget class="QRadioButton" name="radioButtonUseGrid">
+  <widget class="QRadioButton" name="radioButtonImportGrid">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>110</y>
+     <x>70</x>
+     <y>30</y>
      <width>82</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
-    <string>Use Grid</string>
+    <string>Import Grid</string>
    </property>
    <property name="checked">
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QRadioButton" name="radioButtonNoUseGrid">
+  <widget class="QRadioButton" name="radioButtonCreateGrid">
    <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>160</y>
+     <x>170</x>
+     <y>30</y>
      <width>82</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
-    <string>no Use Grid</string>
+    <string>Create Grid</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="gridSize">
+  <widget class="QStackedWidget" name="stackedGridImportCreate">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>120</y>
-     <width>131</width>
+     <x>30</x>
+     <y>70</y>
+     <width>341</width>
+     <height>101</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="widgetImportGrid">
+    <widget class="QLabel" name="labelImportGrid">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Import Grid</string>
+     </property>
+    </widget>
+    <widget class="QgsFileWidget" name="gridFile">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>30</y>
+       <width>151</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="widgetCreateGrid">
+    <widget class="QLabel" name="labelDiameterGrid">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>30</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Grid Diameter</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelGridType">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>60</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Grid Type</string>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="gridSize">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>20</y>
+       <width>131</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="gridType">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>60</y>
+       <width>131</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QProgressBar" name="progressBar">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>200</y>
+     <width>351</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="value">
+    <number>0</number>
    </property>
   </widget>
  </widget>
@@ -103,38 +166,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>button_box</sender>
-   <signal>accepted()</signal>
-   <receiver>InterfaceDialogBase</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>button_box</sender>
-   <signal>rejected()</signal>
-   <receiver>InterfaceDialogBase</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

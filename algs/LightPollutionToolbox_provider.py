@@ -50,7 +50,7 @@ from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
 from .viewshed_raster import ViewshedRaster
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
-
+    NAME = "LightPollutionToolboxProvider"
     def __init__(self):
         """
         Default constructor.
@@ -130,3 +130,5 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         implementation returns the same string as name().
         """
         return self.name()
+        
+        

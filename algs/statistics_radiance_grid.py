@@ -26,6 +26,8 @@ from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
 class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     
+    ALG_NAME = 'StatisticsRadianceGrid'
+    
     RASTER_INPUT = 'ImageJILINradianceRGB'
     RED_BAND_INPUT = 'RedBandInput'
     GREEN_BAND_INPUT = 'GreenBandInput'
@@ -74,7 +76,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
+        print("processAlgorithm")
         step = 1
+        print(model_feedback)
         feedback = QgsProcessingMultiStepFeedback(21, model_feedback)
         
         outputs = {}

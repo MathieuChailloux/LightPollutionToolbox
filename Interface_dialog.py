@@ -26,6 +26,9 @@ import os
 
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
+from .qgis_lib_mc import utils, qgsUtils, qgsTreatments, feedbacks
+from qgis.core import QgsApplication, QgsProcessingContext
+from .algs import LightPollutionToolbox_provider
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -42,20 +45,51 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-        self.pushButtonRun.clicked.connect(self.onPbPrintTestClicked)
+        self.pushButtonRun.clicked.connect(self.onPbRunClicked)
+        
+       
         
         # TODO : 2 radios butons ou 1 case à cocher ?
-        self.radioButtonUseGrid.clicked.connect(self.onRbUseClicked)
-        self.radioButtonNoUseGrid.clicked.connect(self.onRbNoUseClicked)
+        self.radioButtonImportGrid.clicked.connect(self.onRbImportClicked)
+        self.radioButtonCreateGrid.clicked.connect(self.onRbCreateClicked)
+        
+
+    def onPbRunClicked(self):
+        print('RUN')
+        
+        ############################ TODO à mettre dans un fichier Contrôleur ####################################
+        feedback = feedbacks.ProgressFeedback(self)
+        step_feedback = feedbacks.ProgressMultiStepFeedback(2,feedback)
+        step_feedback.setCurrentStep(0)
+        
+        context = QgsProcessingContext()
+        context.setFeedback(feedback)
+        
+        # MARCHE PAS : Erreur : Algorithme LightPollutionToolboxProvider:StatisticsRadianceGrid non trouvé
+        parameters = { LightPollutionToolbox_provider.StatisticsRadianceGrid.EXTENT_ZONE : "D:\Donnees\Zone_est\emprise_grand_est_Montpellier.shp",
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RASTER_INPUT : "D:\Donnees\JL107B_20191202_MOSAIC_RGB_calib_georef_L93_cor_ss_bruit_Montpellier.tif"}
+        qgsTreatments.applyProcessingAlg("LightPollutionToolboxProvider","StatisticsRadianceGrid",parameters,
+                                         context=context,feedback=feedback)
+        
+        # parameters = { BioDispersal_algs.SelectVFieldAlg.INPUT : self.getItemInPath(item),
+                       # BioDispersal_algs.SelectVFieldAlg.FIELD : item.dict["mode_val"],
+                       # BioDispersal_algs.SelectVFieldAlg.GROUP : grp_name,
+                       # BioDispersal_algs.SelectVFieldAlg.ASSOC : matrix,
+                       # BioDispersal_algs.SelectVFieldAlg.OUTPUT : out_path }
+        # qgsTreatments.applyProcessingAlg("BioDispersal","selectvfield",parameters,
+                                         # context=context,feedback=feedback)
+                                         
+        #################################################################################################################
+
+    def onRbImportClicked(self):
+        if self.radioButtonImportGrid.isChecked():
+            print('IMPORT GRID')
+            self.stackedGridImportCreate.setCurrentWidget(self.widgetImportGrid)
 
     
-    def onPbPrintTestClicked(self):
-        print('TEST')
-        
-    def onRbUseClicked(self):
-        if self.radioButtonUseGrid.isChecked():
-            print('USE IT')
+    def onRbCreateClicked(self):
+        if self.radioButtonCreateGrid.isChecked():
+            print('CREATE GRID')
+            self.stackedGridImportCreate.setCurrentWidget(self.widgetCreateGrid)
+            
     
-    def onRbNoUseClicked(self):
-        if self.radioButtonNoUseGrid.isChecked():
-            print('DONT USE IT')
