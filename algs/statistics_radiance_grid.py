@@ -1,7 +1,7 @@
 """
 Model exported as python.
-Name : C1 P3 - Analyse niveau de radiance par maille
-Group : POLLUM
+Name : Analyse niveau de radiance par maille
+Group : ASE
 With QGIS : 32215
 """
 
@@ -76,9 +76,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
-        print("processAlgorithm")
-        step = 1
-        print(model_feedback)
+        step = 0
         feedback = QgsProcessingMultiStepFeedback(21, model_feedback)
         
         outputs = {}
@@ -95,7 +93,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
                     'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
                 }
                 outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-                outputs[self.SLICED_RASTER] = parameters[self.RASTER_INPUT] # le raster n'est pas découpé
+                outputs[self.SLICED_RASTER] = self.inputRaster # le raster n'est pas découpé
              # Sinon prendre l'emprise de la grille
             else:
                  # Découper un raster selon une emprise (celle de la grille)
@@ -553,21 +551,20 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         outputs['MergeVectorLayer'] = processing.run('native:mergevectorlayers', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         self.results[self.OUTPUT_STAT] = outputs['MergeVectorLayer']['OUTPUT']
 
-        
         print(step)
         return self.results
 
     def name(self):
-        return self.tr('Statistics of radiance per grid')
+        return 'StatisticsRadianceGrid'
 
     def displayName(self):
         return self.tr('Statistics of radiance per grid')
         
-    def group(self):
-        return 'ASE'
+    # def group(self):
+        # return 'ASE'
 
-    def groupId(self):
-        return 'ASE'
+    # def groupId(self):
+        # return 'ASE'
 
     def tr(self, string):
         """

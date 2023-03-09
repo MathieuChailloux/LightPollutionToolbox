@@ -57,6 +57,8 @@ import time
 
 class ViewshedRaster(QgsProcessingAlgorithm):
 
+    ALG_NAME = 'ViewshedRaster'
+
     DEM = 'DEM'
     OBSERVER_POINTS = 'OBSERVER_POINTS'
     
@@ -335,14 +337,14 @@ class ViewshedRaster(QgsProcessingAlgorithm):
         Returns the translated algorithm name, which should be used for any
         user-visible display of the algorithm name.
         """
-        return 'Viewshed'
+        return self.tr('Viewshed')
     
     def group(self):
         """
         Returns the name of the group this algorithm belongs to. This string
         should be localised.
         """
-        return 'ASE'
+        return self.tr('Visibility Light Sources')
 
     def groupId(self):
         """
@@ -352,7 +354,7 @@ class ViewshedRaster(QgsProcessingAlgorithm):
         contain lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return 'ASE'
+        return self.tr('Visibility Light Sources')
 
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)

@@ -47,10 +47,13 @@ from .classifyLamps import ClassifyLightingAlg
 from .pretreatments_dark_zones import PretreatmentsDarkZones
 from .statistics_radiance_grid import StatisticsRadianceGrid
 from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
+from .light_points_extraction import LightPointsExtraction
+from .calcul_MNB import CalculMnb
 from .viewshed_raster import ViewshedRaster
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
-    NAME = "LightPollutionToolboxProvider"
+    NAME = "LPT"
+    
     def __init__(self):
         """
         Default constructor.
@@ -73,6 +76,8 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             PretreatmentsDarkZones(),
             StatisticsRadianceGrid(),
             StatisticsBlueEmissionGrid(),
+            LightPointsExtraction(),
+            CalculMnb(),
             ViewshedRaster()]
         # self.alglist2 = [
             # VIIRS_Untar(),

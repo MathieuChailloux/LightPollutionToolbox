@@ -65,10 +65,16 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         context = QgsProcessingContext()
         context.setFeedback(feedback)
         
-        # MARCHE PAS : Erreur : Algorithme LightPollutionToolboxProvider:StatisticsRadianceGrid non trouvé
+        # TODO : le résultat ne s'ajoute pas à la carte
         parameters = { LightPollutionToolbox_provider.StatisticsRadianceGrid.EXTENT_ZONE : "D:\Donnees\Zone_est\emprise_grand_est_Montpellier.shp",
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RASTER_INPUT : "D:\Donnees\JL107B_20191202_MOSAIC_RGB_calib_georef_L93_cor_ss_bruit_Montpellier.tif"}
-        qgsTreatments.applyProcessingAlg("LightPollutionToolboxProvider","StatisticsRadianceGrid",parameters,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RASTER_INPUT : "D:\Donnees\JL107B_20191202_MOSAIC_RGB_calib_georef_L93_cor_ss_bruit_Montpellier.tif",
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.DIM_GRID:50,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.TYPE_GRID:2,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RED_BAND_INPUT:1,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.GREEN_BAND_INPUT:2,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.BLUE_BAND_INPUT:3,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_STAT : "D:\Donnees\TEST.shp"}
+        qgsTreatments.applyProcessingAlg("LPT","StatisticsRadianceGrid",parameters,
                                          context=context,feedback=feedback)
         
         # parameters = { BioDispersal_algs.SelectVFieldAlg.INPUT : self.getItemInPath(item),

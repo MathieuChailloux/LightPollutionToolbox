@@ -26,6 +26,9 @@ from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
 
 class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
+    
+    ALG_NAME = 'StatisticsBlueEmissionGrid'
+
     RASTER_INPUT = 'ImageJILINradianceRGB'
     RED_BAND_INPUT = 'RedBandInput'
     GREEN_BAND_INPUT = 'GreenBandInput'
@@ -73,7 +76,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
-        step = 1
+        step = 0
         feedback = QgsProcessingMultiStepFeedback(12, model_feedback)
 
         outputs = {}
@@ -422,13 +425,12 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
 
 
         print(step)
-        print(self.results)
-        print(self.results.keys())
+
         return self.results
         
 
     def name(self):
-        return self.tr('Statistics of blue emission per grid')
+        return 'StatisticsBlueEmissionGrid'
 
     def displayName(self):
         return self.tr('Statistics of blue emission per grid')
