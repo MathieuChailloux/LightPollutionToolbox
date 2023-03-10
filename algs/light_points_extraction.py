@@ -173,6 +173,7 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
         self.results[self.OUTPUT_LUM_PTS] = outputs['CalculFieldLightHgt']['OUTPUT']
 
         print(step)
+        
         return self.results
 
     def name(self):

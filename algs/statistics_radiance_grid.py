@@ -35,22 +35,22 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     DIM_GRID = 'GridDiameter'
     TYPE_GRID = 'TypeOfGrid'
     EXTENT_ZONE = 'ExtentZone'
-    GRID_LAYER = 'GridLayer'
+    GRID_LAYER_INPUT = 'GridLayerInput'
     OUTPUT_STAT = 'OutputStat'
     
     # MAJORITY_FIELD = "_majority"
-
-    
+ 
     SLICED_RASTER = 'SlicedRaster'
     
     IND_FIELD_POL = 'indice_pol'
+    CLASS_BOUNDS_IND_POL = [0,1,2,3,4,5]
     results = {}
     
     def initAlgorithm(self, config=None):
         # Utiliser QgsProcessingParameterFeatureSource si on veut uniquement les entitées selectionnées : mais la sélection ne marche pas
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
-        self.addParameter(QgsProcessingParameterVectorLayer(self.GRID_LAYER, self.tr('Grid Layer'), optional=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterVectorLayer(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), optional=True, defaultValue=None))
         
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
@@ -69,7 +69,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
 
     def parseParams(self, parameters, context):
         self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
-        self.inputGrid = self.parameterAsVectorLayer(parameters, self.GRID_LAYER, context)
+        self.inputGrid = self.parameterAsVectorLayer(parameters, self.GRID_LAYER_INPUT, context)
         self.inputRaster = self.parameterAsRasterLayer(parameters, self.RASTER_INPUT, context)
         self.outputStat = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT,context)
        
@@ -552,6 +552,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         self.results[self.OUTPUT_STAT] = outputs['MergeVectorLayer']['OUTPUT']
 
         print(step)
+        
         return self.results
 
     def name(self):
@@ -581,5 +582,5 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_STAT]))
         
         # Applique la symbologie par défault
-        styles.setCustomClassesInd_Pol(out_layer, self.IND_FIELD_POL)
+        styles.setCustomClassesInd_Pol(out_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
         return self.results

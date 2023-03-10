@@ -235,6 +235,7 @@ class CalculMnb(QgsProcessingAlgorithm):
         self.results[self.OUTPUT_RASTER_BATI] = outputs['RasteriserVecteurVersRaster']['OUTPUT']
         
         print(step)
+        
         return self.results
 
     def name(self):

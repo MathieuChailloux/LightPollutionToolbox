@@ -50,6 +50,7 @@ from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
 from .light_points_extraction import LightPointsExtraction
 from .calcul_MNB import CalculMnb
 from .viewshed_raster import ViewshedRaster
+from .analyse_visibility_light_sources import AnalyseVisibilityLightSources
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
     NAME = "LPT"
@@ -78,7 +79,8 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             StatisticsBlueEmissionGrid(),
             LightPointsExtraction(),
             CalculMnb(),
-            ViewshedRaster()]
+            ViewshedRaster(),
+            AnalyseVisibilityLightSources()]
         # self.alglist2 = [
             # VIIRS_Untar(),
             # FluxDispAlg(),
