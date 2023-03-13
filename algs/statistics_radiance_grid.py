@@ -582,5 +582,5 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_STAT]))
         
         # Applique la symbologie par défault
-        styles.setCustomClassesInd_Pol(out_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
+        styles.setCustomClassesInd_Pol_Category(out_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
         return self.results

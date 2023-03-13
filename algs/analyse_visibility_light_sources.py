@@ -41,7 +41,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     OUTPUT_NB_SRC_VIS = 'OutputNbSrcVis'
     
     FIELD_STYLE = '_mean'
-    CLASS_BOUNDS_NB_SRC = [0,5,10,20,50]
+    CLASS_BOUNDS_NB_SRC = [0,0,5,10,20,50] # on double la valeur 0 pour avoir un premier pas avec uniquement ces valeurs
     results = {}
     
     def initAlgorithm(self, config=None):
@@ -339,10 +339,6 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_NB_SRC_VIS]))
         
         # Applique la symbologie par défault
-        
-        color_ramp = styles.getColorBrewColorRampGnYlRd()
-        styles.setCustomClasses2(out_layer,'_mean',color_ramp, self.CLASS_BOUNDS_NB_SRC) # ne permet pas d'avoir des bordures transparentes
-        
-        # styles.setCustomClassesInd_Pol(out_layer, self.FIELD_STYLE, self.CLASS_BOUNDS_NB_SRC) # affecte une couleur par valeur, pas par tranche : changer la fonction ?
+        styles.setCustomClassesInd_Pol_Graduate(out_layer, self.FIELD_STYLE, self.CLASS_BOUNDS_NB_SRC) # affecte une couleur par valeur, pas par tranche : changer la fonction ?
         
         return self.results
