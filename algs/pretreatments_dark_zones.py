@@ -65,7 +65,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
-        step = 1
+        step = 0
         feedback = QgsProcessingMultiStepFeedback(5, model_feedback)
         results = {}
         outputs = {}
@@ -109,14 +109,16 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
                 return {}
             
         # Statistiques de zone pour les 3 bandes afin de récupérer les pixels majoritaires
-        # TODO : BUG si le raster ou vecteur est choisi dans le projet courant
         majorityBand1 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
         majorityBand2 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.GREEN_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
         majorityBand3 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.BLUE_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
 
         # Calculatrice Raster masque pour enlever les zones non éclairées
-        # Si les 3 pixels des 3 bandes < majortité+1 alors 0, sinon 1 
+        # Si les pixels < majortité+1 alors 0, sinon 1 
         # Ici la condition indique l'inverse : pour mettre les pixels à 1, il faut qu'au moins 1 des 3 soit > majorité
+        # Pour enlver le bruit qui correspond à des couleurs uniques ou seule une bande a une valeur forte, on vérifie qu'au moins 2 bandes aient une valeur > majortité
+        # #(A > maj1 AND B > maj2) OR (A > maj1 AND C > maj3) OR (B > maj2 AND C > maj3)
+        # 'FORMULA': '1*logical_or(logical_or(logical_and((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')),logical_and((A>'+str(majorityBand1)+'), (C>'+str(majorityBand3)+'))),logical_and((B>'+str(majorityBand2)+'), (C>'+str(majorityBand3)+')))',
         alg_params = {
             'BAND_A': parameters[self.RED_BAND_INPUT], #1
             'BAND_B': parameters[self.GREEN_BAND_INPUT], #2

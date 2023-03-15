@@ -42,7 +42,7 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
         # self.addParameter(QgsProcessingParameterNumber(self.BUF_EXTENT, self.tr('Buffer of extent'), type=QgsProcessingParameterNumber.Integer, defaultValue=500)) # prendre le radius
         self.addParameter(QgsProcessingParameterVectorLayer(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), types=[QgsProcessing.TypeVectorPoint], defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, 'Observer height, meters (0, 1, 6)', type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
-        self.addParameter(QgsProcessingParameterNumber(self.LIGHT_HEIGHT, 'Light height, meters', type=QgsProcessingParameterNumber.Double, defaultValue=6))
+        self.addParameter(QgsProcessingParameterNumber(self.LIGHT_HEIGHT, 'Source light height, meters', type=QgsProcessingParameterNumber.Double, defaultValue=6))
         self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, 'Radius of analysis ,meters', type=QgsProcessingParameterNumber.Double, defaultValue=500))
         
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_LUM_PTS, self.tr('Light points extraction for ViewShed'), type=QgsProcessing.TypeVectorAnyGeometry))
@@ -106,7 +106,6 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             return {}
 
         # Ajouter un champ auto-incrémenté
-        # TODO ajouter if else : pas possible de prendre des sorties d'algorithme
         alg_params = {
             'FIELD_NAME': 'ID',
             'GROUP_FIELDS': [''],
@@ -128,7 +127,7 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
         # Calculatrice de champ observateur (target)
         alg_params = {
             'FIELD_LENGTH': 10,
-            'FIELD_NAME': 'target_hgt', # TODO mettre observ_hgt mais changer viewshed
+            'FIELD_NAME': 'observ_hgt', # old target_hgt
             'FIELD_PRECISION': 4,
             'FIELD_TYPE': 0,  # Flottant
             'FORMULA': parameters[self.OBSERVER_HEIGHT],
@@ -159,10 +158,10 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
-        # Calculatrice de champ hauteur lumière
+        # Calculatrice de champ hauteur source lumière
         alg_params = {
             'FIELD_LENGTH': 10,
-            'FIELD_NAME': 'observ_hgt', # TODO mettre light_hgt mais changer viewshed
+            'FIELD_NAME': 'source_hgt', # old observ_hgt
             'FIELD_PRECISION': 4,
             'FIELD_TYPE': 0,  # Flottant
             'FORMULA': parameters[self.LIGHT_HEIGHT],

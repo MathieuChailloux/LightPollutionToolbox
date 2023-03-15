@@ -55,7 +55,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         
-        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_BUILDINGS_MASK, self.tr('Buildings mask'), createByDefault=True, defaultValue=None))
+        # self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_BUILDINGS_MASK, self.tr('Buildings mask'), createByDefault=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NB_SRC_VIS, self.tr('Analyse par maille du nombre de sources visibles'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
     
     def parseParams(self, parameters, context):
@@ -63,7 +63,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         self.inputViewshed = self.parameterAsRasterLayer(parameters, self.VIEWSHED_INPUT, context)
         self.inputRasterBati = self.parameterAsRasterLayer(parameters, self.RASTER_BATI_INPUT, context)
         self.inputGrid = self.parameterAsVectorLayer(parameters, self.GRID_LAYER_INPUT, context)
-        self.outputBuildingsMarsk = self.parameterAsOutputLayer(parameters,self.OUTPUT_BUILDINGS_MASK, context)
+        # self.outputBuildingsMarsk = self.parameterAsOutputLayer(parameters,self.OUTPUT_BUILDINGS_MASK, context)
         self.outputNbSrcVis = self.parameterAsOutputLayer(parameters,self.OUTPUT_NB_SRC_VIS, context)
     
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -249,9 +249,9 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             'NO_DATA': None,
             'OPTIONS': '',
             'RTYPE': 5,  # Float32
-            'OUTPUT': self.outputBuildingsMarsk
+            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
-        self.results[self.OUTPUT_BUILDINGS_MASK] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+        outputs['RasterBatiFilterHeight'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
 
         feedback.setCurrentStep(step)
         step+=1
@@ -262,7 +262,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         alg_params = {
             'BAND': 1,
             'FILL_VALUE': 1,
-            'INPUT': self.outputBuildingsMarsk,
+            'INPUT': outputs['RasterBatiFilterHeight']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['FillCellsWithoutData'] = processing.run('native:fillnodata', alg_params, context=context, feedback=feedback, is_child_algorithm=True)

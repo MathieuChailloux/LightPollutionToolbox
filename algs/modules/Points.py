@@ -29,8 +29,8 @@ TODO : calculating coordinates in pixels ==> to Raster class !!
 """
 
 FIELDS = {"id" : ["ID", 255,0],
-          "z": ["observ_hgt", 10,4],
-          "z_targ":["target_hgt", 10, 4],
+          "z": ["source_hgt", 10,4],
+          "z_targ":["observ_hgt", 10, 4],
           "radius":["radius", 10, 2],
           "radius_in":["radius_in", 10, 2],
           "path":["file", 255,0],
@@ -454,7 +454,7 @@ class Points:
             if r > self.max_radius: self.max_radius=r
             
             self.pt[ id1 ]={"id" : feat["ID"],
-                            "z" : feat["observ_hgt"],
+                            "z" : feat["source_hgt"],
                             "radius" : r/ pix_size, #we use pixel distances !
                             # not float !
                             "pix_coord" : (int((x_geog - x_min) / pix_size), 
@@ -466,7 +466,7 @@ class Points:
             # optional fields
           
             
-            try: self.pt[ id1 ]["z_targ"]  = feat["target_hgt"]
+            try: self.pt[ id1 ]["z_targ"]  = feat["observ_hgt"]
             except : pass
 
             try: self.pt[ id1 ]["radius_in"]  = feat["radius_in"]/ pix_size
@@ -523,10 +523,10 @@ class Points:
                 except: pass
 ##
 ##            feat['ID'] = r
-##            feat ['observ_hgt']=self.pt[r]["z"]
+##            feat ['source_hgt']=self.pt[r]["z"]
 ##            feat ['radius']=self.pt[r]["radius"]
 ##            if not miss_tg:
-##                feat ['target_hgt']=self.pt[r]["z_targ"]
+##                feat ['observ_hgt']=self.pt[r]["z_targ"]
 ##            if not miss_file:
 ##                feat ['file']=self.pt[r]["path"]
 

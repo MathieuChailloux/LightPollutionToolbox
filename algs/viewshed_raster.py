@@ -93,7 +93,7 @@ class ViewshedRaster(QgsProcessingAlgorithm):
             QgsProcessingParameterFeatureSource(
   
             self.OBSERVER_POINTS,
-            self.tr('Observer location(s)'),
+            self.tr('Sources location(s)'),
             [QgsProcessing.TypeVectorPoint]))
 
         self.addParameter(QgsProcessingParameterRasterLayer
@@ -205,8 +205,8 @@ class ViewshedRaster(QgsProcessingAlgorithm):
         # TODO: ADD MORE TESTS (raster rotated [projections ??], rectnagular pixels [OK?]
                          
         points = pts.Points(observers)
+        miss = points.test_fields(["source_hgt", "radius"])
            
-        miss = points.test_fields(["observ_hgt", "radius"])
         
         if miss:
             err= " \n ****** \n ERROR! \n Missing fields: \n" + "\n".join(miss)

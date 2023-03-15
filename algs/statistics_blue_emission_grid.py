@@ -45,6 +45,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
     SLICED_RASTER = 'SlicedRaster'
     
     IND_FIELD_POL = 'indice_pol'
+    CLASS_BOUNDS_IND_POL = [0,1,2,3,4,5]
 
     results = {}
     
@@ -390,7 +391,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
         
-        if parameters[self.DIM_GRID_CALC] != parameters[self.DIM_GRID_RES]: # uniquement sur les 2 grilles sont de taille différente
+        if parameters[self.DIM_GRID_CALC] != parameters[self.DIM_GRID_RES]: # uniquement si les 2 grilles sont de taille différente
             # Joindre les attributs par localisation (résumé)
             # Intersection entre les grilles de calcul et de résultat
             alg_params = {
@@ -455,13 +456,13 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         if not out_layer_calc:
             raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_STAT_CALC]))
         # Applique la symbologie par défault pour couche de calcul
-        styles.setCustomClassesInd_Pol(out_layer_calc, self.IND_FIELD_POL)
+        styles.setCustomClassesInd_Pol_Category(out_layer_calc, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
 
         if self.OUTPUT_STAT_RES in self.results:
             out_layer_res = QgsProcessingUtils.mapLayerFromString(self.results[self.OUTPUT_STAT_RES],context)
             if not out_layer_res:
                 raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_STAT_RES]))
             # Applique la symbologie par défault de résultat
-            styles.setCustomClassesInd_Pol(out_layer_res, self.IND_FIELD_POL)
+            styles.setCustomClassesInd_Pol_Category(out_layer_res, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
 
         return self.results
