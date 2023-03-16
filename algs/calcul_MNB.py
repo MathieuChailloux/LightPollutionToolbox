@@ -86,10 +86,6 @@ class CalculMnb(QgsProcessingAlgorithm):
                 }
             outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
             
-            feedback.setCurrentStep(step)
-            step+=1
-            if feedback.isCanceled():
-                return {}
         else:
             # Tampon
             alg_params = {
@@ -103,12 +99,12 @@ class CalculMnb(QgsProcessingAlgorithm):
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs[self.EXTENT_ZONE] = processing.run('native:buffer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-        
-            feedback.setCurrentStep(step)
-            step+=1
-            if feedback.isCanceled():
-                return {}
-                
+            
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+            
         # Découper un raster selon une emprise
         alg_params = {
             'DATA_TYPE': 6,  # Float32
@@ -121,9 +117,9 @@ class CalculMnb(QgsProcessingAlgorithm):
             'OUTPUT': self.outputRasterMNB
         }
         outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -134,9 +130,9 @@ class CalculMnb(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['RasterExtent'] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -149,9 +145,9 @@ class CalculMnb(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['LocalisationBatiExtraction'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -166,9 +162,9 @@ class CalculMnb(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculFieldHeightBatiMedian'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -183,9 +179,9 @@ class CalculMnb(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculFieldHeightBatiReplaceNullByMedian'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
         
@@ -202,8 +198,8 @@ class CalculMnb(QgsProcessingAlgorithm):
             }
             outputs['FilterVegetationWithHeight'] = processing.run('native:extractbyattribute', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
             
-            feedback.setCurrentStep(step)
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
                 
@@ -216,8 +212,8 @@ class CalculMnb(QgsProcessingAlgorithm):
             }
             outputs['LocalisationVegetationExtraction'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
             
-            feedback.setCurrentStep(step)
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
         
@@ -234,8 +230,8 @@ class CalculMnb(QgsProcessingAlgorithm):
             }
             outputs['BufferBati5m'] = processing.run('native:buffer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
             
-            feedback.setCurrentStep(step)
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
                 
@@ -247,8 +243,8 @@ class CalculMnb(QgsProcessingAlgorithm):
             }
             outputs['VegetationWithoutBati'] = processing.run('native:difference', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
             
-            feedback.setCurrentStep(step)
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
                 
@@ -259,8 +255,8 @@ class CalculMnb(QgsProcessingAlgorithm):
             }
             outputs['RepairVegetationWithoutBati'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
             
-            feedback.setCurrentStep(step)
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
                 
@@ -275,8 +271,8 @@ class CalculMnb(QgsProcessingAlgorithm):
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs['RepairVegetationWithoutBati'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-            feedback.setCurrentStep(step)
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
                 
@@ -288,8 +284,8 @@ class CalculMnb(QgsProcessingAlgorithm):
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs['VectorToRasterize'] = processing.run('native:union', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-            feedback.setCurrentStep(step)
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
                 
@@ -307,8 +303,8 @@ class CalculMnb(QgsProcessingAlgorithm):
             outputs['VectorToRasterize'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
             # self.results['VectorToRasterize'] = outputs['VectorToRasterize']['OUTPUT']
             
-            feedback.setCurrentStep(step)
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
             
@@ -327,8 +323,8 @@ class CalculMnb(QgsProcessingAlgorithm):
         outputs['RasteriseReplaceAttribute'] = processing.run('gdal:rasterize_over', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         self.results[self.OUTPUT_RASTER_MNB] = outputs['RasteriseReplaceAttribute']['OUTPUT']
         
-        feedback.setCurrentStep(step)
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -359,7 +355,7 @@ class CalculMnb(QgsProcessingAlgorithm):
         return self.results
 
     def name(self):
-        return self.tr('Calcul of MNB')
+        return 'CalculMnb'
 
     def displayName(self):
         return self.tr('Calcul of MNB')

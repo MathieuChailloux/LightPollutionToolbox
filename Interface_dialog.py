@@ -66,7 +66,7 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         context.setFeedback(feedback)
         
         # TODO : le résultat ne s'ajoute pas à la carte
-        parameters = { LightPollutionToolbox_provider.StatisticsRadianceGrid.EXTENT_ZONE : "D:\Donnees\Zone_est\emprise_grand_est_Montpellier.shp",
+        parameters = { LightPollutionToolbox_provider.StatisticsRadianceGrid.EXTENT_ZONE : "D:\Donnees\Zone_est\emprise_est_Montpelleir_reproj.shp",
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.RASTER_INPUT : "D:\Donnees\JL107B_20191202_MOSAIC_RGB_calib_georef_L93_cor_ss_bruit_Montpellier.tif",
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.DIM_GRID:50,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.TYPE_GRID:2,
@@ -74,9 +74,19 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.GREEN_BAND_INPUT:2,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.BLUE_BAND_INPUT:3,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_STAT : "D:\Donnees\TEST.shp"}
-        qgsTreatments.applyProcessingAlg("LPT","StatisticsRadianceGrid",parameters,
+        r = qgsTreatments.applyProcessingAlg("LPT","StatisticsRadianceGrid",parameters,
                                          context=context,feedback=feedback)
-        
+                     
+        # parameters = { LightPollutionToolbox_provider.PretreatmentsDarkZones.EXTENT_ZONE : "D:\Donnees\Zone_est\emprise_est_Montpelleir_reproj.shp",
+                       # LightPollutionToolbox_provider.PretreatmentsDarkZones.RASTER_INPUT : "D:\Donnees\JL107B_20200826_RGB_mosaic_georef_WGS84_calib1.tif",
+                       # LightPollutionToolbox_provider.PretreatmentsDarkZones.RED_BAND_INPUT:1,
+                       # LightPollutionToolbox_provider.PretreatmentsDarkZones.GREEN_BAND_INPUT:2,
+                       # LightPollutionToolbox_provider.PretreatmentsDarkZones.BLUE_BAND_INPUT:3,
+                       # LightPollutionToolbox_provider.PretreatmentsDarkZones.OUTPUT_RASTER : "D:\Donnees\TEST.tif"}
+        # qgsTreatments.applyProcessingAlg("LPT","PretreatmentsDarkZones",parameters,
+                                         # context=context,feedback=feedback)
+
+        # qgsUtils.loadRasterLayer(out_path,loadProject=True)
         # parameters = { BioDispersal_algs.SelectVFieldAlg.INPUT : self.getItemInPath(item),
                        # BioDispersal_algs.SelectVFieldAlg.FIELD : item.dict["mode_val"],
                        # BioDispersal_algs.SelectVFieldAlg.GROUP : grp_name,

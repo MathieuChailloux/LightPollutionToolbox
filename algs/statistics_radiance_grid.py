@@ -110,10 +110,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
                 outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
                 outputs[self.EXTENT_ZONE] = self.inputGrid
                 
-            feedback.setCurrentStep(step)
-            step+=1
-            if feedback.isCanceled():
-                return {}
         else:
             # Découper un raster selon une emprise
             alg_params = {
@@ -129,10 +125,10 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
             outputs[self.EXTENT_ZONE] = self.inputExtent
 
-            feedback.setCurrentStep(step)
-            step+=1
-            if feedback.isCanceled():
-                return {}
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
         
         if self.inputGrid is None or self.inputGrid == NULL:
             # Créer une grille
@@ -213,8 +209,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # }
         # outputs['CalculRasterMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
+        # step+=1     
         # feedback.setCurrentStep(step)
-        # step+=1
         # if feedback.isCanceled():
             # return {}
         
@@ -240,9 +236,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         # }
         # outputs['CalculRasterB1'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
+       
+       # step+=1        
         # feedback.setCurrentStep(step)
-        # step+=1
         # if feedback.isCanceled():
             # return {}
             
@@ -269,8 +265,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # }
         # outputs['CalculRasterB2'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
+        # step+=1        
         # feedback.setCurrentStep(step)
-        # step+=1
         # if feedback.isCanceled():
             # return {}
             
@@ -297,8 +293,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # }
         # outputs['CalculRasterB3'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        # feedback.setCurrentStep(step)
         # step+=1
+        # feedback.setCurrentStep(step)
         # if feedback.isCanceled():
             # return {}
         
@@ -327,9 +323,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculRasterTotalRadiance'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -356,9 +352,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculRasterSegmentation'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -372,9 +368,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['PolygoniseLightZone'] = processing.run('gdal:polygonize', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -387,9 +383,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['ExtractLightZone'] = processing.run('native:extractbyattribute', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -399,9 +395,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['RepairGeom'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -410,9 +406,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'INPUT': outputs['RepairGeom']['OUTPUT']
         }
         outputs['LightZoneIndex'] = processing.run('native:createspatialindex', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -424,9 +420,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['ExtractLightGrid'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -440,9 +436,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsRedBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-                
+        
+        step+=1               
         feedback.setCurrentStep(step)
-        step+=1
         if feedback.isCanceled():
             return {}
 
@@ -456,9 +452,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsGreenBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -472,9 +468,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsBlueBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -488,9 +484,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsZoneTotalRadiance'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -505,9 +501,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculFieldIndiceRadiance'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
             
@@ -519,9 +515,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['ExtractDarkGrid'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -536,9 +532,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculFieldIndiceRadianceNull'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -550,7 +546,12 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         }
         outputs['MergeVectorLayer'] = processing.run('native:mergevectorlayers', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         self.results[self.OUTPUT_STAT] = outputs['MergeVectorLayer']['OUTPUT']
-
+        
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+            
         print(step)
         
         return self.results

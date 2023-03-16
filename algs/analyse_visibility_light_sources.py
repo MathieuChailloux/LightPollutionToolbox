@@ -70,7 +70,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(10, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(8, model_feedback)
         outputs = {}
         
         self.parseParams(parameters,context)
@@ -87,7 +87,6 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                 outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
                 outputs[self.SLICED_RASTER_VIEWSHED] = self.inputViewshed # le raster n'est pas découpé
                 # le raster bati est découpé pour avoir la même taille que le viewshed
-                # Découper le raster Bati selon une emprise (celle de la grille)
                 alg_params = {
                     'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
                     'EXTRA': '',
@@ -99,11 +98,11 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                     'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
                 }
                 outputs[self.SLICED_RASTER_BATI] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-                
-                feedback.setCurrentStep(step)
                 step+=1
+                feedback.setCurrentStep(step)
                 if feedback.isCanceled():
                     return {}
+                    
              # Sinon prendre l'emprise de la grille
             else:
                 # Découper le raster Viewshed selon une emprise (celle de la grille)
@@ -120,8 +119,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                 outputs[self.SLICED_RASTER_VIEWSHED] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
                 outputs[self.EXTENT_ZONE] = self.inputGrid
                 
-                feedback.setCurrentStep(step)
                 step+=1
+                feedback.setCurrentStep(step)
                 if feedback.isCanceled():
                     return {}
                 
@@ -138,10 +137,10 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                 }
                 outputs[self.SLICED_RASTER_BATI] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
                 
-            feedback.setCurrentStep(step)
-            step+=1
-            if feedback.isCanceled():
-                return {}
+                step+=1
+                feedback.setCurrentStep(step)
+                if feedback.isCanceled():
+                    return {}
         else:
             # Découper le raster Viewshed selon une emprise
             alg_params = {
@@ -156,9 +155,9 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             }
             outputs[self.SLICED_RASTER_VIEWSHED] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
             outputs[self.EXTENT_ZONE] = self.inputExtent
-
-            feedback.setCurrentStep(step)
+            
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
                 
@@ -175,8 +174,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             }
             outputs[self.SLICED_RASTER_BATI] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
             
-            feedback.setCurrentStep(step)
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
 
@@ -193,20 +192,15 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs['GridTemp'] = processing.run('native:creategrid', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-
-            feedback.setCurrentStep(step)
+            
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
         else:
         # Sinon on prend la grille donnée en paramètre
             outputs['GridTemp'] = self.inputGrid
             
-
-        feedback.setCurrentStep(step)
-        step+=1
-        if feedback.isCanceled():
-            return {}
 
         # Extraire la grille par localisation de l'emprise
         alg_params = {
@@ -217,8 +211,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         }
         outputs['GridTempExtract'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
 
-        feedback.setCurrentStep(step)
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
             
@@ -227,7 +221,12 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             'INPUT': outputs['GridTempExtract']['OUTPUT']
         }
         outputs['GridIndex'] = processing.run('native:createspatialindex', alg_params, context=context, feedback=feedback, is_child_algorithm=True)    
-
+        
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+            
         # Calculatrice Raster enleve bati haut
         # Masque bati
         #Si hauteur > h_remplie  : 0 Sinon 1
@@ -252,9 +251,9 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['RasterBatiFilterHeight'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -266,9 +265,9 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['FillCellsWithoutData'] = processing.run('native:fillnodata', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -294,9 +293,9 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['BatiWithHeightMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -311,6 +310,11 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         }
         self.results[self.OUTPUT_NB_SRC_VIS] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
         
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+
         print(step)
         
         return self.results

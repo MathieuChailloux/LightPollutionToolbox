@@ -96,11 +96,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
             
             outputs[self.SLICED_RASTER] = self.inputRaster # le raster n'est pas découpé
-            
-            feedback.setCurrentStep(step)
-            step+=1
-            if feedback.isCanceled():
-                return {}
+
         else:
             # Découper un raster selon l'emprise
             alg_params = {
@@ -117,10 +113,10 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             
             outputs[self.EXTENT_ZONE] = self.inputExtent
             
-            feedback.setCurrentStep(step)
-            step+=1
-            if feedback.isCanceled():
-                return {}
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
 
         if parameters[self.DIM_GRID_CALC] != parameters[self.DIM_GRID_RES]: # uniquement sur les 2 grilles sont de taille différente
             self.outputStatRes = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT_RES,context) # TODO mettre aillieurs ?
@@ -136,9 +132,12 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs['GridTempRes'] = processing.run('native:creategrid', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-            feedback.setCurrentStep(step)
-            step+=1
             
+            step+=1
+            feedback.setCurrentStep(step)
+            if feedback.isCanceled():
+                return {}
+                
             # Extraire les grilles resultat par localisation de l'emprise
             alg_params = {
                 'INPUT': outputs['GridTempRes']['OUTPUT'],
@@ -147,9 +146,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs['GridTempResExtract'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-            feedback.setCurrentStep(step)
+            
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
 
@@ -158,9 +157,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
                 'INPUT': outputs['GridTempResExtract']['OUTPUT']
             }
             outputs['GridTempResIndex'] = processing.run('native:createspatialindex', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-            feedback.setCurrentStep(step)
+            
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
 
@@ -176,9 +175,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['GridTempCalc'] = processing.run('native:creategrid', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -190,9 +189,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['GridTempCalcExtract'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -201,9 +200,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             'INPUT': outputs['GridTempCalcExtract']['OUTPUT']
         }
         outputs['GridTempCalcIndex'] = processing.run('native:createspatialindex', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -240,8 +239,8 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         # }
         # outputs['CalculRasterMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        # feedback.setCurrentStep(step)
         # step+=1
+        # feedback.setCurrentStep(step)
         # if feedback.isCanceled():
             # return {}
 
@@ -267,17 +266,11 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         # }
         # outputs['CalculRasterB1'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
-        # feedback.setCurrentStep(step)
         # step+=1
+        # feedback.setCurrentStep(step)
         # if feedback.isCanceled():
             # return {}
 
-        # feedback.setCurrentStep(step)
-        # step+=1
-        # if feedback.isCanceled():
-            # return {}
-        
         # # Calculatrice Raster B3 avec masque
         # alg_params = {
             # 'BAND_A': parameters[self.BLUE_BAND_INPUT],
@@ -301,8 +294,8 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         # }
         # outputs['CalculRasterB3'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
+        # step+=1       
         # feedback.setCurrentStep(step)
-        # step+=1
         # if feedback.isCanceled():
             # return {}
         ##############################################################################################################################################################################################################################
@@ -318,7 +311,11 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         }
         outputs['StatisticsRedBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+            
         # Statistiques de zone bande bleu
         alg_params = {
             'COLUMN_PREFIX': 'B_',
@@ -329,9 +326,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['StatisticsBlueBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
         
@@ -347,9 +344,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculFieldRb_mean'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
@@ -366,9 +363,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         # }
         # outputs['CalculFieldRb_q3'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        # feedback.setCurrentStep(step)
+        
         # step+=1
+        # feedback.setCurrentStep(step)
         # if feedback.isCanceled():
             # return {}
 
@@ -385,9 +382,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         }
         outputs['CalculFieldIndicatorCalc'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         self.results[self.OUTPUT_STAT_CALC] = outputs['CalculFieldIndicatorCalc']['OUTPUT']
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
         
@@ -404,9 +401,9 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs['JoinFieldsLocalisationCalculResult'] = processing.run('qgis:joinbylocationsummary', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-            feedback.setCurrentStep(step)
+            
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
         
@@ -423,7 +420,11 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             }
             outputs['CalculFieldIndicatorRes'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
             self.results[self.OUTPUT_STAT_RES] = outputs['CalculFieldIndicatorRes']['OUTPUT']
-
+            
+            step+=1
+            feedback.setCurrentStep(step)
+            if feedback.isCanceled():
+                return {}
 
         print(step)
 

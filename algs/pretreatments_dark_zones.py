@@ -20,6 +20,7 @@ from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterRasterDestination
 from qgis.core import QgsProcessingUtils
+from qgis.core import QgsProject
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
@@ -37,7 +38,8 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
     
     MAJORITY_FIELD = "_majority"
 
-        
+    results = {}
+    
     def initAlgorithm(self, config=None):
     
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
@@ -67,7 +69,6 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         # overall progress through the model
         step = 0
         feedback = QgsProcessingMultiStepFeedback(5, model_feedback)
-        results = {}
         outputs = {}
         
         self.parseParams(parameters,context)
@@ -84,8 +85,10 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
             outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
                     
             outputs[self.SLICED_RASTER] = self.inputRaster # le raster n'est pas découpé
-            feedback.setCurrentStep(step)
+            
             step+=1
+            feedback.setCurrentStep(step)
+            
             if feedback.isCanceled():
                 return {}
         else:
@@ -102,9 +105,10 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
             }
             outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
             outputs[self.EXTENT_ZONE] = self.inputExtent
-
-            feedback.setCurrentStep(step)
+            
             step+=1
+            feedback.setCurrentStep(step)
+            
             if feedback.isCanceled():
                 return {}
             
@@ -141,8 +145,9 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         }
         outputs['CalculRasterMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        feedback.setCurrentStep(step)
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
         
@@ -169,8 +174,9 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         }
         outputs['CalculRasterB1'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        feedback.setCurrentStep(step)
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
             
@@ -197,8 +203,9 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         }
         outputs['CalculRasterB2'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        feedback.setCurrentStep(step)
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
             
@@ -225,8 +232,9 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         }
         outputs['CalculRasterB3'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
-        feedback.setCurrentStep(step)
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}        
         
@@ -243,13 +251,13 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
             'OUTPUT': self.outputRaster
         }
         outputs['Merge'] = processing.run('gdal:merge', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Raster'] = outputs['Merge']['OUTPUT']
+        self.results['Raster'] = outputs['Merge']['OUTPUT']
         
         print(step)
-        return results
+        return self.results
 
     def name(self):
-        return self.tr('Pretreatments to remove dark zones')
+        return 'PretreatmentsDarkZones'
 
     def displayName(self):
         return self.tr('Pretreatments to remove dark zones')
@@ -268,3 +276,8 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         
     def createInstance(self):
         return PretreatmentsDarkZones()
+
+    # def postProcessAlgorithm(self,context,feedback):
+        # QgsProject.instance().addMapLayer(self, addToLegend=True)
+        # print('postProcessAlgorithm')
+        # return self.results

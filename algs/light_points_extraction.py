@@ -86,8 +86,9 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             }
             outputs[self.EXTENT_ZONE] = processing.run('native:buffer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
         
-        feedback.setCurrentStep(step)
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
                 
@@ -99,9 +100,10 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['LocalisationPointsExtraction'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
 
@@ -118,9 +120,10 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['AddFieldIncr'] = processing.run('native:addautoincrementalfield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
 
@@ -135,9 +138,10 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculFieldObserv'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
 
@@ -152,9 +156,10 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['CalculFieldRadius'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
 
