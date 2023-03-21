@@ -74,7 +74,7 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.GREEN_BAND_INPUT:2,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.BLUE_BAND_INPUT:3,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_STAT : "D:\Donnees\TEST.shp"}
-        r = qgsTreatments.applyProcessingAlg("LPT","StatisticsRadianceGrid",parameters,
+        qgsTreatments.applyProcessingAlg("LPT","StatisticsRadianceGrid",parameters,
                                          context=context,feedback=feedback)
                      
         # parameters = { LightPollutionToolbox_provider.PretreatmentsDarkZones.EXTENT_ZONE : "D:\Donnees\Zone_est\emprise_est_Montpelleir_reproj.shp",

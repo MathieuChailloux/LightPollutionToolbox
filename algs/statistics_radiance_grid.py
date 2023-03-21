@@ -77,7 +77,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(18, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(19, model_feedback)
         
         outputs = {}
         
@@ -87,42 +87,18 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         if self.inputExtent is None or self.inputExtent == NULL:
             # Si grille non présente prendre l'emprise de la couche raster
             if self.inputGrid is None or self.inputGrid == NULL:
-                alg_params = {
-                    'INPUT': self.inputRaster,
-                    'ROUND_TO': 0,
-                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-                }
-                outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+                extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
+                outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetRasterExtent(self.inputRaster, extent_zone, context=context,feedback=feedback)
                 outputs[self.SLICED_RASTER] = self.inputRaster # le raster n'est pas découpé
              # Sinon prendre l'emprise de la grille
             else:
-                 # Découper un raster selon une emprise (celle de la grille)
-                alg_params = {
-                    'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
-                    'EXTRA': '',
-                    'INPUT': self.inputRaster,
-                    'NODATA': None,
-                    'OPTIONS': '',
-                    'OVERCRS': False,
-                    'PROJWIN': self.inputGrid,
-                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-                }
-                outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+                # Découper un raster selon une emprise (celle de la grille)
+                outputs[self.SLICED_RASTER] = qgsTreatments.applyClipRasterByExtent(self.inputRaster, self.inputGrid, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
                 outputs[self.EXTENT_ZONE] = self.inputGrid
                 
         else:
             # Découper un raster selon une emprise
-            alg_params = {
-                'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
-                'EXTRA': '',
-                'INPUT': self.inputRaster,
-                'NODATA': None,
-                'OPTIONS': '',
-                'OVERCRS': False,
-                'PROJWIN': self.inputExtent,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+            outputs[self.SLICED_RASTER] = qgsTreatments.applyClipRasterByExtent(self.inputRaster, self.inputExtent, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
             outputs[self.EXTENT_ZONE] = self.inputExtent
 
         step+=1
@@ -130,50 +106,41 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
         
+        
         if self.inputGrid is None or self.inputGrid == NULL:
             # Créer une grille
-            alg_params = {
-                'CRS': outputs[self.EXTENT_ZONE],
-                'EXTENT': outputs[self.EXTENT_ZONE],
-                'HOVERLAY': 0,
-                'HSPACING': parameters[self.DIM_GRID],
-                'TYPE': parameters[self.TYPE_GRID]+2,  # Ajoute +2 pour aligner le bon type de grille
-                'VOVERLAY': 0,
-                'VSPACING': parameters[self.DIM_GRID],
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['GridTemp'] = processing.run('native:creategrid', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-
-            feedback.setCurrentStep(step)
+            # Ajoute +2 pour aligner le bon type de grille
+            temp_path_grid = QgsProcessingUtils.generateTempFilename('temp_grid.gpkg')
+            qgsTreatments.createGridLayer(outputs[self.EXTENT_ZONE], outputs[self.EXTENT_ZONE], parameters[self.DIM_GRID], temp_path_grid, gtype=parameters[self.TYPE_GRID]+2, context=context,feedback=feedback)
+            outputs['GridTemp'] = qgsUtils.loadVectorLayer(temp_path_grid)
+            
             step+=1
+            feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
         else:
         # Sinon on prend la grille donnée en paramètre
             outputs['GridTemp'] = self.inputGrid
-            
+        
         # Extraire les grilles par localisation de l'emprise
-        alg_params = {
-            'INPUT': outputs['GridTemp'],
-            'INTERSECT': outputs[self.EXTENT_ZONE],
-            'PREDICATE': [0],  # intersecte
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['GridTempExtract'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        temp_path_grid_loc = QgsProcessingUtils.generateTempFilename('temp_grid_loc.gpkg')
+        qgsTreatments.extractByLoc(outputs['GridTemp'], outputs[self.EXTENT_ZONE],temp_path_grid_loc, context=context,feedback=feedback)
+        outputs['GridTempExtract'] = qgsUtils.loadVectorLayer(temp_path_grid_loc)
+        # outputs['GridTempExtract'] = qgsTreatments.extractByLoc(outputs['GridTemp'], outputs[self.EXTENT_ZONE],QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+        
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
             
         # grille indexée
-        alg_params = {
-            'INPUT': outputs['GridTempExtract']['OUTPUT']
-        }
-        outputs['GridIndex'] = processing.run('native:createspatialindex', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(step)
+        # outputs['GridIndex'] = qgsTreatments.createSpatialIndex(outputs['GridTempExtract'], context=context,feedback=feedback)
+        qgsTreatments.createSpatialIndex(outputs['GridTempExtract'], context=context,feedback=feedback)
+        
         step+=1
+        feedback.setCurrentStep(step)
+        
         if feedback.isCanceled():
             return {}
         
@@ -181,149 +148,72 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         # # Statistiques de zone pour les 3 bandes afin de récupérer les pixels majoritaires
         # majorityBand1 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        # step+=1
+        # feedback.setCurrentStep(step)
+        # if feedback.isCanceled():
+            # return {}
+        
         # majorityBand2 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.GREEN_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        # step+=1
+        # feedback.setCurrentStep(step)
+        # if feedback.isCanceled():
+            # return {}
+        
         # majorityBand3 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.BLUE_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        # step+=1
+        # feedback.setCurrentStep(step)
+        # if feedback.isCanceled():
+            # return {}
 
         # # Calculatrice Raster masque pour enlever les zones non éclairées
-        # # Si les 3 pixels des 3 bandes < majortité+1 alors 0, sinon 1 
+        # # Si les pixels < majortité+1 alors 0, sinon 1 
         # # Ici la condition indique l'inverse : pour mettre les pixels à 1, il faut qu'au moins 1 des 3 soit > majorité
-        # alg_params = {
-            # 'BAND_A': parameters[self.RED_BAND_INPUT], #1
-            # 'BAND_B': parameters[self.GREEN_BAND_INPUT], #2
-            # 'BAND_C': parameters[self.BLUE_BAND_INPUT], #3
-            # 'BAND_D': None,
-            # 'BAND_E': None,
-            # 'BAND_F': None,
-            # 'EXTRA': '',
-            # 'FORMULA': '1*logical_or(logical_or((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')), (C >'+str(majorityBand3)+'))',
-            # 'INPUT_A': outputs[self.SLICED_RASTER],
-            # 'INPUT_B': outputs[self.SLICED_RASTER],
-            # 'INPUT_C': outputs[self.SLICED_RASTER],
-            # 'INPUT_D': None,
-            # 'INPUT_E': None,
-            # 'INPUT_F': None,
-            # 'NO_DATA': None,
-            # 'OPTIONS': '',
-            # 'RTYPE': 1,  # Int16
-            # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        # }
-        # outputs['CalculRasterMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
-        # step+=1     
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}
-        
-        # # Calculatrice Raster B1 avec masque
-        # alg_params = {
-            # 'BAND_A': parameters[self.RED_BAND_INPUT],
-            # 'BAND_B': 1,
-            # 'BAND_C': None,
-            # 'BAND_D': None,
-            # 'BAND_E': None,
-            # 'BAND_F': None,
-            # 'EXTRA': '',
-            # 'FORMULA': 'A*B',
-            # 'INPUT_A': outputs[self.SLICED_RASTER],
-            # 'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],
-            # 'INPUT_C': None,
-            # 'INPUT_D': None,
-            # 'INPUT_E': None,
-            # 'INPUT_F': None,
-            # 'NO_DATA': None,
-            # 'OPTIONS': '',
-            # 'RTYPE': 5,  # Float32
-            # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        # }
-        # outputs['CalculRasterB1'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-       
-       # step+=1        
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}
-            
-        # # Calculatrice Raster B2 avec masque
-        # alg_params = {
-            # 'BAND_A': parameters[self.GREEN_BAND_INPUT],
-            # 'BAND_B': 1,
-            # 'BAND_C': None,
-            # 'BAND_D': None,
-            # 'BAND_E': None,
-            # 'BAND_F': None,
-            # 'EXTRA': '',
-            # 'FORMULA': 'A*B',
-            # 'INPUT_A': outputs[self.SLICED_RASTER],
-            # 'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],
-            # 'INPUT_C': None,
-            # 'INPUT_D': None,
-            # 'INPUT_E': None,
-            # 'INPUT_F': None,
-            # 'NO_DATA': None,
-            # 'OPTIONS': '',
-            # 'RTYPE': 5,  # Float32
-            # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        # }
-        # outputs['CalculRasterB2'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
-        # step+=1        
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}
-            
-        # # Calculatrice Raster B3 avec masque
-        # alg_params = {
-            # 'BAND_A': parameters[self.BLUE_BAND_INPUT],
-            # 'BAND_B': 1,
-            # 'BAND_C': None,
-            # 'BAND_D': None,
-            # 'BAND_E': None,
-            # 'BAND_F': None,
-            # 'EXTRA': '',
-            # 'FORMULA': 'A*B',
-            # 'INPUT_A': outputs[self.SLICED_RASTER],
-            # 'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],
-            # 'INPUT_C': None,
-            # 'INPUT_D': None,
-            # 'INPUT_E': None,
-            # 'INPUT_F': None,
-            # 'NO_DATA': None,
-            # 'OPTIONS': '',
-            # 'RTYPE': 5,  # Float32
-            # 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        # }
-        # outputs['CalculRasterB3'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        # # Pour enlver le bruit qui correspond à des couleurs uniques ou seule une bande a une valeur forte, on vérifie qu'au moins 2 bandes aient une valeur > majortité
+        # # #(A > maj1 AND B > maj2) OR (A > maj1 AND C > maj3) OR (B > maj2 AND C > maj3)
+        # # 'FORMULA': '1*logical_or(logical_or(logical_and((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')),logical_and((A>'+str(majorityBand1)+'), (C>'+str(majorityBand3)+'))),logical_and((B>'+str(majorityBand2)+'), (C>'+str(majorityBand3)+')))',
+
+        # formula = '1*logical_or(logical_or((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')), (C >'+str(majorityBand3)+'))'
+        # outputs['CalculRasterMask'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT],QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
         
         # step+=1
         # feedback.setCurrentStep(step)
         # if feedback.isCanceled():
             # return {}
         
+        # # Calculatrice Raster B1 avec masque
+        # formula = 'A*B'
+        # outputs['CalculRasterB1'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.RED_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
+        
+        # step+=1
+        # feedback.setCurrentStep(step)
+        # if feedback.isCanceled():
+            # return {}
+            
+        # # Calculatrice Raster B2 avec masque
+        # formula = 'A*B'
+        # outputs['CalculRasterB2'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.GREEN_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
+        
+        # step+=1
+        # feedback.setCurrentStep(step)
+        # if feedback.isCanceled():
+            # return {}
+            
+        # # Calculatrice Raster B3 avec masque
+        # formula = 'A*B'
+        # outputs['CalculRasterB3'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.BLUE_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
+        
+        # step+=1
+        # feedback.setCurrentStep(step)
+        # if feedback.isCanceled():
+            # return {}    
+        
         # ##############################################################################################################################################################################################################################
         
         
         # Calculatrice Raster Radiance totale
-        alg_params = {
-            'BAND_A': parameters[self.RED_BAND_INPUT], #1
-            'BAND_B': parameters[self.GREEN_BAND_INPUT], #1
-            'BAND_C': parameters[self.BLUE_BAND_INPUT], #1
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': 'A*0.2989+B*0.5870+C*0.1140',
-            'INPUT_A': outputs[self.SLICED_RASTER], #outputs['CalculRasterB1']['OUTPUT']
-            'INPUT_B': outputs[self.SLICED_RASTER], #outputs['CalculRasterB1']['OUTPUT']
-            'INPUT_C': outputs[self.SLICED_RASTER], #outputs['CalculRasterB1']['OUTPUT']
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterTotalRadiance'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
+        formula = 'A*0.2989+B*0.5870+C*0.1140'
+        outputs['CalculRasterTotalRadiance'] = qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT],QgsProcessing.TEMPORARY_OUTPUT, formula, context=context,feedback=feedback)
+                
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -331,43 +221,19 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
 
         # Calculatrice Raster Segmentation
         # Si rad totale > mediane+1 : 1 sinon 0
-        alg_params = {
-            'BAND_A': 1,
-            'BAND_B': None,
-            'BAND_C': None,
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': '1*(logical_or(A>(median(A)+1) , False))',
-            'INPUT_A': outputs['CalculRasterTotalRadiance']['OUTPUT'],
-            'INPUT_B': None,
-            'INPUT_C': None,
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterSegmentation'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
+        formula = '1*(logical_or(A>(median(A)+1) , False))'
+        # temp_path_raster_seg = QgsProcessingUtils.generateTempFilename('temp_path_raster_seg.tif')
+        # qgsTreatments.applyRasterCalcABC(outputs['CalculRasterTotalRadiance'], None, None, 1, None, None, temp_path_raster_seg, formula, context=context,feedback=feedback)
+        # outputs['CalculRasterSegmentation'] = qgsUtils.loadRasterLayer(temp_path_raster_seg)
+        outputs['CalculRasterSegmentation'] = qgsTreatments.applyRasterCalcABC(outputs['CalculRasterTotalRadiance'], None, None, 1, None, None, QgsProcessing.TEMPORARY_OUTPUT, formula, context=context,feedback=feedback)
+         
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
         # Polygoniser zone éclairée
-        alg_params = {
-            'BAND': 1,
-            'EIGHT_CONNECTEDNESS': False,
-            'EXTRA': '',
-            'FIELD': 'DN',
-            'INPUT': outputs['CalculRasterSegmentation']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['PolygoniseLightZone'] = processing.run('gdal:polygonize', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        outputs['PolygoniseLightZone'] = qgsTreatments.applyPolygonize(outputs['CalculRasterSegmentation'], 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -375,14 +241,10 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # Extraire zone éclairée
-        alg_params = {
-            'FIELD': 'DN',
-            'INPUT': outputs['PolygoniseLightZone']['OUTPUT'],
-            'OPERATOR': 0,  # =
-            'VALUE': '1',
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['ExtractLightZone'] = processing.run('native:extractbyattribute', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        temp_path_extract_light = QgsProcessingUtils.generateTempFilename('temp_extract_light.gpkg')
+        qgsTreatments.applyExtractByAttribute(outputs['PolygoniseLightZone'], 'DN', temp_path_extract_light, context=context, feedback=feedback)
+        outputs['ExtractLightZone'] = qgsUtils.loadVectorLayer(temp_path_extract_light)
+        # outputs['ExtractLightZone'] = qgsTreatments.applyExtractByAttribute(outputs['PolygoniseLightZone'], 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -390,11 +252,10 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # Réparer les géométries
-        alg_params = {
-            'INPUT': outputs['ExtractLightZone']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['RepairGeom'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        # qgsTreatments.fixGeometries(outputs['ExtractLightZone'], context=context,feedback=feedback)
+        light_zone_fixed = QgsProcessingUtils.generateTempFilename('light_zone_fixed.gpkg')
+        qgsTreatments.fixGeometries(outputs['ExtractLightZone'],light_zone_fixed,context=context,feedback=feedback)
+        outputs['ExtractLightZone'] = qgsUtils.loadVectorLayer(light_zone_fixed)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -402,10 +263,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # zones éclairées indexées
-        alg_params = {
-            'INPUT': outputs['RepairGeom']['OUTPUT']
-        }
-        outputs['LightZoneIndex'] = processing.run('native:createspatialindex', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        qgsTreatments.createSpatialIndex(outputs['ExtractLightZone'], context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -413,13 +271,10 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # Extraire maille éclairée
-        alg_params = {
-            'INPUT': outputs['GridIndex']['OUTPUT'],
-            'INTERSECT': outputs['LightZoneIndex']['OUTPUT'],
-            'PREDICATE': [0],  # intersecte
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['ExtractLightGrid'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        temp_path_light_grid = QgsProcessingUtils.generateTempFilename('temp_path_light_grid.gpkg')
+        qgsTreatments.extractByLoc(outputs['GridTempExtract'], outputs['ExtractLightZone'],temp_path_light_grid, context=context,feedback=feedback)
+        outputs['ExtractLightGrid'] = qgsUtils.loadVectorLayer(temp_path_light_grid)
+        # outputs['ExtractLightGrid'] = qgsTreatments.extractByLoc(outputs['GridTempExtract'], outputs['ExtractLightZone'], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -427,31 +282,18 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # Statistiques de zone bande rouge
-        alg_params = {
-            'COLUMN_PREFIX': 'R_',
-            'INPUT': outputs['ExtractLightGrid']['OUTPUT'],
-            'INPUT_RASTER': outputs[self.SLICED_RASTER], #outputs['CalculRasterB1']['OUTPUT'],
-            'RASTER_BAND': parameters[self.RED_BAND_INPUT], #1,
-            'STATISTICS': [0,1,2],  # Count, Somme,Moyenne
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['StatisticsRedBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
+        zonal_stats_r = QgsProcessingUtils.generateTempFilename('zonal_stats_r.gpkg')
+        qgsTreatments.rasterZonalStats(outputs['ExtractLightGrid'], outputs[self.SLICED_RASTER],zonal_stats_r, prefix='R_', band=parameters[self.RED_BAND_INPUT], context=context,feedback=feedback)
+        outputs['StatisticsRedBand'] = qgsUtils.loadVectorLayer(zonal_stats_r)
         step+=1               
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
         # Statistiques de zone bande verte
-        alg_params = {
-            'COLUMN_PREFIX': 'V_',
-            'INPUT': outputs['StatisticsRedBand']['OUTPUT'],
-            'INPUT_RASTER': outputs[self.SLICED_RASTER], # outputs['CalculRasterB2']['OUTPUT'],
-            'RASTER_BAND': parameters[self.GREEN_BAND_INPUT], #1,
-            'STATISTICS': [0,1,2],  # Count, Somme,Moyenne
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['StatisticsGreenBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        zonal_stats_g = QgsProcessingUtils.generateTempFilename('zonal_stats_g.gpkg')
+        qgsTreatments.rasterZonalStats(outputs['StatisticsRedBand'], outputs[self.SLICED_RASTER],zonal_stats_g, prefix='V_', band=parameters[self.GREEN_BAND_INPUT], context=context,feedback=feedback)
+        outputs['StatisticsGreenBand'] = qgsUtils.loadVectorLayer(zonal_stats_g)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -459,15 +301,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # Statistiques de zone bande bleu
-        alg_params = {
-            'COLUMN_PREFIX': 'B_',
-            'INPUT': outputs['StatisticsGreenBand']['OUTPUT'],
-            'INPUT_RASTER': outputs[self.SLICED_RASTER], #outputs['CalculRasterB3']['OUTPUT'],
-            'RASTER_BAND': parameters[self.BLUE_BAND_INPUT], #1, 
-            'STATISTICS': [0,1,2],  # Count, Somme,Moyenne
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['StatisticsBlueBand'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        zonal_stats_b = QgsProcessingUtils.generateTempFilename('zonal_stats_b.gpkg')
+        qgsTreatments.rasterZonalStats(outputs['StatisticsGreenBand'], outputs[self.SLICED_RASTER],zonal_stats_b, prefix='B_', band=parameters[self.BLUE_BAND_INPUT], context=context,feedback=feedback)
+        outputs['StatisticsBlueBand'] = qgsUtils.loadVectorLayer(zonal_stats_b)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -475,15 +311,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # Statistiques de zone radiance totale
-        alg_params = {
-            'COLUMN_PREFIX': 'tot_',
-            'INPUT': outputs['StatisticsBlueBand']['OUTPUT'],
-            'INPUT_RASTER': outputs['CalculRasterTotalRadiance']['OUTPUT'],
-            'RASTER_BAND': 1,
-            'STATISTICS': [1,2],  # Somme,Moyenne
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['StatisticsZoneTotalRadiance'] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        zonal_stats_tot = QgsProcessingUtils.generateTempFilename('zonal_stats_tot.gpkg')
+        qgsTreatments.rasterZonalStats(outputs['StatisticsBlueBand'], outputs['CalculRasterTotalRadiance'],zonal_stats_tot, prefix='tot_', context=context,feedback=feedback)
+        outputs['StatisticsZoneTotalRadiance'] = qgsUtils.loadVectorLayer(zonal_stats_tot)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -491,30 +321,24 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # Calculatrice de champ indice radiance
-        alg_params = {
-            'FIELD_LENGTH': 6,
-            'FIELD_NAME': self.IND_FIELD_POL,
-            'FIELD_PRECISION': 0,
-            'FIELD_TYPE': 1,  # Entier
-            'FORMULA': 'with_variable(\r\n\'percentile\',\r\narray_find(array_agg("tot_mean",order_by:="tot_mean"),"tot_mean") / array_length(array_agg("tot_mean")),\r\n    CASE\r\n    WHEN @percentile < 0.2 THEN 1\r\n    WHEN @percentile < 0.4 THEN 2\r\n    WHEN @percentile < 0.6 THEN 3\r\n    WHEN @percentile < 0.8 THEN 4\r\n    WHEN @percentile <= 1 THEN 5\r\n    ELSE 0\r\n    END\r\n)',
-            'INPUT': outputs['StatisticsZoneTotalRadiance']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculFieldIndiceRadiance'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
+        fieldLength = 6
+        fieldPrecision = 0
+        fieldType = 1 # Entier
+        formula = 'with_variable(\'percentile\',array_find(array_agg("tot_mean",order_by:="tot_mean"),"tot_mean") / array_length(array_agg("tot_mean")), CASE WHEN @percentile < 0.2 THEN 1 WHEN @percentile < 0.4 THEN 2 WHEN @percentile < 0.6 THEN 3 WHEN @percentile < 0.8 THEN 4 WHEN @percentile <= 1 THEN 5 ELSE 0 END)'
+        temp_path_ind_radiance = QgsProcessingUtils.generateTempFilename('temp_path_ind_radiance.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['StatisticsZoneTotalRadiance'], self.IND_FIELD_POL, temp_path_ind_radiance, formula, fieldLength, fieldPrecision, fieldType, context=context,feedback=feedback)
+        outputs['CalculFieldIndiceRadiance'] = qgsUtils.loadVectorLayer(temp_path_ind_radiance)
+    
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
             
-         # Extraire par maille non éclairée (utilisé ensuite pour fusionner avec mailles éclairées)
-        alg_params = {
-            'INPUT': outputs['GridIndex']['OUTPUT'],
-            'INTERSECT': outputs['LightZoneIndex']['OUTPUT'],
-            'PREDICATE': [2],  # est disjoint
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['ExtractDarkGrid'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        # Extraire par maille non éclairée (utilisé ensuite pour fusionner avec mailles éclairées)
+        # est disjoint
+        temp_path_dark_grid = QgsProcessingUtils.generateTempFilename('temp_path_dark_grid.gpkg')
+        qgsTreatments.extractByLoc(outputs['GridTempExtract'], outputs['ExtractLightZone'],temp_path_dark_grid, predicate=[2], context=context,feedback=feedback)
+        outputs['ExtractDarkGrid'] = qgsUtils.loadVectorLayer(temp_path_dark_grid)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -522,31 +346,22 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # Calculatrice de champ indice radiance null sur les mailles non éclairées
-        alg_params = {
-            'FIELD_LENGTH': 6,
-            'FIELD_NAME': self.IND_FIELD_POL,
-            'FIELD_PRECISION': 0,
-            'FIELD_TYPE': 1,  # Entier
-            'FORMULA': '0',
-            'INPUT': outputs['ExtractDarkGrid']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculFieldIndiceRadianceNull'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
+        fieldLength = 6
+        fieldPrecision = 0
+        fieldType = 1 # Entier
+        formula = '0'
+        temp_path_radiance_null = QgsProcessingUtils.generateTempFilename('temp_path_radiance_null.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['ExtractDarkGrid'], self.IND_FIELD_POL, temp_path_radiance_null, formula, fieldLength, fieldPrecision, fieldType, context=context,feedback=feedback)
+        outputs['CalculFieldIndiceRadianceNull'] = qgsUtils.loadVectorLayer(temp_path_radiance_null)
+      
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
 
         # Fusionner des couches vecteur (grilles avec radiance et grilles sans radiance)
-        alg_params = {
-            'CRS': outputs['CalculFieldIndiceRadiance']['OUTPUT'],
-            'LAYERS': [outputs['CalculFieldIndiceRadiance']['OUTPUT'],outputs['CalculFieldIndiceRadianceNull']['OUTPUT']],
-            'OUTPUT': self.outputStat
-        }
-        outputs['MergeVectorLayer'] = processing.run('native:mergevectorlayers', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        self.results[self.OUTPUT_STAT] = outputs['MergeVectorLayer']['OUTPUT']
-        
+        layersToMerge = [outputs['CalculFieldIndiceRadiance'],outputs['CalculFieldIndiceRadianceNull']]
+        self.results[self.OUTPUT_STAT] = qgsTreatments.mergeVectorLayers(layersToMerge,outputs['CalculFieldIndiceRadiance'],self.outputStat, context=context, feedback=feedback)
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -584,4 +399,5 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         # Applique la symbologie par défault
         styles.setCustomClassesInd_Pol_Category(out_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
+
         return self.results

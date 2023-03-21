@@ -48,7 +48,7 @@ from .pretreatments_dark_zones import PretreatmentsDarkZones
 from .statistics_radiance_grid import StatisticsRadianceGrid
 from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
 from .light_points_extraction import LightPointsExtraction
-from .calcul_MNB import CalculMnb
+from .calcul_MNS import CalculMNS
 from .viewshed_raster import ViewshedRaster
 from .analyse_visibility_light_sources import AnalyseVisibilityLightSources
 
@@ -78,7 +78,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             StatisticsRadianceGrid(),
             StatisticsBlueEmissionGrid(),
             LightPointsExtraction(),
-            CalculMnb(),
+            CalculMNS(),
             ViewshedRaster(),
             AnalyseVisibilityLightSources()]
         # self.alglist2 = [

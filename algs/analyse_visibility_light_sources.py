@@ -1,6 +1,6 @@
 """
 Model exported as python.
-Name : analyse visibilité hors bati MNB
+Name : analyse visibilité hors bati et végétation MNS
 Group : Visibility Light Sources
 With QGIS : 32215
 """

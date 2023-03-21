@@ -20,6 +20,7 @@ from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterRasterDestination
 from qgis.core import QgsProcessingUtils
+from qgis.core import Qgis
 from qgis.core import QgsProject
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
@@ -68,7 +69,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(5, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(9, model_feedback)
         outputs = {}
         
         self.parseParams(parameters,context)
@@ -77,181 +78,88 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         if self.inputExtent is None or self.inputExtent == NULL:
             # Extraire l'emprise de la couche raster
             extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
-            alg_params = {
-                'INPUT': self.inputRaster,
-                'ROUND_TO': 0,
-                'OUTPUT': extent_zone #QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-                    
+            outputs[self.EXTENT_ZONE] =  qgsTreatments.applyGetRasterExtent(self.inputRaster, extent_zone, context=context,feedback=feedback)
             outputs[self.SLICED_RASTER] = self.inputRaster # le raster n'est pas découpé
             
-            step+=1
-            feedback.setCurrentStep(step)
-            
-            if feedback.isCanceled():
-                return {}
         else:
             # Découper un raster selon une emprise
-            alg_params = {
-                'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
-                'EXTRA': '',
-                'INPUT': self.inputRaster,
-                'NODATA': None,
-                'OPTIONS': '',
-                'OVERCRS': False,
-                'PROJWIN': self.inputExtent,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+            outputs[self.SLICED_RASTER] = qgsTreatments.applyClipRasterByExtent(self.inputRaster, self.inputExtent, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
             outputs[self.EXTENT_ZONE] = self.inputExtent
             
-            step+=1
-            feedback.setCurrentStep(step)
-            
-            if feedback.isCanceled():
-                return {}
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
             
         # Statistiques de zone pour les 3 bandes afin de récupérer les pixels majoritaires
         majorityBand1 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+        
         majorityBand2 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.GREEN_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+        
         majorityBand3 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.BLUE_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
-
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+        
         # Calculatrice Raster masque pour enlever les zones non éclairées
         # Si les pixels < majortité+1 alors 0, sinon 1 
         # Ici la condition indique l'inverse : pour mettre les pixels à 1, il faut qu'au moins 1 des 3 soit > majorité
         # Pour enlver le bruit qui correspond à des couleurs uniques ou seule une bande a une valeur forte, on vérifie qu'au moins 2 bandes aient une valeur > majortité
         # #(A > maj1 AND B > maj2) OR (A > maj1 AND C > maj3) OR (B > maj2 AND C > maj3)
         # 'FORMULA': '1*logical_or(logical_or(logical_and((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')),logical_and((A>'+str(majorityBand1)+'), (C>'+str(majorityBand3)+'))),logical_and((B>'+str(majorityBand2)+'), (C>'+str(majorityBand3)+')))',
-        alg_params = {
-            'BAND_A': parameters[self.RED_BAND_INPUT], #1
-            'BAND_B': parameters[self.GREEN_BAND_INPUT], #2
-            'BAND_C': parameters[self.BLUE_BAND_INPUT], #3
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': '1*logical_or(logical_or((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')), (C >'+str(majorityBand3)+'))',
-            'INPUT_A': outputs[self.SLICED_RASTER],
-            'INPUT_B': outputs[self.SLICED_RASTER],
-            'INPUT_C': outputs[self.SLICED_RASTER],
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 1,  # Int16
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+
+        formula = '1*logical_or(logical_or((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')), (C >'+str(majorityBand3)+'))'
+        outputs['CalculRasterMask'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT],QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
-        
         if feedback.isCanceled():
             return {}
         
         # Calculatrice Raster B1 avec masque
-        alg_params = {
-            'BAND_A': parameters[self.RED_BAND_INPUT],
-            'BAND_B': 1,
-            'BAND_C': None,
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': 'A*B',
-            'INPUT_A': outputs[self.SLICED_RASTER],
-            'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],
-            'INPUT_C': None,
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterB1'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        formula = 'A*B'
+        outputs['CalculRasterB1'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.RED_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
-        
         if feedback.isCanceled():
             return {}
             
         # Calculatrice Raster B2 avec masque
-        alg_params = {
-            'BAND_A': parameters[self.GREEN_BAND_INPUT],
-            'BAND_B': 1,
-            'BAND_C': None,
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': 'A*B',
-            'INPUT_A': outputs[self.SLICED_RASTER],
-            'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],
-            'INPUT_C': None,
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterB2'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        formula = 'A*B'
+        outputs['CalculRasterB2'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.GREEN_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
-        
         if feedback.isCanceled():
             return {}
             
         # Calculatrice Raster B3 avec masque
-        alg_params = {
-            'BAND_A': parameters[self.BLUE_BAND_INPUT],
-            'BAND_B': 1,
-            'BAND_C': None,
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': 'A*B',
-            'INPUT_A': outputs[self.SLICED_RASTER],
-            'INPUT_B': outputs['CalculRasterMask']['OUTPUT'],
-            'INPUT_C': None,
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculRasterB3'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        formula = 'A*B'
+        outputs['CalculRasterB3'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.BLUE_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
-        
         if feedback.isCanceled():
             return {}        
         
         # Fusion
-        alg_params = {
-            'DATA_TYPE': 5,  # Float32
-            'EXTRA': '',
-            'INPUT': [outputs['CalculRasterB1']['OUTPUT'],outputs['CalculRasterB2']['OUTPUT'],outputs['CalculRasterB3']['OUTPUT']],
-            'NODATA_INPUT': None,
-            'NODATA_OUTPUT': None,
-            'OPTIONS': '',
-            'PCT': False,
-            'SEPARATE': True,
-            'OUTPUT': self.outputRaster
-        }
-        outputs['Merge'] = processing.run('gdal:merge', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        self.results['Raster'] = outputs['Merge']['OUTPUT']
+        outputs['Merge'] = qgsTreatments.applyMergeRaster([outputs['CalculRasterB1'],outputs['CalculRasterB2'],outputs['CalculRasterB3']],self.outputRaster,out_type=Qgis.UInt16, context=context,feedback=feedback)
+        self.results['Raster'] = outputs['Merge']
+        
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}  
         
         print(step)
         return self.results

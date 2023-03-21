@@ -19,6 +19,7 @@ from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterVectorDestination
 from qgis.core import QgsProcessingParameterFeatureSource
+from qgis.core import QgsProcessingParameterField
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
@@ -29,22 +30,29 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
     
     LIGHT_PTS_INPUT = 'LumPointsExtraction'
     EXTENT_ZONE = 'ExtentZone'
-    BUF_EXTENT = 'BufferExtent'
     OBSERVER_HEIGHT = 'ObserverHeight'
+    OBSERVER_HEIGHT_FIELD = 'ObserverHeightField'
     LIGHT_HEIGHT = 'LightHeight'
+    LIGHT_HEIGHT_FIELD = 'LightHeightField'
     RADIUS_ANALYSIS = 'RadiusAnalysis'
+    RADIUS_ANALYSIS_FIELD = 'RadiusAnalysisField'
     OUTPUT_LUM_PTS = 'OutputLightPoints'
     
     results = {}
     
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
-        # self.addParameter(QgsProcessingParameterNumber(self.BUF_EXTENT, self.tr('Buffer of extent'), type=QgsProcessingParameterNumber.Integer, defaultValue=500)) # prendre le radius
         self.addParameter(QgsProcessingParameterVectorLayer(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), types=[QgsProcessing.TypeVectorPoint], defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, 'Observer height, meters (0, 1, 6)', type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
-        self.addParameter(QgsProcessingParameterNumber(self.LIGHT_HEIGHT, 'Source light height, meters', type=QgsProcessingParameterNumber.Double, defaultValue=6))
-        self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, 'Radius of analysis ,meters', type=QgsProcessingParameterNumber.Double, defaultValue=500))
         
+        self.addParameter(QgsProcessingParameterField(self.OBSERVER_HEIGHT_FIELD, self.tr('Observer height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
+        self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, 'Observer height (if no field) 0, 1, 6, meters', type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
+
+        self.addParameter(QgsProcessingParameterField(self.LIGHT_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
+        self.addParameter(QgsProcessingParameterNumber(self.LIGHT_HEIGHT, 'Source light height (if no field), meters', type=QgsProcessingParameterNumber.Double, defaultValue=6))
+
+        self.addParameter(QgsProcessingParameterField(self.RADIUS_ANALYSIS_FIELD, self.tr('Radius of analysis field for visibility'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
+        self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, 'Radius of analysis for visibility (if no field), meters', type=QgsProcessingParameterNumber.Double, defaultValue=500))
+
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_LUM_PTS, self.tr('Light points extraction for ViewShed'), type=QgsProcessing.TypeVectorAnyGeometry))
 
     def parseParams(self, parameters, context):
@@ -76,7 +84,7 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             # Tampon
             alg_params = {
                 'DISSOLVE': False,
-                'DISTANCE': parameters[self.RADIUS_ANALYSIS], #parameters[self.BUF_EXTENT],
+                'DISTANCE': parameters[self.RADIUS_ANALYSIS],
                 'END_CAP_STYLE': 0,  # Rond
                 'INPUT': self.inputExtent,
                 'JOIN_STYLE': 0,  # Rond
@@ -128,12 +136,16 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             return {}
 
         # Calculatrice de champ observateur (target)
+        if parameters[self.OBSERVER_HEIGHT_FIELD] is not None and parameters[self.OBSERVER_HEIGHT_FIELD] != NULL:
+            formula = '"'+parameters[self.OBSERVER_HEIGHT_FIELD]+'"'
+        else:
+            formula = parameters[self.OBSERVER_HEIGHT]
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'observ_hgt', # old target_hgt
             'FIELD_PRECISION': 4,
             'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': parameters[self.OBSERVER_HEIGHT],
+            'FORMULA': formula,
             'INPUT': outputs['AddFieldIncr']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -146,12 +158,16 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             return {}
 
         # Calculatrice de champ radius
+        if parameters[self.RADIUS_ANALYSIS_FIELD] is not None and parameters[self.RADIUS_ANALYSIS_FIELD] != NULL:
+            formula = '"'+parameters[self.RADIUS_ANALYSIS_FIELD]+'"'
+        else:
+            formula = parameters[self.RADIUS_ANALYSIS]
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'radius',
             'FIELD_PRECISION': 4,
             'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': parameters[self.RADIUS_ANALYSIS],
+            'FORMULA': formula,
             'INPUT': outputs['CalculFieldObserv']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -164,12 +180,16 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             return {}
 
         # Calculatrice de champ hauteur source lumière
+        if parameters[self.LIGHT_HEIGHT_FIELD] is not None and parameters[self.LIGHT_HEIGHT_FIELD] != NULL:
+            formula = '"'+parameters[self.LIGHT_HEIGHT_FIELD]+'"'
+        else:
+            formula = parameters[self.LIGHT_HEIGHT]
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'source_hgt', # old observ_hgt
             'FIELD_PRECISION': 4,
             'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': parameters[self.LIGHT_HEIGHT],
+            'FORMULA': formula,
             'INPUT': outputs['CalculFieldRadius']['OUTPUT'],
             'OUTPUT': self.outputLightPts
         }

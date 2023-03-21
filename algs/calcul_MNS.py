@@ -1,6 +1,6 @@
 """
 Model exported as python.
-Name : MNB
+Name : MNS
 Group : Visibility Light Sources
 With QGIS : 32215
 """
@@ -26,9 +26,9 @@ from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
 
-class CalculMnb(QgsProcessingAlgorithm):
+class CalculMNS(QgsProcessingAlgorithm):
 
-    ALG_NAME = 'CalculMnb'
+    ALG_NAME = 'CalculMNS'
     
     RASTER_MNT_INPUT = 'MNT'
     BATI_INPUT = 'BatiBDTopo'
@@ -36,23 +36,28 @@ class CalculMnb(QgsProcessingAlgorithm):
     EXTENT_ZONE = 'ExtentZone'
     HEIGHT_FIELD_BATI = 'HeightFieldBati'
     HEIGHT_FIELD_VEGETATION = 'HeightFieldVegetation'
+    DEFAULT_HEIGHT_VEGETATION = 'DefaultHeightVegetation'
     SLICED_RASTER = 'SlicedRaster'
-    OUTPUT_RASTER_MNB = 'OutputMNB'
+    OUTPUT_RASTER_MNS = 'OutputMNS'
     OUTPUT_RASTER_BATI = 'RasterBati'
+    BUFFER_RADIUS = 'BufferRadius'
     
     results = {}
     
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_MNT_INPUT, self.tr('MNT'), defaultValue=None))
+        self.addParameter(QgsProcessingParameterNumber(self.BUFFER_RADIUS, 'Radius of analysis for visibility (buffer of extent), meters', type=QgsProcessingParameterNumber.Double, defaultValue=500))
+        
         self.addParameter(QgsProcessingParameterVectorLayer(self.BATI_INPUT, self.tr('Buildings (BD TOPO)'), types=[QgsProcessing.TypeVectorPolygon], defaultValue=None))
         self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_BATI, self.tr('Height Buildings fields'), type=QgsProcessingParameterField.Any, parentLayerParameterName=self.BATI_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
         
         self.addParameter(QgsProcessingParameterVectorLayer(self.VEGETATION_INPUT, self.tr('Vegetation'), types=[QgsProcessing.TypeVectorPolygon],optional=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_VEGETATION, self.tr('Height Vegetation fields'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.VEGETATION_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
+        self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_VEGETATION, self.tr('Height Vegetation field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.VEGETATION_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
+        self.addParameter(QgsProcessingParameterNumber(self.DEFAULT_HEIGHT_VEGETATION, 'Height Vegetation by default if no field', optional=True, type=QgsProcessingParameterNumber.Double, defaultValue=6))
         
-        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNB, self.tr('MNB'), createByDefault=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_BATI, self.tr('Raster bati'), createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNS, self.tr('MNS'), createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_BATI, self.tr('Raster bati vegetation'), createByDefault=True, defaultValue=None))
         
         # self.addParameter(QgsProcessingParameterVectorDestination('VegetationWithoutBati', 'vegetation', type=QgsProcessing.TypeVectorAnyGeometry,createByDefault=True, defaultValue=None)) # POUR TESTER
 
@@ -61,7 +66,7 @@ class CalculMnb(QgsProcessingAlgorithm):
         self.inputRasterMNT = self.parameterAsRasterLayer(parameters, self.RASTER_MNT_INPUT, context)
         self.inputBati = self.parameterAsVectorLayer(parameters, self.BATI_INPUT, context)
         self.inputVegetation = self.parameterAsVectorLayer(parameters, self.VEGETATION_INPUT, context)
-        self.outputRasterMNB = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER_MNB,context)
+        self.outputRasterMNS = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER_MNS,context)
         self.outputRasterBati = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER_BATI,context)
         
         # self.outputVegetation = self.parameterAsOutputLayer(parameters,'VegetationWithoutBati', context)
@@ -77,7 +82,7 @@ class CalculMnb(QgsProcessingAlgorithm):
         self.parseParams(parameters,context)
         
         # Extraire l'emprise de la couche
-        # Si emprise non présente, on prend celle du MNB
+        # Si emprise non présente, on prend celle du MNS
         if self.inputExtent is None or self.inputExtent == NULL:
             alg_params = {
                     'INPUT': self.inputRasterMNT,
@@ -90,7 +95,7 @@ class CalculMnb(QgsProcessingAlgorithm):
             # Tampon
             alg_params = {
                 'DISSOLVE': False,
-                'DISTANCE': 500, # TODO : récupérer la valeur de Light Points Extraction
+                'DISTANCE': parameters[self.BUFFER_RADIUS], # doit être identique à la valeur de Light Points Extraction
                 'END_CAP_STYLE': 0,  # Rond
                 'INPUT': self.inputExtent,
                 'JOIN_STYLE': 0,  # Rond
@@ -114,7 +119,7 @@ class CalculMnb(QgsProcessingAlgorithm):
             'OPTIONS': '',
             'OVERCRS': False,
             'PROJWIN': outputs[self.EXTENT_ZONE],
-            'OUTPUT': self.outputRasterMNB
+            'OUTPUT': self.outputRasterMNS
         }
         outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
         
@@ -185,19 +190,21 @@ class CalculMnb(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
         
-        # TODO AJOUT a valider
         # Si la végétation est présente
-        if self.inputVegetation is not None and self.inputVegetation != NULL and parameters[self.HEIGHT_FIELD_VEGETATION] is not None and parameters[self.HEIGHT_FIELD_VEGETATION] != NULL:
-            # Extraire par attribut en enlevant les polygones sans hauteur
-            alg_params = {
-                'FIELD': parameters[self.HEIGHT_FIELD_VEGETATION],
-                'INPUT': self.inputVegetation,
-                'OPERATOR': 9,  # n'est pas null
-                'VALUE': '',
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['FilterVegetationWithHeight'] = processing.run('native:extractbyattribute', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-            
+        if self.inputVegetation is not None and self.inputVegetation != NULL and parameters[self.DEFAULT_HEIGHT_VEGETATION] is not None and parameters[self.DEFAULT_HEIGHT_VEGETATION] != NULL:
+            if parameters[self.HEIGHT_FIELD_VEGETATION] is not None and parameters[self.HEIGHT_FIELD_VEGETATION] != NULL:
+                # Extraire par attribut en enlevant les polygones sans hauteur
+                alg_params = {
+                    'FIELD': parameters[self.HEIGHT_FIELD_VEGETATION],
+                    'INPUT': self.inputVegetation,
+                    'OPERATOR': 9,  # n'est pas null
+                    'VALUE': '',
+                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+                }
+                outputs['FilterVegetationWithHeight'] = processing.run('native:extractbyattribute', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+            else :
+                outputs['FilterVegetationWithHeight'] = self.inputVegetation
+                
             step+=1
             feedback.setCurrentStep(step)
             if feedback.isCanceled():
@@ -205,7 +212,7 @@ class CalculMnb(QgsProcessingAlgorithm):
                 
             # Extraction en fonction de l'emprise
             alg_params = {
-                'INPUT': outputs['FilterVegetationWithHeight']['OUTPUT'],
+                'INPUT': outputs['FilterVegetationWithHeight'],
                 'INTERSECT': outputs[self.EXTENT_ZONE],
                 'PREDICATE': [0],  # intersecte
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
@@ -259,18 +266,23 @@ class CalculMnb(QgsProcessingAlgorithm):
             feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
-                
+            
+            if parameters[self.HEIGHT_FIELD_VEGETATION] is not None and parameters[self.HEIGHT_FIELD_VEGETATION] != NULL:
+                formula = '"'+parameters[self.HEIGHT_FIELD_VEGETATION]+'"'
+            else:
+                formula = parameters[self.DEFAULT_HEIGHT_VEGETATION]
             # on ajoute le champ HAUTEUR temporaire à la végétation pour après la fusion
             alg_params = {
                 'FIELD_LENGTH': 6,
                 'FIELD_NAME': 'h_vegetation_temp',
                 'FIELD_PRECISION': 2,
                 'FIELD_TYPE': 0,  # Flottant
-                'FORMULA': '"'+parameters[self.HEIGHT_FIELD_VEGETATION]+'"',
+                'FORMULA': formula,
                 'INPUT': outputs['RepairVegetationWithoutBati']['OUTPUT'],
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs['RepairVegetationWithoutBati'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+           
             step+=1
             feedback.setCurrentStep(step)
             if feedback.isCanceled():
@@ -289,7 +301,7 @@ class CalculMnb(QgsProcessingAlgorithm):
             if feedback.isCanceled():
                 return {}
                 
-             # on ajoute récupère le champ Hauteur temporaire de la végétation
+             # on récupère le champ Hauteur temporaire de la végétation
             alg_params = {
                 'FIELD_LENGTH': 6,
                 'FIELD_NAME': parameters[self.HEIGHT_FIELD_BATI],
@@ -301,7 +313,7 @@ class CalculMnb(QgsProcessingAlgorithm):
                 'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
             }
             outputs['VectorToRasterize'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-            # self.results['VectorToRasterize'] = outputs['VectorToRasterize']['OUTPUT']
+            self.results['VectorToRasterize'] = outputs['VectorToRasterize']['OUTPUT']
             
             step+=1
             feedback.setCurrentStep(step)
@@ -318,10 +330,10 @@ class CalculMnb(QgsProcessingAlgorithm):
             'EXTRA': '',
             'FIELD': parameters[self.HEIGHT_FIELD_BATI],
             'INPUT': outputs['VectorToRasterize']['OUTPUT'],
-            'INPUT_RASTER': outputs[self.SLICED_RASTER] #self.outputRasterMNB
+            'INPUT_RASTER': outputs[self.SLICED_RASTER] #self.outputRasterMNS
         }
         outputs['RasteriseReplaceAttribute'] = processing.run('gdal:rasterize_over', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        self.results[self.OUTPUT_RASTER_MNB] = outputs['RasteriseReplaceAttribute']['OUTPUT']
+        self.results[self.OUTPUT_RASTER_MNS] = outputs['RasteriseReplaceAttribute']['OUTPUT']
         
         step+=1
         feedback.setCurrentStep(step)
@@ -355,10 +367,10 @@ class CalculMnb(QgsProcessingAlgorithm):
         return self.results
 
     def name(self):
-        return 'CalculMnb'
+        return 'CalculMNS'
 
     def displayName(self):
-        return self.tr('Calcul of MNB')
+        return self.tr('Calcul of MNS')
 
     def group(self):
         return  self.tr('Visibility Light Sources')
@@ -370,4 +382,4 @@ class CalculMnb(QgsProcessingAlgorithm):
         return QCoreApplication.translate('Processing', string)
 
     def createInstance(self):
-        return CalculMnb()
+        return CalculMNS()
