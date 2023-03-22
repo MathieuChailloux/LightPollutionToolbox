@@ -70,7 +70,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(8, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(9, model_feedback)
         outputs = {}
         
         self.parseParams(parameters,context)
@@ -79,25 +79,13 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         if self.inputExtent is None or self.inputExtent == NULL:
             # Si grille non présente prendre l'emprise de la couche raster Viewshed
             if self.inputGrid is None or self.inputGrid == NULL:
-                alg_params = {
-                    'INPUT': self.inputViewshed,
-                    'ROUND_TO': 0,
-                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-                }
-                outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+                extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
+                outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputViewshed, extent_zone, context=context,feedback=feedback)
                 outputs[self.SLICED_RASTER_VIEWSHED] = self.inputViewshed # le raster n'est pas découpé
-                # le raster bati est découpé pour avoir la même taille que le viewshed
-                alg_params = {
-                    'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
-                    'EXTRA': '',
-                    'INPUT': self.inputRasterBati,
-                    'NODATA': None,
-                    'OPTIONS': '',
-                    'OVERCRS': False,
-                    'PROJWIN': outputs[self.EXTENT_ZONE],
-                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-                }
-                outputs[self.SLICED_RASTER_BATI] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+               
+               # le raster bati est découpé pour avoir la même taille que le viewshed
+                outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, outputs[self.EXTENT_ZONE], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+                
                 step+=1
                 feedback.setCurrentStep(step)
                 if feedback.isCanceled():
@@ -106,17 +94,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
              # Sinon prendre l'emprise de la grille
             else:
                 # Découper le raster Viewshed selon une emprise (celle de la grille)
-                alg_params = {
-                    'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
-                    'EXTRA': '',
-                    'INPUT': self.inputViewshed,
-                    'NODATA': None,
-                    'OPTIONS': '',
-                    'OVERCRS': False,
-                    'PROJWIN': self.inputGrid,
-                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-                }
-                outputs[self.SLICED_RASTER_VIEWSHED] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+                outputs[self.SLICED_RASTER_VIEWSHED] = qgsTreatments.applyClipRasterByExtent(self.inputViewshed, self.inputGrid, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
                 outputs[self.EXTENT_ZONE] = self.inputGrid
                 
                 step+=1
@@ -125,17 +103,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                     return {}
                 
                 # Découper le raster Bati selon une emprise (celle de la grille)
-                alg_params = {
-                    'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
-                    'EXTRA': '',
-                    'INPUT': self.inputRasterBati,
-                    'NODATA': None,
-                    'OPTIONS': '',
-                    'OVERCRS': False,
-                    'PROJWIN': self.inputGrid,
-                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-                }
-                outputs[self.SLICED_RASTER_BATI] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+                outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, self.inputGrid, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
                 
                 step+=1
                 feedback.setCurrentStep(step)
@@ -143,17 +111,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                     return {}
         else:
             # Découper le raster Viewshed selon une emprise
-            alg_params = {
-                'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
-                'EXTRA': '',
-                'INPUT': self.inputViewshed,
-                'NODATA': None,
-                'OPTIONS': '',
-                'OVERCRS': False,
-                'PROJWIN': self.inputExtent,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs[self.SLICED_RASTER_VIEWSHED] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+            outputs[self.SLICED_RASTER_VIEWSHED] = qgsTreatments.applyClipRasterByExtent(self.inputViewshed, self.inputExtent, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
             outputs[self.EXTENT_ZONE] = self.inputExtent
             
             step+=1
@@ -162,17 +120,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                 return {}
                 
             # Découper le raster Bati selon une emprise
-            alg_params = {
-                'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
-                'EXTRA': '',
-                'INPUT': self.inputRasterBati,
-                'NODATA': None,
-                'OPTIONS': '',
-                'OVERCRS': False,
-                'PROJWIN': self.inputExtent,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs[self.SLICED_RASTER_BATI] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+            outputs[self.SLICED_RASTER_BATI] =  qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, self.inputExtent, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
             
             step+=1
             feedback.setCurrentStep(step)
@@ -181,17 +129,10 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
 
         if self.inputGrid is None or self.inputGrid == NULL:
             # Créer une grille
-            alg_params = {
-                'CRS': outputs[self.EXTENT_ZONE],
-                'EXTENT': outputs[self.EXTENT_ZONE],
-                'HOVERLAY': 0,
-                'HSPACING': parameters[self.DIM_GRID],
-                'TYPE': parameters[self.TYPE_GRID]+2,  # Ajoute +2 pour aligner le bon type de grille
-                'VOVERLAY': 0,
-                'VSPACING': parameters[self.DIM_GRID],
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['GridTemp'] = processing.run('native:creategrid', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+            # Ajoute +2 pour aligner le bon type de grille
+            temp_path_grid = QgsProcessingUtils.generateTempFilename('temp_grid.gpkg')
+            qgsTreatments.createGridLayer(outputs[self.EXTENT_ZONE], outputs[self.EXTENT_ZONE], parameters[self.DIM_GRID], temp_path_grid, gtype=parameters[self.TYPE_GRID]+2, context=context,feedback=feedback)
+            outputs['GridTemp'] = qgsUtils.loadVectorLayer(temp_path_grid)
             
             step+=1
             feedback.setCurrentStep(step)
@@ -203,25 +144,18 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             
 
         # Extraire la grille par localisation de l'emprise
-        alg_params = {
-            'INPUT': outputs['GridTemp'],
-            'INTERSECT': outputs[self.EXTENT_ZONE],
-            'PREDICATE': [0],  # intersecte
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['GridTempExtract'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
+        temp_path_grid_loc = QgsProcessingUtils.generateTempFilename('temp_grid_loc.gpkg')
+        qgsTreatments.extractByLoc(outputs['GridTemp'], outputs[self.EXTENT_ZONE],temp_path_grid_loc, context=context,feedback=feedback)
+        outputs['GridTempExtract'] = qgsUtils.loadVectorLayer(temp_path_grid_loc)
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
             
-        # grille indexée
-        alg_params = {
-            'INPUT': outputs['GridTempExtract']['OUTPUT']
-        }
-        outputs['GridIndex'] = processing.run('native:createspatialindex', alg_params, context=context, feedback=feedback, is_child_algorithm=True)    
-        
+        # grille indexée  
+        qgsTreatments.createSpatialIndex(outputs['GridTempExtract'], context=context,feedback=feedback)
+
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -230,27 +164,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         # Calculatrice Raster enleve bati haut
         # Masque bati
         #Si hauteur > h_remplie  : 0 Sinon 1
-        alg_params = {
-            'BAND_A': 1,
-            'BAND_B': None, #1,
-            'BAND_C': None,
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': '1*(logical_and(A<= '+str(parameters[self.MASK_HEIGHT])+', True))', #'1*(logical_and(A<= B, True))',
-            'INPUT_A': outputs[self.SLICED_RASTER_BATI],
-            'INPUT_B': None, #outputs['CrerUneCoucheRasterConstantePourLaHauteurDuMasque']['OUTPUT'],
-            'INPUT_C': None,
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['RasterBatiFilterHeight'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        formula = '1*(logical_and(A<= '+str(parameters[self.MASK_HEIGHT])+', True))' #'1*(logical_and(A<= B, True))'
+        outputs['RasterBatiFilterHeight'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_BATI], None, QgsProcessing.TEMPORARY_OUTPUT, formula, nodata_val=None, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -258,13 +173,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             return {}
 
         # Remplir les cellules sans données
-        alg_params = {
-            'BAND': 1,
-            'FILL_VALUE': 1,
-            'INPUT': outputs['RasterBatiFilterHeight']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['FillCellsWithoutData'] = processing.run('native:fillnodata', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        outputs['FillCellsWithoutData'] = qgsTreatments.applyFillNoData(outputs['RasterBatiFilterHeight'], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -272,27 +181,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             return {}
 
         # Mise à zéro du pixel sur bati supérieur à une certaine hauteur
-        alg_params = {
-            'BAND_A': 1,
-            'BAND_B': 1,
-            'BAND_C': None,
-            'BAND_D': None,
-            'BAND_E': None,
-            'BAND_F': None,
-            'EXTRA': '',
-            'FORMULA': 'A*B',
-            'INPUT_A': outputs[self.SLICED_RASTER_VIEWSHED],
-            'INPUT_B': outputs['FillCellsWithoutData']['OUTPUT'],
-            'INPUT_C': None,
-            'INPUT_D': None,
-            'INPUT_E': None,
-            'INPUT_F': None,
-            'NO_DATA': None,
-            'OPTIONS': '',
-            'RTYPE': 5,  # Float32
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['BatiWithHeightMask'] = processing.run('gdal:rastercalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        outputs['BatiWithHeightMask'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_VIEWSHED], outputs['FillCellsWithoutData'], QgsProcessing.TEMPORARY_OUTPUT, 'A*B',nodata_val=None, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -300,15 +189,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             return {}
 
         # Statistiques de zone (moyenne)
-        alg_params = {
-            'COLUMN_PREFIX': '_',
-            'INPUT': outputs['GridIndex']['OUTPUT'],
-            'INPUT_RASTER': outputs['BatiWithHeightMask']['OUTPUT'],
-            'RASTER_BAND': 1,
-            'STATISTICS': [2,4],  # Moyenne,Ecart-type
-            'OUTPUT': self.outputNbSrcVis
-        }
-        self.results[self.OUTPUT_NB_SRC_VIS] = processing.run('native:zonalstatisticsfb', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+        stats = [2,4] # Moyenne,Ecart-type
+        self.results[self.OUTPUT_NB_SRC_VIS] = qgsTreatments.rasterZonalStats(outputs['GridTempExtract'], outputs['BatiWithHeightMask'], self.outputNbSrcVis, prefix='_',stats=stats, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
