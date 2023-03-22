@@ -78,7 +78,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         if self.inputExtent is None or self.inputExtent == NULL:
             # Extraire l'emprise de la couche raster
             extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
-            outputs[self.EXTENT_ZONE] =  qgsTreatments.applyGetRasterExtent(self.inputRaster, extent_zone, context=context,feedback=feedback)
+            outputs[self.EXTENT_ZONE] =  qgsTreatments.applyGetLayerExtent(self.inputRaster, extent_zone, context=context,feedback=feedback)
             outputs[self.SLICED_RASTER] = self.inputRaster # le raster n'est pas découpé
             
         else:

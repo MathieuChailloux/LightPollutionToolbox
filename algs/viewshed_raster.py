@@ -227,9 +227,13 @@ class ViewshedRaster(QgsProcessingAlgorithm):
             live_memory = False
 
         else:
-            live_memory = ( (dem.size[0] * dem.size[1]) / 1000000 <
-                           float(ProcessingConfig.getSetting(
-                               'MEMORY_BUFFER_SIZE')))
+            if (ProcessingConfig.getSetting('MEMORY_BUFFER_SIZE')) is None:
+                operator=0
+                live_memory = False
+            else:
+                live_memory = ( (dem.size[0] * dem.size[1]) / 1000000 <
+                               float(ProcessingConfig.getSetting(
+                                   'MEMORY_BUFFER_SIZE')))
         
         dem.set_buffer(operator, live_memory = live_memory)
             

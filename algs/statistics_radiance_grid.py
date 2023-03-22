@@ -69,8 +69,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
 
     def parseParams(self, parameters, context):
         self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
-        self.inputGrid = self.parameterAsVectorLayer(parameters, self.GRID_LAYER_INPUT, context)
         self.inputRaster = self.parameterAsRasterLayer(parameters, self.RASTER_INPUT, context)
+        self.inputGrid = self.parameterAsVectorLayer(parameters, self.GRID_LAYER_INPUT, context)
         self.outputStat = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT,context)
        
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -88,9 +88,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             # Si grille non présente prendre l'emprise de la couche raster
             if self.inputGrid is None or self.inputGrid == NULL:
                 extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
-                outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetRasterExtent(self.inputRaster, extent_zone, context=context,feedback=feedback)
+                outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputRaster, extent_zone, context=context,feedback=feedback)
                 outputs[self.SLICED_RASTER] = self.inputRaster # le raster n'est pas découpé
-             # Sinon prendre l'emprise de la grille
+            # Sinon prendre l'emprise de la grille
             else:
                 # Découper un raster selon une emprise (celle de la grille)
                 outputs[self.SLICED_RASTER] = qgsTreatments.applyClipRasterByExtent(self.inputRaster, self.inputGrid, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
@@ -126,7 +126,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         temp_path_grid_loc = QgsProcessingUtils.generateTempFilename('temp_grid_loc.gpkg')
         qgsTreatments.extractByLoc(outputs['GridTemp'], outputs[self.EXTENT_ZONE],temp_path_grid_loc, context=context,feedback=feedback)
         outputs['GridTempExtract'] = qgsUtils.loadVectorLayer(temp_path_grid_loc)
-        # outputs['GridTempExtract'] = qgsTreatments.extractByLoc(outputs['GridTemp'], outputs[self.EXTENT_ZONE],QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -135,7 +134,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
             
         # grille indexée
-        # outputs['GridIndex'] = qgsTreatments.createSpatialIndex(outputs['GridTempExtract'], context=context,feedback=feedback)
         qgsTreatments.createSpatialIndex(outputs['GridTempExtract'], context=context,feedback=feedback)
         
         step+=1
@@ -222,9 +220,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Calculatrice Raster Segmentation
         # Si rad totale > mediane+1 : 1 sinon 0
         formula = '1*(logical_or(A>(median(A)+1) , False))'
-        # temp_path_raster_seg = QgsProcessingUtils.generateTempFilename('temp_path_raster_seg.tif')
-        # qgsTreatments.applyRasterCalcABC(outputs['CalculRasterTotalRadiance'], None, None, 1, None, None, temp_path_raster_seg, formula, context=context,feedback=feedback)
-        # outputs['CalculRasterSegmentation'] = qgsUtils.loadRasterLayer(temp_path_raster_seg)
         outputs['CalculRasterSegmentation'] = qgsTreatments.applyRasterCalcABC(outputs['CalculRasterTotalRadiance'], None, None, 1, None, None, QgsProcessing.TEMPORARY_OUTPUT, formula, context=context,feedback=feedback)
          
         step+=1
@@ -252,7 +247,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             return {}
 
         # Réparer les géométries
-        # qgsTreatments.fixGeometries(outputs['ExtractLightZone'], context=context,feedback=feedback)
         light_zone_fixed = QgsProcessingUtils.generateTempFilename('light_zone_fixed.gpkg')
         qgsTreatments.fixGeometries(outputs['ExtractLightZone'],light_zone_fixed,context=context,feedback=feedback)
         outputs['ExtractLightZone'] = qgsUtils.loadVectorLayer(light_zone_fixed)
@@ -274,7 +268,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         temp_path_light_grid = QgsProcessingUtils.generateTempFilename('temp_path_light_grid.gpkg')
         qgsTreatments.extractByLoc(outputs['GridTempExtract'], outputs['ExtractLightZone'],temp_path_light_grid, context=context,feedback=feedback)
         outputs['ExtractLightGrid'] = qgsUtils.loadVectorLayer(temp_path_light_grid)
-        # outputs['ExtractLightGrid'] = qgsTreatments.extractByLoc(outputs['GridTempExtract'], outputs['ExtractLightZone'], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -362,6 +355,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Fusionner des couches vecteur (grilles avec radiance et grilles sans radiance)
         layersToMerge = [outputs['CalculFieldIndiceRadiance'],outputs['CalculFieldIndiceRadianceNull']]
         self.results[self.OUTPUT_STAT] = qgsTreatments.mergeVectorLayers(layersToMerge,outputs['CalculFieldIndiceRadiance'],self.outputStat, context=context, feedback=feedback)
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():

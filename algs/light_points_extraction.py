@@ -32,11 +32,15 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
     EXTENT_ZONE = 'ExtentZone'
     OBSERVER_HEIGHT = 'ObserverHeight'
     OBSERVER_HEIGHT_FIELD = 'ObserverHeightField'
-    LIGHT_HEIGHT = 'LightHeight'
-    LIGHT_HEIGHT_FIELD = 'LightHeightField'
+    LIGHT_SOURCE_HEIGHT = 'LightHeight'
+    LIGHT_SOURCE_HEIGHT_FIELD = 'LightHeightField'
     RADIUS_ANALYSIS = 'RadiusAnalysis'
     RADIUS_ANALYSIS_FIELD = 'RadiusAnalysisField'
     OUTPUT_LUM_PTS = 'OutputLightPoints'
+    
+    OBSERVER_FIELD = 'observ_hgt' # old target_hgt
+    SOURCE_FIELD = 'source_hgt' # old observ_hgt
+    RADIUS_FIELD = 'radius'
     
     results = {}
     
@@ -47,8 +51,8 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterField(self.OBSERVER_HEIGHT_FIELD, self.tr('Observer height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, 'Observer height (if no field) 0, 1, 6, meters', type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
 
-        self.addParameter(QgsProcessingParameterField(self.LIGHT_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.LIGHT_HEIGHT, 'Source light height (if no field), meters', type=QgsProcessingParameterNumber.Double, defaultValue=6))
+        self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
+        self.addParameter(QgsProcessingParameterNumber(self.LIGHT_SOURCE_HEIGHT, 'Source light height (if no field), meters', type=QgsProcessingParameterNumber.Double, defaultValue=6))
 
         self.addParameter(QgsProcessingParameterField(self.RADIUS_ANALYSIS_FIELD, self.tr('Radius of analysis field for visibility'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, 'Radius of analysis for visibility (if no field), meters', type=QgsProcessingParameterNumber.Double, defaultValue=500))
@@ -73,27 +77,16 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
         # Extraire l'emprise de la couche
         # Si emprise non présente, on prend celle des points lumineux
         if self.inputExtent is None or self.inputExtent == NULL:
-            alg_params = {
-                'INPUT': self.inputLightPoints,
-                'ROUND_TO': 0,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+            extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
+            outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputLightPoints, extent_zone, context=context,feedback=feedback)
             
         else:
             # Tampon
-            alg_params = {
-                'DISSOLVE': False,
-                'DISTANCE': parameters[self.RADIUS_ANALYSIS],
-                'END_CAP_STYLE': 0,  # Rond
-                'INPUT': self.inputExtent,
-                'JOIN_STYLE': 0,  # Rond
-                'MITER_LIMIT': 2,
-                'SEGMENTS': 5,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs[self.EXTENT_ZONE] = processing.run('native:buffer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-        
+            expr = parameters[self.RADIUS_ANALYSIS]
+            temp_path_buf = QgsProcessingUtils.generateTempFilename('temp_path_buf.gpkg')
+            qgsTreatments.applyBufferFromExpr(self.inputExtent,expr, temp_path_buf,context=context,feedback=feedback)
+            outputs[self.EXTENT_ZONE] =  qgsUtils.loadVectorLayer(temp_path_buf)
+            
         step+=1
         feedback.setCurrentStep(step)
         
@@ -101,13 +94,9 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             return {}
                 
         # Extraire par localisation
-        alg_params = {
-            'INPUT': self.inputLightPoints,
-            'INTERSECT': outputs[self.EXTENT_ZONE],
-            'PREDICATE': [0],  # intersecte
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['LocalisationPointsExtraction'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        temp_path_pts = QgsProcessingUtils.generateTempFilename('temp_path_pts.gpkg')
+        qgsTreatments.extractByLoc(self.inputLightPoints, outputs[self.EXTENT_ZONE],temp_path_pts, context=context,feedback=feedback)
+        outputs['LocalisationPointsExtraction'] = qgsUtils.loadVectorLayer(temp_path_pts)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -116,18 +105,9 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             return {}
 
         # Ajouter un champ auto-incrémenté
-        alg_params = {
-            'FIELD_NAME': 'ID',
-            'GROUP_FIELDS': [''],
-            'INPUT': outputs['LocalisationPointsExtraction']['OUTPUT'],
-            'MODULUS': 0,
-            'SORT_ASCENDING': True,
-            'SORT_EXPRESSION': '',
-            'SORT_NULLS_FIRST': False,
-            'START': 0,
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['AddFieldIncr'] = processing.run('native:addautoincrementalfield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        temp_path_auto_incr = QgsProcessingUtils.generateTempFilename('temp_path_auto_incr.gpkg')
+        qgsTreatments.applyAutoIncrementField(outputs['LocalisationPointsExtraction'], 'ID', temp_path_auto_incr, context=context,feedback=feedback)
+        outputs['AddFieldIncr'] = qgsUtils.loadVectorLayer(temp_path_auto_incr)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -140,16 +120,10 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             formula = '"'+parameters[self.OBSERVER_HEIGHT_FIELD]+'"'
         else:
             formula = parameters[self.OBSERVER_HEIGHT]
-        alg_params = {
-            'FIELD_LENGTH': 10,
-            'FIELD_NAME': 'observ_hgt', # old target_hgt
-            'FIELD_PRECISION': 4,
-            'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': formula,
-            'INPUT': outputs['AddFieldIncr']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculFieldObserv'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+
+        temp_path_obs = QgsProcessingUtils.generateTempFilename('temp_path_obs.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['AddFieldIncr'], self.OBSERVER_FIELD, temp_path_obs, formula, 10, 4, 0, context=context,feedback=feedback)
+        outputs['CalculFieldObserv'] = qgsUtils.loadVectorLayer(temp_path_obs)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -162,40 +136,29 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
             formula = '"'+parameters[self.RADIUS_ANALYSIS_FIELD]+'"'
         else:
             formula = parameters[self.RADIUS_ANALYSIS]
-        alg_params = {
-            'FIELD_LENGTH': 10,
-            'FIELD_NAME': 'radius',
-            'FIELD_PRECISION': 4,
-            'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': formula,
-            'INPUT': outputs['CalculFieldObserv']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculFieldRadius'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        
+        temp_path_radius = QgsProcessingUtils.generateTempFilename('temp_path_radius.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['CalculFieldObserv'],self.RADIUS_FIELD,temp_path_radius, formula, 10, 4, 0, context=context,feedback=feedback)
+        outputs['CalculFieldRadius'] = qgsUtils.loadVectorLayer(temp_path_radius)
         
         step+=1
         feedback.setCurrentStep(step)
-        
         if feedback.isCanceled():
             return {}
 
         # Calculatrice de champ hauteur source lumière
-        if parameters[self.LIGHT_HEIGHT_FIELD] is not None and parameters[self.LIGHT_HEIGHT_FIELD] != NULL:
-            formula = '"'+parameters[self.LIGHT_HEIGHT_FIELD]+'"'
+        if parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] is not None and parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] != NULL:
+            formula = '"'+parameters[self.LIGHT_SOURCE_HEIGHT_FIELD]+'"'
         else:
-            formula = parameters[self.LIGHT_HEIGHT]
-        alg_params = {
-            'FIELD_LENGTH': 10,
-            'FIELD_NAME': 'source_hgt', # old observ_hgt
-            'FIELD_PRECISION': 4,
-            'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': formula,
-            'INPUT': outputs['CalculFieldRadius']['OUTPUT'],
-            'OUTPUT': self.outputLightPts
-        }
-        outputs['CalculFieldLightHgt'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        self.results[self.OUTPUT_LUM_PTS] = outputs['CalculFieldLightHgt']['OUTPUT']
-
+            formula = parameters[self.LIGHT_SOURCE_HEIGHT]
+        
+        self.results[self.OUTPUT_LUM_PTS] = qgsTreatments.applyFieldCalculator(outputs['CalculFieldRadius'],self.SOURCE_FIELD,self.outputLightPts, formula, 10, 4, 0, context=context,feedback=feedback)
+        
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+            
         print(step)
         
         return self.results

@@ -84,44 +84,22 @@ class CalculMNS(QgsProcessingAlgorithm):
         # Extraire l'emprise de la couche
         # Si emprise non présente, on prend celle du MNS
         if self.inputExtent is None or self.inputExtent == NULL:
-            alg_params = {
-                    'INPUT': self.inputRasterMNT,
-                    'ROUND_TO': 0,
-                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-                }
-            outputs[self.EXTENT_ZONE] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
-            
+            extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
+            outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputRasterMNT, extent_zone, context=context,feedback=feedback)            
         else:
             # Tampon
-            alg_params = {
-                'DISSOLVE': False,
-                'DISTANCE': parameters[self.BUFFER_RADIUS], # doit être identique à la valeur de Light Points Extraction
-                'END_CAP_STYLE': 0,  # Rond
-                'INPUT': self.inputExtent,
-                'JOIN_STYLE': 0,  # Rond
-                'MITER_LIMIT': 2,
-                'SEGMENTS': 5,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs[self.EXTENT_ZONE] = processing.run('native:buffer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+            expr = parameters[self.BUFFER_RADIUS]
+            temp_path_buf = QgsProcessingUtils.generateTempFilename('temp_path_buf.gpkg')
+            qgsTreatments.applyBufferFromExpr(self.inputExtent,expr, temp_path_buf,context=context,feedback=feedback)
+            outputs[self.EXTENT_ZONE] =  qgsUtils.loadVectorLayer(temp_path_buf)
             
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
             
-        # Découper un raster selon une emprise
-        alg_params = {
-            'DATA_TYPE': 6,  # Float32
-            'EXTRA': '',
-            'INPUT': self.inputRasterMNT,
-            'NODATA': 0,
-            'OPTIONS': '',
-            'OVERCRS': False,
-            'PROJWIN': outputs[self.EXTENT_ZONE],
-            'OUTPUT': self.outputRasterMNS
-        }
-        outputs[self.SLICED_RASTER] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+        # Découper le raster selon une emprise
+        outputs[self.SLICED_RASTER] = qgsTreatments.applyClipRasterByExtent(self.inputRasterMNT, outputs[self.EXTENT_ZONE], self.outputRasterMNS,data_type=6, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -129,12 +107,10 @@ class CalculMNS(QgsProcessingAlgorithm):
             return {}
 
         # Extraire l'emprise de la couche raster, nécessaire pour rasterister ensuite
-        alg_params = {
-            'INPUT': outputs[self.SLICED_RASTER],
-            'ROUND_TO': 0,
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['RasterExtent'] = processing.run('native:polygonfromlayerextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        temp_path_raster_extent = QgsProcessingUtils.generateTempFilename('temp_path_raster_extent.gpkg')
+        qgsTreatments.applyGetLayerExtent(outputs[self.SLICED_RASTER], temp_path_raster_extent, context=context,feedback=feedback)
+        outputs['RasterExtent'] = qgsUtils.loadVectorLayer(temp_path_raster_extent)
+        
         
         step+=1
         feedback.setCurrentStep(step)
@@ -143,13 +119,9 @@ class CalculMNS(QgsProcessingAlgorithm):
 
         # Extraire par localisation le bati
         # Filtre sur l'emprise
-        alg_params = {
-            'INPUT': self.inputBati,
-            'INTERSECT': outputs[self.EXTENT_ZONE],
-            'PREDICATE': [0],  # intersecte
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['LocalisationBatiExtraction'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        temp_path_loc_bati = QgsProcessingUtils.generateTempFilename('temp_path_loc_bati.gpkg')
+        qgsTreatments.extractByLoc(self.inputBati, outputs[self.EXTENT_ZONE],temp_path_loc_bati, context=context,feedback=feedback)
+        outputs['LocalisationBatiExtraction'] = qgsUtils.loadVectorLayer(temp_path_loc_bati)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -157,16 +129,10 @@ class CalculMNS(QgsProcessingAlgorithm):
             return {}
 
         # Calculatrice de champ hauteur mediane
-        alg_params = {
-            'FIELD_LENGTH': 6,
-            'FIELD_NAME': 'median_h',
-            'FIELD_PRECISION': 2,
-            'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': ' median("'+parameters[self.HEIGHT_FIELD_BATI]+'")',
-            'INPUT': outputs['LocalisationBatiExtraction']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculFieldHeightBatiMedian'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        formula = 'median("'+parameters[self.HEIGHT_FIELD_BATI]+'")'
+        temp_path_bati_median = QgsProcessingUtils.generateTempFilename('temp_path_bati_median.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['LocalisationBatiExtraction'],'median_h',temp_path_bati_median, formula, 6, 2, 0, context=context,feedback=feedback)
+        outputs['CalculFieldHeightBatiMedian'] = qgsUtils.loadVectorLayer(temp_path_bati_median)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -174,16 +140,10 @@ class CalculMNS(QgsProcessingAlgorithm):
             return {}
 
         # Calculatrice de champ remplacement hauteur NULL par mediane
-        alg_params = {
-            'FIELD_LENGTH': 6,
-            'FIELD_NAME': parameters[self.HEIGHT_FIELD_BATI],
-            'FIELD_PRECISION': 2,
-            'FIELD_TYPE': 0,  # Flottant
-            'FORMULA': 'CASE\r\n\tWHEN  '+""+parameters[self.HEIGHT_FIELD_BATI]+""+' IS NULL THEN "median_h"\r\n\tELSE '+""+parameters[self.HEIGHT_FIELD_BATI]+""+'\r\nEND\r\n',
-            'INPUT': outputs['CalculFieldHeightBatiMedian']['OUTPUT'],
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['CalculFieldHeightBatiReplaceNullByMedian'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        formula = 'CASE\r\n\tWHEN  '+""+parameters[self.HEIGHT_FIELD_BATI]+""+' IS NULL THEN "median_h"\r\n\tELSE '+""+parameters[self.HEIGHT_FIELD_BATI]+""+'\r\nEND\r\n'
+        temp_path_bati_null = QgsProcessingUtils.generateTempFilename('temp_path_bati_null.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['CalculFieldHeightBatiMedian'], parameters[self.HEIGHT_FIELD_BATI],temp_path_bati_null, formula, 6, 2, 0, context=context,feedback=feedback)
+        outputs['CalculFieldHeightBatiReplaceNullByMedian'] = qgsUtils.loadVectorLayer(temp_path_bati_null)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -194,14 +154,10 @@ class CalculMNS(QgsProcessingAlgorithm):
         if self.inputVegetation is not None and self.inputVegetation != NULL and parameters[self.DEFAULT_HEIGHT_VEGETATION] is not None and parameters[self.DEFAULT_HEIGHT_VEGETATION] != NULL:
             if parameters[self.HEIGHT_FIELD_VEGETATION] is not None and parameters[self.HEIGHT_FIELD_VEGETATION] != NULL:
                 # Extraire par attribut en enlevant les polygones sans hauteur
-                alg_params = {
-                    'FIELD': parameters[self.HEIGHT_FIELD_VEGETATION],
-                    'INPUT': self.inputVegetation,
-                    'OPERATOR': 9,  # n'est pas null
-                    'VALUE': '',
-                    'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-                }
-                outputs['FilterVegetationWithHeight'] = processing.run('native:extractbyattribute', alg_params, context=context, feedback=feedback, is_child_algorithm=True)['OUTPUT']
+                temp_path_veg_height = QgsProcessingUtils.generateTempFilename('temp_path_veg_height.gpkg')
+                # 'OPERATOR': 9,  # n'est pas null
+                qgsTreatments.applyExtractByAttribute(self.inputVegetation, parameters[self.HEIGHT_FIELD_VEGETATION], temp_path_veg_height, operator = 9, value='', context=context, feedback=feedback)
+                outputs['FilterVegetationWithHeight'] = qgsUtils.loadVectorLayer(temp_path_veg_height)
             else :
                 outputs['FilterVegetationWithHeight'] = self.inputVegetation
                 
@@ -211,13 +167,9 @@ class CalculMNS(QgsProcessingAlgorithm):
                 return {}
                 
             # Extraction en fonction de l'emprise
-            alg_params = {
-                'INPUT': outputs['FilterVegetationWithHeight'],
-                'INTERSECT': outputs[self.EXTENT_ZONE],
-                'PREDICATE': [0],  # intersecte
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['LocalisationVegetationExtraction'] = processing.run('native:extractbylocation', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+            temp_path_loc_veg = QgsProcessingUtils.generateTempFilename('temp_path_loc_veg.gpkg')
+            qgsTreatments.extractByLoc(outputs['FilterVegetationWithHeight'], outputs[self.EXTENT_ZONE],temp_path_loc_veg, context=context,feedback=feedback)
+            outputs['LocalisationVegetationExtraction'] = qgsUtils.loadVectorLayer(temp_path_loc_veg)
             
             step+=1
             feedback.setCurrentStep(step)
@@ -225,17 +177,9 @@ class CalculMNS(QgsProcessingAlgorithm):
                 return {}
         
            # Buffer de 5m autour du bati
-            alg_params = {
-                'DISSOLVE': False,
-                'DISTANCE': 5,
-                'END_CAP_STYLE': 0,  # Rond
-                'INPUT': outputs['LocalisationBatiExtraction']['OUTPUT'],
-                'JOIN_STYLE': 0,  # Rond
-                'MITER_LIMIT': 2,
-                'SEGMENTS': 5,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['BufferBati5m'] = processing.run('native:buffer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+            temp_path_buf_bati = QgsProcessingUtils.generateTempFilename('temp_path_buf_bati.gpkg')
+            qgsTreatments.applyBufferFromExpr(outputs['LocalisationBatiExtraction'], 5, temp_path_buf_bati, context=context,feedback=feedback)
+            outputs['BufferBati5m'] =  qgsUtils.loadVectorLayer(temp_path_buf_bati)
             
             step+=1
             feedback.setCurrentStep(step)
@@ -243,12 +187,9 @@ class CalculMNS(QgsProcessingAlgorithm):
                 return {}
                 
            # Différence entre la végétation et le bati bufferisé pour enlever les zones qui se chevauches
-            alg_params = {
-                'INPUT': outputs['LocalisationVegetationExtraction']['OUTPUT'],
-                'OVERLAY': outputs['BufferBati5m']['OUTPUT'] ,
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['VegetationWithoutBati'] = processing.run('native:difference', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+            temp_path_diff_veg_bati = QgsProcessingUtils.generateTempFilename('temp_path_diff_veg_bati.gpkg')
+            qgsTreatments.applyDifference(outputs['LocalisationVegetationExtraction'], outputs['BufferBati5m'], temp_path_diff_veg_bati, context=context,feedback=feedback)
+            outputs['VegetationWithoutBati'] =  qgsUtils.loadVectorLayer(temp_path_diff_veg_bati)
             
             step+=1
             feedback.setCurrentStep(step)
@@ -256,11 +197,9 @@ class CalculMNS(QgsProcessingAlgorithm):
                 return {}
                 
             # Réparer les géométries
-            alg_params = {
-                'INPUT': outputs['VegetationWithoutBati']['OUTPUT'],
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['RepairVegetationWithoutBati'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+            temp_path_diff_veg_bati_fixed = QgsProcessingUtils.generateTempFilename('temp_path_diff_veg_bati_fixed.gpkg')
+            qgsTreatments.fixGeometries(outputs['VegetationWithoutBati'],temp_path_diff_veg_bati_fixed, context=context,feedback=feedback)
+            outputs['RepairVegetationWithoutBati'] = qgsUtils.loadVectorLayer(temp_path_diff_veg_bati_fixed)
             
             step+=1
             feedback.setCurrentStep(step)
@@ -271,17 +210,11 @@ class CalculMNS(QgsProcessingAlgorithm):
                 formula = '"'+parameters[self.HEIGHT_FIELD_VEGETATION]+'"'
             else:
                 formula = parameters[self.DEFAULT_HEIGHT_VEGETATION]
+            
             # on ajoute le champ HAUTEUR temporaire à la végétation pour après la fusion
-            alg_params = {
-                'FIELD_LENGTH': 6,
-                'FIELD_NAME': 'h_vegetation_temp',
-                'FIELD_PRECISION': 2,
-                'FIELD_TYPE': 0,  # Flottant
-                'FORMULA': formula,
-                'INPUT': outputs['RepairVegetationWithoutBati']['OUTPUT'],
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['RepairVegetationWithoutBati'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+            temp_path_diff_veg_bati_h = QgsProcessingUtils.generateTempFilename('temp_path_diff_veg_bati_h.gpkg')
+            qgsTreatments.applyFieldCalculator(outputs['RepairVegetationWithoutBati'], 'h_vegetation_temp', temp_path_diff_veg_bati_h, formula, 6, 2, 0, context=context,feedback=feedback)
+            outputs['RepairVegetationWithoutBati'] = qgsUtils.loadVectorLayer(temp_path_diff_veg_bati_h)
            
             step+=1
             feedback.setCurrentStep(step)
@@ -289,31 +222,21 @@ class CalculMNS(QgsProcessingAlgorithm):
                 return {}
                 
             # Union
-            alg_params = {
-                'INPUT': outputs['CalculFieldHeightBatiReplaceNullByMedian']['OUTPUT'],
-                'OVERLAY': outputs['RepairVegetationWithoutBati']['OUTPUT'],
-                'OVERLAY_FIELDS_PREFIX': '',
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['VectorToRasterize'] = processing.run('native:union', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+            temp_path_union_veg_bati = QgsProcessingUtils.generateTempFilename('temp_path_union_veg_bati.gpkg')
+            qgsTreatments.applyUnion(outputs['CalculFieldHeightBatiReplaceNullByMedian'], outputs['RepairVegetationWithoutBati'], temp_path_union_veg_bati, context=context, feedback=feedback)
+            outputs['VectorToRasterize'] = qgsUtils.loadVectorLayer(temp_path_union_veg_bati)
+            
             step+=1
             feedback.setCurrentStep(step)
             if feedback.isCanceled():
                 return {}
                 
              # on récupère le champ Hauteur temporaire de la végétation
-            alg_params = {
-                'FIELD_LENGTH': 6,
-                'FIELD_NAME': parameters[self.HEIGHT_FIELD_BATI],
-                'FIELD_PRECISION': 2,
-                'FIELD_TYPE': 0,  # Flottant
-                # 'FORMULA': '"h_vegetation_temp"',
-                'FORMULA': 'CASE\r\n\tWHEN  '+""+parameters[self.HEIGHT_FIELD_BATI]+""+' IS NULL THEN "h_vegetation_temp"\r\n\tELSE '+""+parameters[self.HEIGHT_FIELD_BATI]+""+'\r\nEND\r\n',
-                'INPUT': outputs['VectorToRasterize']['OUTPUT'],
-                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-            }
-            outputs['VectorToRasterize'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-            self.results['VectorToRasterize'] = outputs['VectorToRasterize']['OUTPUT']
+            formula = 'CASE\r\n\tWHEN  '+""+parameters[self.HEIGHT_FIELD_BATI]+""+' IS NULL THEN "h_vegetation_temp"\r\n\tELSE '+""+parameters[self.HEIGHT_FIELD_BATI]+""+'\r\nEND\r\n'
+            temp_path_veg = QgsProcessingUtils.generateTempFilename('temp_path_veg.gpkg')
+            qgsTreatments.applyFieldCalculator(outputs['VectorToRasterize'], parameters[self.HEIGHT_FIELD_BATI], temp_path_veg, formula, 6, 2, 0, context=context,feedback=feedback)
+            outputs['VectorToRasterize'] = qgsUtils.loadVectorLayer(temp_path_veg)
+            # self.results['VectorToRasterize'] = qgsUtils.loadVectorLayer(temp_path_veg)
             
             step+=1
             feedback.setCurrentStep(step)
@@ -321,19 +244,10 @@ class CalculMNS(QgsProcessingAlgorithm):
                 return {}
             
         else: # on utilise seulement le bati
-            outputs['VectorToRasterize'] = outputs['CalculFieldHeightBatiReplaceNullByMedian']
-        
+            outputs['VectorToRasterize'] = outputs['CalculFieldHeightBatiReplaceNullByMedian']        
         
         # Rastériser (remplacement avec attribut)
-        alg_params = {
-            'ADD': True,
-            'EXTRA': '',
-            'FIELD': parameters[self.HEIGHT_FIELD_BATI],
-            'INPUT': outputs['VectorToRasterize']['OUTPUT'],
-            'INPUT_RASTER': outputs[self.SLICED_RASTER] #self.outputRasterMNS
-        }
-        outputs['RasteriseReplaceAttribute'] = processing.run('gdal:rasterize_over', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        self.results[self.OUTPUT_RASTER_MNS] = outputs['RasteriseReplaceAttribute']['OUTPUT']
+        self.results[self.OUTPUT_RASTER_MNS] = qgsTreatments.applyRasterizeOver(outputs['VectorToRasterize'],outputs[self.SLICED_RASTER], parameters[self.HEIGHT_FIELD_BATI], context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -342,26 +256,16 @@ class CalculMNS(QgsProcessingAlgorithm):
 
         # Rasteriser (vecteur vers raster)
         # prendre la résolution du raster en hauteur/largeur
-        alg_params = {
-            'BURN': 0,
-            'DATA_TYPE': 5,  # Float32
-            'EXTENT': outputs['RasterExtent']['OUTPUT'],
-            'EXTRA': '',
-            'FIELD': parameters[self.HEIGHT_FIELD_BATI],
-            'HEIGHT': self.inputRasterMNT.rasterUnitsPerPixelX(),
-            'INIT': None,
-            'INPUT': outputs['VectorToRasterize']['OUTPUT'],
-            'INVERT': False,
-            'NODATA': 0,
-            'OPTIONS': '',
-            'UNITS': 1,  # Unités géoréférencées
-            'USE_Z': False,
-            'WIDTH': self.inputRasterMNT.rasterUnitsPerPixelX(),
-            'OUTPUT': self.outputRasterBati
-        }
-        outputs['RasteriserVecteurVersRaster'] = processing.run('gdal:rasterize', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        self.results[self.OUTPUT_RASTER_BATI] = outputs['RasteriserVecteurVersRaster']['OUTPUT']
+        resolution = self.inputRasterMNT.rasterUnitsPerPixelX()
+        self.results[self.OUTPUT_RASTER_BATI] = qgsTreatments.applyRasterization(outputs['VectorToRasterize'], self.outputRasterBati, outputs['RasterExtent'], resolution,
+                                                                                        field=parameters[self.HEIGHT_FIELD_BATI],burn_val=0,nodata_val=0, 
+                                                                                        context=context,feedback=feedback)
         
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+            
         print(step)
         
         return self.results
