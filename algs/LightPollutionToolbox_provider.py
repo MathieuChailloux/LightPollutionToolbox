@@ -51,6 +51,7 @@ from .light_points_extraction import LightPointsExtraction
 from .calcul_MNS import CalculMNS
 from .viewshed_raster import ViewshedRaster
 from .analyse_visibility_light_sources import AnalyseVisibilityLightSources
+from .create_MNT_from_RGEALTI import createMNTfromRGEALTI
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
     NAME = "LPT"
@@ -80,7 +81,8 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             LightPointsExtraction(),
             CalculMNS(),
             ViewshedRaster(),
-            AnalyseVisibilityLightSources()]
+            AnalyseVisibilityLightSources(),
+            createMNTfromRGEALTI()]
         # self.alglist2 = [
             # VIIRS_Untar(),
             # FluxDispAlg(),

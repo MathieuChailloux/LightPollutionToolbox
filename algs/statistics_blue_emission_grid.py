@@ -352,10 +352,10 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         return self.tr('Statistics of blue emission per grid')
 
     def group(self):
-        return 'ASE'
+        return self.tr('Misc')
 
     def groupId(self):
-        return 'ASE'
+        return 'Misc'
 
     def tr(self, string):
         """
