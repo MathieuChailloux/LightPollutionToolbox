@@ -56,9 +56,9 @@ import numpy as np
 import time
 
 class ViewshedRaster(QgsProcessingAlgorithm):
-
+    
     ALG_NAME = 'ViewshedRaster'
-
+    
     DEM = 'DEM'
     OBSERVER_POINTS = 'OBSERVER_POINTS'
     
@@ -163,10 +163,10 @@ class ViewshedRaster(QgsProcessingAlgorithm):
 
         # return h            
 
-    # #---------- not working ---------------- 
-    # def helpUrl(self):
-        # return 'https://zoran-cuckovic.github.io/QGIS-visibility-analysis/help_qgis3.html'
-    # # for local file : QUrl.fromLocalFile(os.path.join(helpPath, '{}.html'.format(self.grass7Name))).toString()
+    #---------- not working ---------------- 
+    def helpUrl(self):
+        return 'https://zoran-cuckovic.github.io/QGIS-visibility-analysis/help_qgis3.html'
+    # for local file : QUrl.fromLocalFile(os.path.join(helpPath, '{}.html'.format(self.grass7Name))).toString()
         
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -205,8 +205,8 @@ class ViewshedRaster(QgsProcessingAlgorithm):
         # TODO: ADD MORE TESTS (raster rotated [projections ??], rectnagular pixels [OK?]
                          
         points = pts.Points(observers)
-        miss = points.test_fields(["source_hgt", "radius"])
            
+        miss = points.test_fields(["source_hgt", "radius"])
         
         if miss:
             err= " \n ****** \n ERROR! \n Missing fields: \n" + "\n".join(miss)
@@ -227,13 +227,9 @@ class ViewshedRaster(QgsProcessingAlgorithm):
             live_memory = False
 
         else:
-            if (ProcessingConfig.getSetting('MEMORY_BUFFER_SIZE')) is None:
-                operator=0
-                live_memory = False
-            else:
-                live_memory = ( (dem.size[0] * dem.size[1]) / 1000000 <
-                               float(ProcessingConfig.getSetting(
-                                   'MEMORY_BUFFER_SIZE')))
+            live_memory = ( (dem.size[0] * dem.size[1]) / 1000000 <
+                           float(ProcessingConfig.getSetting(
+                               'MEMORY_BUFFER_SIZE')))
         
         dem.set_buffer(operator, live_memory = live_memory)
             
@@ -334,7 +330,7 @@ class ViewshedRaster(QgsProcessingAlgorithm):
         formatting characters.
         """
 
-        return 'viewshed'
+        return 'viewshed_old'
     
     def displayName(self):
         """
@@ -358,7 +354,7 @@ class ViewshedRaster(QgsProcessingAlgorithm):
         contain lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return self.tr('Visibility Light Sources')
+        return 'VisibilityLightSources'
 
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)

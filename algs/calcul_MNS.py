@@ -280,7 +280,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         return  self.tr('Visibility Light Sources')
 
     def groupId(self):
-        return  self.tr('Visibility Light Sources')
+        return 'VisibilityLightSources'
         
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)

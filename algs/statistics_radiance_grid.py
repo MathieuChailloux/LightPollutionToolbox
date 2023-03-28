@@ -313,11 +313,26 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
+        # # TODO Ajout calcul rad_tot/m² ou hectare :
+        # # Création champs tot_sum/surface et calcul des indicateurs avec ce champ
+        # fieldLength = 10
+        # fieldPrecision = 4
+        # fieldType = 0 # Flottant
+        # formula = '"tot_sum"/$area'
+        # temp_path_radiance_surface = QgsProcessingUtils.generateTempFilename('temp_path_radiance_surface.gpkg')
+        # qgsTreatments.applyFieldCalculator(outputs['StatisticsZoneTotalRadiance'], 'radiance_surface', temp_path_radiance_surface, formula, fieldLength, fieldPrecision, fieldType, context=context,feedback=feedback)
+        # outputs['StatisticsZoneTotalRadiance'] = qgsUtils.loadVectorLayer(temp_path_radiance_surface)
+        # step+=1
+        # feedback.setCurrentStep(step)
+        # if feedback.isCanceled():
+            # return {}
+        
         # Calculatrice de champ indice radiance
         fieldLength = 6
         fieldPrecision = 0
         fieldType = 1 # Entier
-        formula = 'with_variable(\'percentile\',array_find(array_agg("tot_mean",order_by:="tot_mean"),"tot_mean") / array_length(array_agg("tot_mean")), CASE WHEN @percentile < 0.2 THEN 1 WHEN @percentile < 0.4 THEN 2 WHEN @percentile < 0.6 THEN 3 WHEN @percentile < 0.8 THEN 4 WHEN @percentile <= 1 THEN 5 ELSE 0 END)'
+        field_quartile = 'tot_mean' #'radiance_surface'
+        formula = 'with_variable(\'percentile\',array_find(array_agg("'+field_quartile+'",order_by:="'+field_quartile+'"),"'+field_quartile+'") / array_length(array_agg("'+field_quartile+'")), CASE WHEN @percentile < 0.2 THEN 1 WHEN @percentile < 0.4 THEN 2 WHEN @percentile < 0.6 THEN 3 WHEN @percentile < 0.8 THEN 4 WHEN @percentile <= 1 THEN 5 ELSE 0 END)'
         temp_path_ind_radiance = QgsProcessingUtils.generateTempFilename('temp_path_ind_radiance.gpkg')
         qgsTreatments.applyFieldCalculator(outputs['StatisticsZoneTotalRadiance'], self.IND_FIELD_POL, temp_path_ind_radiance, formula, fieldLength, fieldPrecision, fieldType, context=context,feedback=feedback)
         outputs['CalculFieldIndiceRadiance'] = qgsUtils.loadVectorLayer(temp_path_ind_radiance)

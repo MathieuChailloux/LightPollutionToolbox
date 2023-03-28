@@ -214,7 +214,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         return  self.tr('Visibility Light Sources')
 
     def groupId(self):
-        return  self.tr('Visibility Light Sources')
+        return 'VisibilityLightSources'
 
     def createInstance(self):
         return AnalyseVisibilityLightSources()
