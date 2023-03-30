@@ -19,6 +19,7 @@ from qgis.core import QgsProcessingParameterNumber
 from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterRasterDestination
+from qgis.core import QgsProcessingParameterFeatureSource
 from qgis.core import QgsProcessingUtils
 from qgis.core import Qgis
 from qgis.core import QgsProject
@@ -43,7 +44,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
     
     def initAlgorithm(self, config=None):
     
-        self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
 
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
 
@@ -59,8 +60,8 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
 
-    def parseParams(self, parameters, context):
-        self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
+    def parseParams(self, parameters, context, feedback):
+        self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1]  
         self.inputRaster = self.parameterAsRasterLayer(parameters, self.RASTER_INPUT, context)
         self.outputRaster = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER,context)
     
@@ -72,7 +73,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         feedback = QgsProcessingMultiStepFeedback(9, model_feedback)
         outputs = {}
         
-        self.parseParams(parameters,context)
+        self.parseParams(parameters, context, feedback)
 
         # Si emprise non présente
         if self.inputExtent is None or self.inputExtent == NULL:

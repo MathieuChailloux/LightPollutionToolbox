@@ -47,10 +47,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     results = {}
     
     def initAlgorithm(self, config=None):
-        # Utiliser QgsProcessingParameterFeatureSource si on veut uniquement les entitées selectionnées : mais la sélection ne marche pas
-        self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
-        self.addParameter(QgsProcessingParameterVectorLayer(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), optional=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
@@ -67,10 +66,10 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
 
-    def parseParams(self, parameters, context):
-        self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
+    def parseParams(self, parameters, context, feedback):
+        self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1] 
         self.inputRaster = self.parameterAsRasterLayer(parameters, self.RASTER_INPUT, context)
-        self.inputGrid = self.parameterAsVectorLayer(parameters, self.GRID_LAYER_INPUT, context)
+        self.inputGrid = qgsTreatments.parameterAsSourceLayer(self, parameters,self.GRID_LAYER_INPUT,context,feedback=feedback)[1] 
         self.outputStat = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT,context)
        
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -81,7 +80,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         outputs = {}
         
-        self.parseParams(parameters,context)
+        self.parseParams(parameters, context, feedback)
         
         # Si emprise non présente
         if self.inputExtent is None or self.inputExtent == NULL:

@@ -16,6 +16,7 @@ from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis.core import QgsProcessingParameterFile
 from qgis.core import QgsProcessingParameterNumber
+from qgis.core import QgsProcessingParameterFeatureSource
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 import os
@@ -32,7 +33,7 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
     results = {}
     
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon]))
         self.addParameter(QgsProcessingParameterNumber(self.EXTENT_BUFFER, self.tr('Buffer to apply to extent, meters'), type=QgsProcessingParameterNumber.Double,optional=True, defaultValue=1000))
         self.addParameter(QgsProcessingParameterVectorLayer(self.GRID, self.tr('dalles'), defaultValue=None))
         
@@ -40,8 +41,8 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
         
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNT, 'Raster MNT', createByDefault=True, defaultValue=None))
 
-    def parseParams(self, parameters, context):
-        self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
+    def parseParams(self, parameters, context, feedback):
+        self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1]        
         self.inputGrid = self.parameterAsVectorLayer(parameters, self.GRID, context)
         self.outputRasterMNT = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER_MNT,context)
         
@@ -52,7 +53,7 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
         feedback = QgsProcessingMultiStepFeedback(3, model_feedback)
         outputs = {}
 
-        self.parseParams(parameters,context)
+        self.parseParams(parameters, context, feedback)
         
         
          # Tampon optionnel autour de la zone d'emprise pour prendre plus de dalles

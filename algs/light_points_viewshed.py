@@ -100,8 +100,8 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         
-        self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterVectorLayer(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), types=[QgsProcessing.TypeVectorPoint], defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), [QgsProcessing.TypeVectorPoint], defaultValue=None))
         
         self.addParameter(QgsProcessingParameterField(self.OBSERVER_HEIGHT_FIELD, self.tr('Observer height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, 'Observer height (if no field) 0, 1, 6, meters', type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
@@ -201,9 +201,9 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         # return 'https://zoran-cuckovic.github.io/QGIS-visibility-analysis/help_qgis3.html'
     # # for local file : QUrl.fromLocalFile(os.path.join(helpPath, '{}.html'.format(self.grass7Name))).toString()
         
-    def parseParams(self, parameters, context):
-        self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
-        self.inputLightPoints = self.parameterAsVectorLayer(parameters, self.LIGHT_PTS_INPUT, context)
+    def parseParams(self, parameters, context, feedback):
+        self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1] 
+        self.inputLightPoints = qgsTreatments.parameterAsSourceLayer(self, parameters,self.LIGHT_PTS_INPUT,context,feedback=feedback)[1] 
         
         self.raster = self.parameterAsRasterLayer(parameters,self.DEM, context)
         self.useEarthCurvature = self.parameterAsBool(parameters,self.USE_CURVATURE,context)
@@ -216,7 +216,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
     def processAlgorithm(self, parameters, context, feedback):
 
-        self.parseParams(parameters,context)
+        self.parseParams(parameters,context, feedback)
         outputs = {}
         # observers = self.parameterAsSource(parameters,self.OBSERVER_POINTS,context)
 # --------------- get observers (light points) ------------------       

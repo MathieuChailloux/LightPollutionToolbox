@@ -19,6 +19,7 @@ from qgis.core import QgsProcessingParameterRasterLayer
 from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterVectorDestination
 from qgis.core import QgsProcessingParameterRasterDestination
+from qgis.core import QgsProcessingParameterFeatureSource
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
@@ -45,24 +46,24 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     results = {}
     
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterRasterLayer(self.VIEWSHED_INPUT, self.tr('Layer resulting from viewshed processing'), defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster bati'), defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.MASK_HEIGHT, self.tr('Mask height'), type=QgsProcessingParameterNumber.Double, defaultValue=1))
         
-        self.addParameter(QgsProcessingParameterVectorLayer(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), optional=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         
         # self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_BUILDINGS_MASK, self.tr('Buildings mask'), createByDefault=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NB_SRC_VIS, self.tr('Analyse par maille du nombre de sources visibles'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NB_SRC_VIS, self.tr('Output Number of light visibility'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
     
-    def parseParams(self, parameters, context):
-        self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
+    def parseParams(self, parameters, context, feedback):
+        self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1] 
         self.inputViewshed = self.parameterAsRasterLayer(parameters, self.VIEWSHED_INPUT, context)
         self.inputRasterBati = self.parameterAsRasterLayer(parameters, self.RASTER_BATI_INPUT, context)
-        self.inputGrid = self.parameterAsVectorLayer(parameters, self.GRID_LAYER_INPUT, context)
+        self.inputGrid = qgsTreatments.parameterAsSourceLayer(self, parameters,self.GRID_LAYER_INPUT,context,feedback=feedback)[1] 
         # self.outputBuildingsMarsk = self.parameterAsOutputLayer(parameters,self.OUTPUT_BUILDINGS_MASK, context)
         self.outputNbSrcVis = self.parameterAsOutputLayer(parameters,self.OUTPUT_NB_SRC_VIS, context)
     
@@ -73,7 +74,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         feedback = QgsProcessingMultiStepFeedback(9, model_feedback)
         outputs = {}
         
-        self.parseParams(parameters,context)
+        self.parseParams(parameters, context, feedback)
         
         # Si emprise non présente
         if self.inputExtent is None or self.inputExtent == NULL:

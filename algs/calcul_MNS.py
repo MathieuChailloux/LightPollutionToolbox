@@ -8,6 +8,7 @@ With QGIS : 32215
 from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
+from qgis.core import Qgis
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingUtils
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -21,6 +22,7 @@ from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterVectorDestination
 from qgis.core import QgsProcessingParameterRasterDestination
+from qgis.core import QgsProcessingParameterFeatureSource
 from qgis.core import QgsProcessingParameterField
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
@@ -45,14 +47,14 @@ class CalculMNS(QgsProcessingAlgorithm):
     results = {}
     
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterVectorLayer(self.EXTENT_ZONE, self.tr('Extent zone'), optional=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_MNT_INPUT, self.tr('MNT'), defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.BUFFER_RADIUS, 'Radius of analysis for visibility (buffer of extent), meters', type=QgsProcessingParameterNumber.Double, defaultValue=500))
         
-        self.addParameter(QgsProcessingParameterVectorLayer(self.BATI_INPUT, self.tr('Buildings (BD TOPO)'), types=[QgsProcessing.TypeVectorPolygon], defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.BATI_INPUT, self.tr('Buildings (BD TOPO)'), types=[QgsProcessing.TypeVectorPolygon], defaultValue=None))
         self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_BATI, self.tr('Height Buildings fields'), type=QgsProcessingParameterField.Any, parentLayerParameterName=self.BATI_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
         
-        self.addParameter(QgsProcessingParameterVectorLayer(self.VEGETATION_INPUT, self.tr('Vegetation'), types=[QgsProcessing.TypeVectorPolygon],optional=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.VEGETATION_INPUT, self.tr('Vegetation'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_VEGETATION, self.tr('Height Vegetation field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.VEGETATION_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
         self.addParameter(QgsProcessingParameterNumber(self.DEFAULT_HEIGHT_VEGETATION, 'Height Vegetation by default if no field', optional=True, type=QgsProcessingParameterNumber.Double, defaultValue=6))
         
@@ -61,11 +63,11 @@ class CalculMNS(QgsProcessingAlgorithm):
         
         # self.addParameter(QgsProcessingParameterVectorDestination('VegetationWithoutBati', 'vegetation', type=QgsProcessing.TypeVectorAnyGeometry,createByDefault=True, defaultValue=None)) # POUR TESTER
 
-    def parseParams(self, parameters, context):
-        self.inputExtent = self.parameterAsVectorLayer(parameters, self.EXTENT_ZONE, context)
+    def parseParams(self, parameters, context, feedback):
+        self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1] 
         self.inputRasterMNT = self.parameterAsRasterLayer(parameters, self.RASTER_MNT_INPUT, context)
-        self.inputBati = self.parameterAsVectorLayer(parameters, self.BATI_INPUT, context)
-        self.inputVegetation = self.parameterAsVectorLayer(parameters, self.VEGETATION_INPUT, context)
+        self.inputBati = qgsTreatments.parameterAsSourceLayer(self, parameters,self.BATI_INPUT,context,feedback=feedback)[1] 
+        self.inputVegetation = qgsTreatments.parameterAsSourceLayer(self, parameters,self.VEGETATION_INPUT,context,feedback=feedback)[1] 
         self.outputRasterMNS = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER_MNS,context)
         self.outputRasterBati = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER_BATI,context)
         
@@ -75,17 +77,21 @@ class CalculMNS(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(10, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(14, model_feedback)
        
         outputs = {}
         
-        self.parseParams(parameters,context)
+        self.parseParams(parameters, context, feedback)
         
         # Extraire l'emprise de la couche
         # Si emprise non présente, on prend celle du MNS
         if self.inputExtent is None or self.inputExtent == NULL:
-            extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
-            outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputRasterMNT, extent_zone, context=context,feedback=feedback)            
+            # Mise à 1 à tous les pixels
+            outputs['RasterMonoValue'] = qgsTreatments.applyRasterCalcAB(self.inputRasterMNT, None, QgsProcessing.TEMPORARY_OUTPUT,'1', nodata_val=None,out_type=Qgis.Int16, context=context,feedback=feedback)
+            # Raster vers vecteur pour avoir l'emprise présise
+            outputs[self.EXTENT_ZONE] = qgsTreatments.applyPolygonize(outputs['RasterMonoValue'], 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
+            # extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
+            # outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputRasterMNT, extent_zone, context=context,feedback=feedback)            
         else:
             # Tampon
             expr = parameters[self.BUFFER_RADIUS]
@@ -120,7 +126,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         # Extraire par localisation le bati
         # Filtre sur l'emprise
         temp_path_loc_bati = QgsProcessingUtils.generateTempFilename('temp_path_loc_bati.gpkg')
-        qgsTreatments.extractByLoc(self.inputBati, outputs[self.EXTENT_ZONE],temp_path_loc_bati, context=context,feedback=feedback)
+        qgsTreatments.extractByLoc(self.inputBati, outputs[self.EXTENT_ZONE],temp_path_loc_bati, predicate=[6], context=context,feedback=feedback) # predicate=[6] # est à l'intérieur
         outputs['LocalisationBatiExtraction'] = qgsUtils.loadVectorLayer(temp_path_loc_bati)
         
         step+=1
@@ -168,7 +174,7 @@ class CalculMNS(QgsProcessingAlgorithm):
                 
             # Extraction en fonction de l'emprise
             temp_path_loc_veg = QgsProcessingUtils.generateTempFilename('temp_path_loc_veg.gpkg')
-            qgsTreatments.extractByLoc(outputs['FilterVegetationWithHeight'], outputs[self.EXTENT_ZONE],temp_path_loc_veg, context=context,feedback=feedback)
+            qgsTreatments.extractByLoc(outputs['FilterVegetationWithHeight'], outputs[self.EXTENT_ZONE],temp_path_loc_veg, predicate=[6], context=context,feedback=feedback)
             outputs['LocalisationVegetationExtraction'] = qgsUtils.loadVectorLayer(temp_path_loc_veg)
             
             step+=1
