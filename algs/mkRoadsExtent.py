@@ -60,10 +60,12 @@ class FluxDenGrpAlg(qgsUtils.BaseProcessingAlgorithm):
     FLUX_DEN = 'FLUX_DEN'
         
     def group(self):
-        return self.tr('Light Flux Surfacic Density')
+        # return self.tr('Light Flux Surfacic Density')
+        return self.tr('Utils DSFLI')
     
     def groupId(self):
-        return 'density'
+        # return 'density'
+        return 'utilsDSFLI'
                        
 class RoadsExtentGrpAlg(FluxDenGrpAlg):
 

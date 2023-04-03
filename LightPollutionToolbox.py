@@ -173,7 +173,6 @@ class LightPollutionToolboxPlugin(object):
 
         # icon_path = ':/plugins/LightPollutionToolbox/lamp.png'
         icon_path = os.path.join(os.path.join(cmd_folder, 'lamp.png'))
-        print(icon_path)
         self.add_action(
             icon_path,
             text=self.tr(u'Light Pollution Toolbox'),
@@ -221,7 +220,9 @@ class LightPollutionToolboxPlugin(object):
         if self.first_start == True:
             self.first_start = False
             self.dlg = InterfaceDialog()
-
+        
+        self.dlg.initTabs()
+        
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop

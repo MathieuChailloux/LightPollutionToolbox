@@ -80,10 +80,10 @@ class MergeGeomAlg(qgsUtils.BaseProcessingAlgorithm):
                 self.tr('Output layer')))
         
     def group(self):
-        return self.tr('Utils')
+        return self.tr('Utils DSFLI')
         
     def groupId(self):
-        return self.tr('utils')
+        return 'utilsDSFLI'
 
     
 

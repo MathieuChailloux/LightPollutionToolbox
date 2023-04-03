@@ -243,9 +243,12 @@ class CreateMeshAlgorithm(qgsUtils.BaseProcessingAlgorithm):
         return self.tr('Create Mesh Layer')
         
     def group(self):
-        return self.tr('Utils')
+        # return self.tr('Utils')
+        return self.tr('Utils DSFLI')
+        
     def groupId(self):
-        return self.tr('utils')
+        # return self.tr('utils')
+        return 'utilsDSFLI'
     
     def initAlgorithm(self, config=None):
         self.addParameter(

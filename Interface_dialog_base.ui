@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>417</width>
+    <width>413</width>
     <height>418</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Interface</string>
   </property>
-  <widget class="QPushButton" name="pushButtonRun">
+  <widget class="QPushButton" name="debugButton">
    <property name="geometry">
     <rect>
      <x>160</x>
@@ -26,135 +26,12 @@
     <string>Run</string>
    </property>
   </widget>
-  <widget class="QRadioButton" name="radioButtonImportGrid">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>130</y>
-     <width>82</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Import Grid</string>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="radioButtonCreateGrid">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>130</y>
-     <width>82</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Create Grid</string>
-   </property>
-  </widget>
-  <widget class="QStackedWidget" name="stackedGridImportCreate">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>160</y>
-     <width>341</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="currentIndex">
-    <number>1</number>
-   </property>
-   <widget class="QWidget" name="widgetImportGrid">
-    <widget class="QLabel" name="labelImportGrid">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>10</y>
-       <width>81</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Import Grid</string>
-     </property>
-    </widget>
-    <widget class="QgsFileWidget" name="gridFile">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>10</y>
-       <width>161</width>
-       <height>27</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="widgetCreateGrid">
-    <widget class="QLabel" name="labelDiameterGrid">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>10</y>
-       <width>81</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Grid Diameter</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="labelGridType">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>40</y>
-       <width>81</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Grid Type</string>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="gridSize">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>10</y>
-       <width>131</width>
-       <height>21</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QgsFeatureListComboBox" name="gridType">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>40</y>
-       <width>131</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>MS Serif</family>
-      </font>
-     </property>
-    </widget>
-   </widget>
-  </widget>
   <widget class="QProgressBar" name="progressBar">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>340</y>
-     <width>351</width>
+     <width>381</width>
      <height>21</height>
     </rect>
    </property>
@@ -162,73 +39,255 @@
     <number>0</number>
    </property>
   </widget>
-  <widget class="QLabel" name="labelExtent">
+  <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>30</y>
-     <width>81</width>
-     <height>16</height>
+     <x>20</x>
+     <y>10</y>
+     <width>381</width>
+     <height>321</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="tabMain">
+    <attribute name="title">
+     <string>Statistics of Radiance</string>
+    </attribute>
+    <widget class="QgsFileWidget" name="outFile">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>240</y>
+       <width>181</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="storageMode">
+      <enum>QgsFileWidget::SaveFile</enum>
+     </property>
+    </widget>
+    <widget class="QStackedWidget" name="stackedGridImportCreate">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>140</y>
+       <width>341</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="widgetImportGrid">
+      <widget class="QLabel" name="labelImportGrid">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>10</y>
+         <width>81</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Import Grid</string>
+       </property>
+      </widget>
+      <widget class="QgsFileWidget" name="gridFile">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>10</y>
+         <width>161</width>
+         <height>27</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="widgetCreateGrid">
+      <widget class="QLabel" name="labelDiameterGrid">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>10</y>
+         <width>81</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Grid Diameter</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelGridType">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>40</y>
+         <width>81</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Grid Type</string>
+       </property>
+      </widget>
+      <widget class="QTextEdit" name="gridSize">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>10</y>
+         <width>131</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="html">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;50&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+      <widget class="QgsFeatureListComboBox" name="gridType">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>40</y>
+         <width>131</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Serif</family>
+        </font>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QLabel" name="labelExtent_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>240</y>
+       <width>141</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Statistics Radiance Output</string>
+     </property>
+    </widget>
+    <widget class="QgsFileWidget" name="extentFile">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>10</y>
+       <width>191</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButtonCreateGrid">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>110</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Create Grid</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButtonImportGrid">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>110</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Import Grid</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelImage">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>60</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Image JILIN RGB</string>
+     </property>
+    </widget>
+    <widget class="QgsFileWidget" name="ImageFile">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>60</y>
+       <width>191</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelExtent">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>10</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Extent zone</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tabLog">
+    <attribute name="title">
+     <string>Log</string>
+    </attribute>
+    <widget class="QTextEdit" name="txtLog">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>381</width>
+       <height>301</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="pushCancel">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>380</y>
+     <width>75</width>
+     <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>Extent zone</string>
-   </property>
-  </widget>
-  <widget class="QgsFileWidget" name="extentFile">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>30</y>
-     <width>191</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelImage">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>80</y>
-     <width>81</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Image JILIN RGB</string>
-   </property>
-  </widget>
-  <widget class="QgsFileWidget" name="ImageFile">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>80</y>
-     <width>191</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelExtent_2">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>280</y>
-     <width>141</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Statistics Radiance Output</string>
-   </property>
-  </widget>
-  <widget class="QgsFileWidget" name="FileOutput">
-   <property name="geometry">
-    <rect>
-     <x>180</x>
-     <y>280</y>
-     <width>181</width>
-     <height>27</height>
-    </rect>
+    <string>Cancel</string>
    </property>
   </widget>
  </widget>

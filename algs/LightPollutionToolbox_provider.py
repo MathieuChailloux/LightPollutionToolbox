@@ -35,11 +35,11 @@ import inspect
 from PyQt5.QtGui import QIcon
 
 from qgis.core import QgsProcessingProvider
-from .fluxDensity_algorithm import DSFLRaw#, FluxDensityAlgorithm, DSFLSymbology, DSFLSurface
-# from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
-# from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
+from .fluxDensity_algorithm import DSFLRaw, FluxDensityAlgorithm, DSFLSymbology, DSFLSurface
+from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
+from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
 # from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
-# from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
+from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
 # from .viirs import VIIRS_Untar
 # from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
 from .classifyLamps import ClassifyLightingAlg
@@ -62,18 +62,18 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         Default constructor.
         """
         self.alglist = [DSFLRaw(),
-            # FluxDensityAlgorithm(),
-            # DSFLSurface(),
-            # DSFLSymbology(),
-            # CreateMeshAlgorithm(),
-            # RoadsReporting(),
-            # MergeGeometryAlgorithm(),
-            # MergeGeometryDissolveAlgorithm(),
-            # MergeGeometryNoOverlapAlgorithm(),
-            # RoadsExtent(),
-            # RoadsExtentBDTOPO(),
-            # RoadsExtentFromCadastre(),
-            # AddParcellesAlg(),
+            FluxDensityAlgorithm(),
+            DSFLSurface(),
+            DSFLSymbology(),
+            CreateMeshAlgorithm(),
+            RoadsReporting(),
+            MergeGeometryAlgorithm(),
+            MergeGeometryDissolveAlgorithm(),
+            MergeGeometryNoOverlapAlgorithm(),
+            RoadsExtent(),
+            RoadsExtentBDTOPO(),
+            RoadsExtentFromCadastre(),
+            AddParcellesAlg(),
             # RadianceStats(),
             ClassifyLightingAlg(),
             PretreatmentsDarkZones(),

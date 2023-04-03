@@ -76,7 +76,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(19, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(18, model_feedback)
         
         outputs = {}
         
@@ -407,5 +407,4 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         # Applique la symbologie par défault
         styles.setCustomClassesInd_Pol_Category(out_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
-
         return self.results
