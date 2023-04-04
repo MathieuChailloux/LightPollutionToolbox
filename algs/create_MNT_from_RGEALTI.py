@@ -118,7 +118,7 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
         return 'createMNTfromRGEALTI'
 
     def displayName(self):
-        return self.tr('create MNT from RGEALTI')
+        return self.tr('Create MNT from RGEALTI')
 
     def group(self):
         return self.tr('Misc')

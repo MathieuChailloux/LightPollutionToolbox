@@ -29,6 +29,7 @@ from qgis.PyQt import QtWidgets
 from .qgis_lib_mc import utils, qgsUtils, log, qgsTreatments, feedbacks, styles
 from qgis.core import QgsApplication, QgsProcessingContext, QgsProject, QgsProcessing
 from .algs import LightPollutionToolbox_provider
+from . import controller
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -36,8 +37,8 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
-    IND_FIELD_POL = 'indice_pol'
-    CLASS_BOUNDS_IND_POL = [0,1,2,3,4,5]
+    # IND_FIELD_POL = 'indice_pol'
+    # CLASS_BOUNDS_IND_POL = [0,1,2,3,4,5]
     
     def __init__(self, parent=None):
         """Constructor."""
@@ -48,12 +49,7 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-        ############################ TODO à mettre dans un fichier Contrôleur 
-        self.debugButton.clicked.connect(self.onPbRunClicked)
-        self.pushCancel.clicked.connect(self.onCancelClicked)
         
-        self.radioButtonImportGrid.clicked.connect(self.onRbImportClicked)
-        self.radioButtonCreateGrid.clicked.connect(self.onRbCreateClicked)
         
     def initTabs(self):
         #global progressFeedback, paramsModel
@@ -67,70 +63,8 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         self.progressBar.setValue(0)
         self.txtLog.clear()
         self.tabWidget.setCurrentWidget(self.tabMain)
+        
+        self.controllerConnector = controller.ControllerConnector(self) # TODO TEST
+        
         self.radioButtonImportGrid.click()
         
-        
-    def onPbRunClicked(self):
-        print('RUN')
-        
-        self.context.setFeedback(self.feedback)
-        
-        out_path = QgsProcessing.TEMPORARY_OUTPUT
-        if self.outFile.filePath():
-            out_path = self.outFile.filePath()
-
-        in_extent_zone = self.extentFile.filePath()
-        in_raster = self.ImageFile.filePath()
-        grid_size = self.gridSize.toPlainText()
-        type_grid = 2    
-        if self.radioButtonImportGrid.isChecked():
-            print("grid file")
-            in_grid = self.gridFile.filePath()
-        else:
-            print("grid to create")
-            in_grid = None
-            
-        
-        self.testRemoveLayer(out_path)
-        self.tabWidget.setCurrentWidget(self.tabLog)
-        
-        parameters = { LightPollutionToolbox_provider.StatisticsRadianceGrid.EXTENT_ZONE : in_extent_zone,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RASTER_INPUT : in_raster,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.GRID_LAYER_INPUT : in_grid,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.DIM_GRID: grid_size,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.TYPE_GRID: type_grid,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RED_BAND_INPUT:1,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.GREEN_BAND_INPUT:2,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.BLUE_BAND_INPUT:3,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_STAT : out_path}
-        res = qgsTreatments.applyProcessingAlg("LPT","StatisticsRadianceGrid",parameters, onlyOutput=False ,context=self.context,feedback=self.feedback)
-        
-        out_layer = qgsUtils.loadVectorLayer(res['OutputStat'])
-        QgsProject.instance().addMapLayer(out_layer)
-        styles.setCustomClassesInd_Pol_Category(out_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)                                 
-
-    def onRbImportClicked(self):
-        if self.radioButtonImportGrid.isChecked():
-            print('IMPORT GRID')
-            self.stackedGridImportCreate.setCurrentWidget(self.widgetImportGrid)
-
-    
-    def onRbCreateClicked(self):
-        if self.radioButtonCreateGrid.isChecked():
-            print('CREATE GRID')
-            self.stackedGridImportCreate.setCurrentWidget(self.widgetCreateGrid)
-            
-    
-    def onCancelClicked(self):
-        self.close()
-    
-    
-    def testRemoveLayer(self, layer_path):
-        # List existing layers ids
-        existing_layers_ids = [layer.id() for layer in QgsProject.instance().mapLayers().values()]
-        # List existing layers paths
-        existing_layers_paths = [layer.dataProvider().dataSourceUri().split('|')[0] for layer in QgsProject.instance().mapLayers().values()]
-
-        if layer_path in existing_layers_paths:
-            id_to_remove = existing_layers_ids[existing_layers_paths.index(layer_path)]
-            QgsProject.instance().removeMapLayer(id_to_remove)
