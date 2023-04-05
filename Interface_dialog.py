@@ -64,7 +64,6 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         self.txtLog.clear()
         self.tabWidget.setCurrentWidget(self.tabMain)
         
-        self.controllerConnector = controller.ControllerConnector(self) # TODO TEST
+        self.controllerConnector = controller.ControllerConnector(self)
         
-        self.radioButtonImportGrid.click()
         
