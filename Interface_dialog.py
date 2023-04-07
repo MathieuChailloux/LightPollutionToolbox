@@ -37,9 +37,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
-    # IND_FIELD_POL = 'indice_pol'
-    # CLASS_BOUNDS_IND_POL = [0,1,2,3,4,5]
-    
+
     def __init__(self, parent=None):
         """Constructor."""
         super(InterfaceDialog, self).__init__(parent)

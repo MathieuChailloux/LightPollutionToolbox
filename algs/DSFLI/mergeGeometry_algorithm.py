@@ -51,7 +51,7 @@ from qgis.core import (QgsProcessing,
                        QgsFeatureSink,
                        QgsWkbTypes)
 
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
+from ...qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
 
 class MergeGeomAlg(qgsUtils.BaseProcessingAlgorithm):

@@ -36,6 +36,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     TYPE_GRID = 'TypeOfGrid'
     RASTER_BATI_INPUT = 'RasterBatiInput'
     GRID_LAYER_INPUT = 'GridLayerInput'
+    LAST_BOUNDS = 'LastBounds'
     SLICED_RASTER_VIEWSHED = 'SlicedRasterViewshed'
     SLICED_RASTER_BATI = 'SlicedRasterBati'
     OUTPUT_BUILDINGS_MASK = 'OutputBuildingsMask'
@@ -43,6 +44,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     
     FIELD_STYLE = '_mean'
     CLASS_BOUNDS_NB_SRC = [0,0,5,10,20,50] # on double la valeur 0 pour avoir un premier pas avec uniquement ces valeurs
+    LAST_BOUNDS_VALUE = 50
     results = {}
     
     def initAlgorithm(self, config=None):
@@ -52,10 +54,12 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterNumber(self.MASK_HEIGHT, self.tr('Mask height'), type=QgsProcessingParameterNumber.Double, defaultValue=1))
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
-        
+                
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         
+        self.addParameter(QgsProcessingParameterNumber(self.LAST_BOUNDS, self.tr('Bounds for the last class of symbology'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
+
         # self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_BUILDINGS_MASK, self.tr('Buildings mask'), createByDefault=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NB_SRC_VIS, self.tr('Output Number of light visibility'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
     
@@ -200,6 +204,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
 
         print(step)
         
+        self.LAST_BOUNDS_VALUE = parameters[self.LAST_BOUNDS]
+        
         return self.results
 
     def name(self):
@@ -226,6 +232,10 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_NB_SRC_VIS]))
         
         # Applique la symbologie par défault
-        styles.setCustomClassesInd_Pol_Graduate(out_layer, self.FIELD_STYLE, self.CLASS_BOUNDS_NB_SRC) # affecte une couleur par valeur, pas par tranche : changer la fonction ?
+        # styles.setCustomClassesInd_Pol_Graduate(out_layer, self.FIELD_STYLE, self.CLASS_BOUNDS_NB_SRC) # affecte une couleur par valeur
+        # styles.setRdYlGnGraduatedStyle2(out_layer, self.FIELD_STYLE)
+        
+        bounds = styles.getQuantileBounds(out_layer, self.FIELD_STYLE, lastBounds=self.LAST_BOUNDS_VALUE)
+        styles.setCustomClassesInd_Pol_Graduate(out_layer, self.FIELD_STYLE, bounds)
         
         return self.results

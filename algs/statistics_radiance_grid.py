@@ -20,6 +20,7 @@ from qgis.core import QgsProcessingParameterNumber
 from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterVectorDestination
+from qgis.core import QgsProcessingParameterRasterDestination
 from qgis.core import QgsProcessingParameterFeatureSource
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
@@ -37,6 +38,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     EXTENT_ZONE = 'ExtentZone'
     GRID_LAYER_INPUT = 'GridLayerInput'
     OUTPUT_STAT = 'OutputStat'
+    OUTPUT_RASTER_RADIANCE = 'OuputRasterRadiance'
     
     # MAJORITY_FIELD = "_majority"
  
@@ -55,7 +57,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
         
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry))
-                
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_RADIANCE, self.tr('Raster total Radiance'), createByDefault=True, defaultValue=None))
+        
         param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=1)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
@@ -71,6 +74,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         self.inputRaster = self.parameterAsRasterLayer(parameters, self.RASTER_INPUT, context)
         self.inputGrid = qgsTreatments.parameterAsSourceLayer(self, parameters,self.GRID_LAYER_INPUT,context,feedback=feedback)[1] 
         self.outputStat = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT,context)
+        self.outputRasterRadiance = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER_RADIANCE,context)
        
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
@@ -209,8 +213,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         # Calculatrice Raster Radiance totale
         formula = 'A*0.2989+B*0.5870+C*0.1140'
-        outputs['CalculRasterTotalRadiance'] = qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT],QgsProcessing.TEMPORARY_OUTPUT, formula, context=context,feedback=feedback)
-                
+        outputs['CalculRasterTotalRadiance'] = qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT], self.outputRasterRadiance, formula, context=context,feedback=feedback)
+        self.results[self.OUTPUT_RASTER_RADIANCE] = outputs['CalculRasterTotalRadiance']
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -238,7 +243,6 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         temp_path_extract_light = QgsProcessingUtils.generateTempFilename('temp_extract_light.gpkg')
         qgsTreatments.applyExtractByAttribute(outputs['PolygoniseLightZone'], 'DN', temp_path_extract_light, context=context, feedback=feedback)
         outputs['ExtractLightZone'] = qgsUtils.loadVectorLayer(temp_path_extract_light)
-        # outputs['ExtractLightZone'] = qgsTreatments.applyExtractByAttribute(outputs['PolygoniseLightZone'], 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -331,6 +335,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         fieldPrecision = 0
         fieldType = 1 # Entier
         field_quartile = 'tot_mean' #'radiance_surface'
+        # Percentile = (Number of Values Below “x” / Total Number of Values)
         formula = 'with_variable(\'percentile\',array_find(array_agg("'+field_quartile+'",order_by:="'+field_quartile+'"),"'+field_quartile+'") / array_length(array_agg("'+field_quartile+'")), CASE WHEN @percentile < 0.2 THEN 1 WHEN @percentile < 0.4 THEN 2 WHEN @percentile < 0.6 THEN 3 WHEN @percentile < 0.8 THEN 4 WHEN @percentile <= 1 THEN 5 ELSE 0 END)'
         temp_path_ind_radiance = QgsProcessingUtils.generateTempFilename('temp_path_ind_radiance.gpkg')
         qgsTreatments.applyFieldCalculator(outputs['StatisticsZoneTotalRadiance'], self.IND_FIELD_POL, temp_path_ind_radiance, formula, fieldLength, fieldPrecision, fieldType, context=context,feedback=feedback)

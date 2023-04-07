@@ -38,7 +38,9 @@ class ControllerConnector():
     def __init__(self,dlg):
 
         self.dlg = dlg
-      
+        
+        self.dlg.outFileRaster.setFilter("*.tif")
+        
         self.dlg.pushRunRadianceButton.clicked.connect(self.onPbRunRadianceClicked)
         self.dlg.pushCancelButton.clicked.connect(self.onCancelClicked)
         
@@ -46,6 +48,8 @@ class ControllerConnector():
         self.dlg.radioButtonCreateGrid.clicked.connect(self.onRbCreateClicked)
         
         self.dlg.radioButtonImportGrid.click()
+        
+        
         
         self.task = None
         self.taskRun = False  
@@ -60,9 +64,13 @@ class ControllerConnector():
         
         self.dlg.context.setFeedback(self.dlg.feedback)
         
-        out_path = QgsProcessing.TEMPORARY_OUTPUT
-        if self.dlg.outFile.filePath():
-            out_path = self.dlg.outFile.filePath()
+        out_path_vector = QgsProcessing.TEMPORARY_OUTPUT
+        if self.dlg.outFileVector.filePath():
+            out_path_vector = self.dlg.outFileVector.filePath()
+            
+        out_path_raster = QgsProcessing.TEMPORARY_OUTPUT
+        if self.dlg.outFileRaster.filePath():
+            out_path_raster = self.dlg.outFileRaster.filePath()
 
         in_extent_zone = self.dlg.extentFile.filePath()
         in_raster = self.dlg.ImageFile.filePath()
@@ -75,7 +83,10 @@ class ControllerConnector():
             in_grid = None
             
         
-        self.testRemoveLayer(out_path)
+        self.testRemoveLayer(out_path_vector)
+        self.testRemoveLayer(out_path_raster)
+
+        
         self.dlg.tabWidget.setCurrentWidget(self.dlg.tabLog)
         self.taskRun = True
         parameters = { LightPollutionToolbox_provider.StatisticsRadianceGrid.EXTENT_ZONE : in_extent_zone,
@@ -86,11 +97,12 @@ class ControllerConnector():
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.RED_BAND_INPUT:1,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.GREEN_BAND_INPUT:2,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.BLUE_BAND_INPUT:3,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_STAT : out_path}
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_STAT : out_path_vector,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_RASTER_RADIANCE : out_path_raster}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:StatisticsRadianceGrid")
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
-        self.task.executed.connect(partial(self.task_finished, self.dlg.context,'OutputStat'))
+        self.task.executed.connect(partial(self.task_finished, self.dlg.context,"RADIANCE"))
         QgsApplication.taskManager().addTask(self.task)
 
 
@@ -123,22 +135,24 @@ class ControllerConnector():
             QgsProject.instance().removeMapLayer(id_to_remove)
             
     
-    def task_finished(self, context, outputkey, successful, results):
+    def task_finished(self, context, indicator, successful, results):
         if self.task.isCanceled():
             self.dlg.progressBar.setValue(0)
             self.dlg.feedback.pushInfo("Treatement canceled")
-            if outputkey == 'OutputStat':
+            if indicator == 'RADIANCE':
                 self.dlg.pushRunRadianceButton.setEnabled(True)
         else: #if successful:
-            if ".tif" in results[outputkey]:
-                output_layer = qgsUtils.loadRasterLayer(results[outputkey])
-            else:
-                output_layer = qgsUtils.loadVectorLayer(results[outputkey])
-                
-            if output_layer.isValid():
-                QgsProject.instance().addMapLayer(output_layer)
-                
-            if outputkey == 'OutputStat':
-                styles.setCustomClassesInd_Pol_Category(output_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
-                self.dlg.pushRunRadianceButton.setEnabled(True)
+            for outputkey in results.keys():
+                if ".tif" in results[outputkey]:
+                    output_layer = qgsUtils.loadRasterLayer(results[outputkey])
+                else:
+                    output_layer = qgsUtils.loadVectorLayer(results[outputkey])
+                    
+                if output_layer.isValid():
+                    QgsProject.instance().addMapLayer(output_layer)
+                    
+                if indicator == 'RADIANCE':
+                    if ".tif" not in results[outputkey]:
+                        styles.setCustomClassesInd_Pol_Category(output_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
+                    self.dlg.pushRunRadianceButton.setEnabled(True)
         self.taskRun = False

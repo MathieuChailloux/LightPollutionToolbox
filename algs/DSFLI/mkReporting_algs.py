@@ -53,7 +53,7 @@ from qgis.core import (QgsProcessing,
 
 from processing.algs.qgis.VariableDistanceBuffer import VariableDistanceBuffer
 
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
+from ...qgis_lib_mc import utils, qgsUtils, qgsTreatments
 from .mkRoadsExtent import RoadsExtentGrpAlg
 
 

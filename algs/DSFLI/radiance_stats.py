@@ -57,7 +57,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterRasterLayer)
 from qgis import processing
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+from ...qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
 
 class RadianceStats(qgsUtils.BaseProcessingAlgorithm):

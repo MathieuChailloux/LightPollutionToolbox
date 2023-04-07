@@ -16,7 +16,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingException,
                        QgsField)
                        
-from ..qgis_lib_mc import qgsUtils
+from ...qgis_lib_mc import qgsUtils
 
         
 class FluxEstimAlg(qgsUtils.BaseProcessingAlgorithm):

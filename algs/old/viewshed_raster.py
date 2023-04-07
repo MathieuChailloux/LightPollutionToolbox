@@ -48,9 +48,9 @@ from qgis.core import (QgsProcessing,
 
 from processing.core.ProcessingConfig import ProcessingConfig
 
-from .modules import visibility as ws
-from .modules import Points as pts
-from .modules import Raster as rst
+from ..modules import visibility as ws
+from ..modules import Points as pts
+from ..modules import Raster as rst
 
 import numpy as np
 import time

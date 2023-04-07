@@ -48,7 +48,7 @@ from qgis.core import (QgsProcessing,
                        QgsCoordinateReferenceSystem,
                        QgsProperty)
 
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
+from ...qgis_lib_mc import utils, qgsUtils, qgsTreatments
 from .mergeGeometry_algorithm import MergeGeometryAlgorithm
 
 

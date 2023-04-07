@@ -57,7 +57,7 @@ from qgis.core import (QgsProcessing,
                        QgsFields,
                        QgsField)
 
-from ..qgis_lib_mc import qgsUtils, styles                       
+from ...qgis_lib_mc import qgsUtils, styles                       
 
    
 class ClassifyLightingAlg(qgsUtils.BaseProcessingAlgorithm):

@@ -48,7 +48,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink)
 from qgis import processing
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments
+from ...qgis_lib_mc import utils, qgsUtils, qgsTreatments
 
 
 class VIIRS_Untar(qgsUtils.BaseProcessingAlgorithm):
