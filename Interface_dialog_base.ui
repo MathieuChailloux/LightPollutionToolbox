@@ -28,7 +28,7 @@
         <property name="currentIndex">
          <number>0</number>
         </property>
-        <widget class="QWidget" name="tabMain">
+        <widget class="QWidget" name="tabRadiance">
          <property name="minimumSize">
           <size>
            <width>392</width>
@@ -115,7 +115,7 @@
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QRadioButton" name="radioButtonImportGrid">
+              <widget class="QRadioButton" name="radioButtonImportGridRadiance">
                <property name="text">
                 <string>Import Grid</string>
                </property>
@@ -125,7 +125,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="radioButtonCreateGrid">
+              <widget class="QRadioButton" name="radioButtonCreateGridRadiance">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -141,11 +141,11 @@
            </widget>
           </item>
           <item row="3" column="0" colspan="2">
-           <widget class="QStackedWidget" name="stackedGridImportCreate">
+           <widget class="QStackedWidget" name="stackedGridImportCreateRadiance">
             <property name="currentIndex">
              <number>0</number>
             </property>
-            <widget class="QWidget" name="widgetImportGrid">
+            <widget class="QWidget" name="widgetImportGridRadiance">
              <widget class="QLabel" name="labelImportGrid">
               <property name="geometry">
                <rect>
@@ -159,7 +159,7 @@
                <string>Import Grid</string>
               </property>
              </widget>
-             <widget class="QgsFileWidget" name="gridFile">
+             <widget class="QgsFileWidget" name="gridFileRadiance">
               <property name="geometry">
                <rect>
                 <x>130</x>
@@ -170,7 +170,7 @@
               </property>
              </widget>
             </widget>
-            <widget class="QWidget" name="widgetCreateGrid">
+            <widget class="QWidget" name="widgetCreateGridRadiance">
              <widget class="QLabel" name="labelDiameterGrid">
               <property name="geometry">
                <rect>
@@ -197,7 +197,7 @@
                <string>Grid Type</string>
               </property>
              </widget>
-             <widget class="QComboBox" name="gridType">
+             <widget class="QComboBox" name="gridTypeRadiance">
               <property name="geometry">
                <rect>
                 <x>130</x>
@@ -231,7 +231,7 @@
                </property>
               </item>
              </widget>
-             <widget class="QgsDoubleSpinBox" name="gridSize">
+             <widget class="QgsDoubleSpinBox" name="gridSizeRadiance">
               <property name="geometry">
                <rect>
                 <x>130</x>
@@ -257,7 +257,7 @@
            </widget>
           </item>
           <item row="6" column="1">
-           <widget class="QgsFileWidget" name="outFileRaster">
+           <widget class="QgsFileWidget" name="outFileRasterRadiance">
             <property name="storageMode">
              <enum>QgsFileWidget::SaveFile</enum>
             </property>
@@ -271,16 +271,253 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QgsFileWidget" name="extentFile"/>
+           <widget class="QgsFileWidget" name="extentFileRadiance"/>
           </item>
           <item row="1" column="1">
-           <widget class="QgsFileWidget" name="ImageFile"/>
+           <widget class="QgsFileWidget" name="ImageFileRadiance"/>
           </item>
           <item row="5" column="1">
-           <widget class="QgsFileWidget" name="outFileVector">
+           <widget class="QgsFileWidget" name="outFileVectorRadiance">
             <property name="storageMode">
              <enum>QgsFileWidget::SaveFile</enum>
             </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tabBlue">
+         <attribute name="title">
+          <string>Blue Emission</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelExtent_4">
+            <property name="text">
+             <string>Extent zone</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QgsFileWidget" name="extentFileBlue"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelImage_2">
+            <property name="text">
+             <string>Image JILIN RGB</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QgsFileWidget" name="ImageFileBlue"/>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QFrame" name="frame_3">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <item>
+              <widget class="QRadioButton" name="radioButtonImportGridBlue">
+               <property name="text">
+                <string>Import Grid</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButtonCreateGridBlue">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="text">
+                <string>Create Grid</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QStackedWidget" name="stackedGridImportCreateBlue">
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+            <widget class="QWidget" name="widgetImportGridBlue">
+             <widget class="QLabel" name="labelImportGridBlue">
+              <property name="geometry">
+               <rect>
+                <x>20</x>
+                <y>10</y>
+                <width>81</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Import Grid</string>
+              </property>
+             </widget>
+             <widget class="QgsFileWidget" name="gridFileBlue">
+              <property name="geometry">
+               <rect>
+                <x>130</x>
+                <y>10</y>
+                <width>241</width>
+                <height>27</height>
+               </rect>
+              </property>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="widgetCreateGridBlue">
+             <widget class="QLabel" name="labelDiameterGrid_4">
+              <property name="geometry">
+               <rect>
+                <x>30</x>
+                <y>0</y>
+                <width>81</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Grid Diameter</string>
+              </property>
+             </widget>
+             <widget class="QLabel" name="labelGridType_4">
+              <property name="geometry">
+               <rect>
+                <x>30</x>
+                <y>40</y>
+                <width>81</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Grid Type</string>
+              </property>
+             </widget>
+             <widget class="QComboBox" name="gridTypeBlue">
+              <property name="geometry">
+               <rect>
+                <x>130</x>
+                <y>40</y>
+                <width>150</width>
+                <height>22</height>
+               </rect>
+              </property>
+              <property name="currentText">
+               <string>Hexagon</string>
+              </property>
+              <property name="currentIndex">
+               <number>2</number>
+              </property>
+              <property name="duplicatesEnabled">
+               <bool>false</bool>
+              </property>
+              <item>
+               <property name="text">
+                <string>Rectangle</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Diamond</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Hexagon</string>
+               </property>
+              </item>
+             </widget>
+             <widget class="QgsDoubleSpinBox" name="gridSizeBlue">
+              <property name="geometry">
+               <rect>
+                <x>130</x>
+                <y>0</y>
+                <width>150</width>
+                <height>27</height>
+               </rect>
+              </property>
+              <property name="decimals">
+               <number>0</number>
+              </property>
+              <property name="minimum">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>50.000000000000000</double>
+              </property>
+             </widget>
+            </widget>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="labelExtent_5">
+            <property name="text">
+             <string>Statistics Radiance Output</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QgsFileWidget" name="outFileVectorBlue">
+            <property name="storageMode">
+             <enum>QgsFileWidget::SaveFile</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>92</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QFrame" name="frame_4">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>218</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushRunBlueEmissionButton">
+               <property name="text">
+                <string>Run</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -382,7 +619,7 @@
     </widget>
    </item>
    <item row="0" column="2">
-    <widget class="QTextBrowser" name="textBrowser">
+    <widget class="QTextBrowser" name="textShortHelp">
      <property name="maximumSize">
       <size>
        <width>222</width>

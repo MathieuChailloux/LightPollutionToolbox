@@ -182,6 +182,8 @@ class LightPollutionToolboxPlugin(object):
         # will be set False in run()
         self.first_start = True
         
+        self.dlg.initTabs()
+        
         if QgsApplication.locale() in ['fr','FR']:
             self.switchLang('fr')
         self.initProcessing()

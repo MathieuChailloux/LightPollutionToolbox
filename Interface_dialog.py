@@ -30,6 +30,7 @@ from .qgis_lib_mc import utils, qgsUtils, log, qgsTreatments, feedbacks, styles
 from qgis.core import QgsApplication, QgsProcessingContext, QgsProject, QgsProcessing
 from .algs import LightPollutionToolbox_provider
 from . import controller
+from . import tabs
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -58,10 +59,12 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         
         self.context = QgsProcessingContext()
         utils.print_func = self.txtLog.append
-        self.progressBar.setValue(0)
         self.txtLog.clear()
-        self.tabWidget.setCurrentWidget(self.tabMain)
+        self.tabWidget.setCurrentWidget(self.tabRadiance)
         
         self.controllerConnector = controller.ControllerConnector(self)
+        self.tabConnector = tabs.TabConnector(self)
+        self.tabConnector.initGui()
+        self.tabConnector.connectComponents()
         
         
