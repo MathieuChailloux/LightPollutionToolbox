@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>662</width>
-    <height>529</height>
+    <width>856</width>
+    <height>570</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,7 @@
       <item row="0" column="0">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="tabRadiance">
          <property name="minimumSize">
@@ -94,7 +94,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="labelExtent">
             <property name="text">
-             <string>Extent zone</string>
+             <string>Extent zone [optionnal]</string>
             </property>
            </widget>
           </item>
@@ -151,18 +151,18 @@
                <rect>
                 <x>20</x>
                 <y>10</y>
-                <width>81</width>
+                <width>121</width>
                 <height>20</height>
                </rect>
               </property>
               <property name="text">
-               <string>Import Grid</string>
+               <string>Import Grid  [optionnal]</string>
               </property>
              </widget>
              <widget class="QgsFileWidget" name="gridFileRadiance">
               <property name="geometry">
                <rect>
-                <x>130</x>
+                <x>160</x>
                 <y>10</y>
                 <width>241</width>
                 <height>27</height>
@@ -293,7 +293,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="labelExtent_4">
             <property name="text">
-             <string>Extent zone</string>
+             <string>Extent zone [optionnal]</string>
             </property>
            </widget>
           </item>
@@ -348,7 +348,7 @@
           <item row="3" column="0" colspan="2">
            <widget class="QStackedWidget" name="stackedGridImportCreateBlue">
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="widgetImportGridBlue">
              <widget class="QLabel" name="labelImportGridBlue">
@@ -356,18 +356,18 @@
                <rect>
                 <x>20</x>
                 <y>10</y>
-                <width>81</width>
+                <width>121</width>
                 <height>20</height>
                </rect>
               </property>
               <property name="text">
-               <string>Import Grid</string>
+               <string>Import Grid  [optionnal]</string>
               </property>
              </widget>
              <widget class="QgsFileWidget" name="gridFileBlue">
               <property name="geometry">
                <rect>
-                <x>130</x>
+                <x>160</x>
                 <y>10</y>
                 <width>241</width>
                 <height>27</height>
@@ -518,6 +518,512 @@
               </widget>
              </item>
             </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tabVisibility">
+         <attribute name="title">
+          <string>Visibility Light Sources</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0">
+           <widget class="QTabWidget" name="tabWidgetVisibility">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="tabMNS">
+             <attribute name="title">
+              <string>Calcul of MNS</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_9">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_14">
+                <property name="text">
+                 <string>Extent zone [opitonnal]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QgsFileWidget" name="extentFileMNS"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_15">
+                <property name="text">
+                 <string>MNT</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QgsFileWidget" name="mntFile"/>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>Radius of analysis for visibility (buffer of extent), meters</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QDoubleSpinBox" name="RadiusMNSValue"/>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>Buildings (BD Topo)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QgsFileWidget" name="buildingsFile"/>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>Height Buildings field</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QComboBox" name="comboBoxFieldBuildings"/>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Vegetation (BD Topo) [optionnal]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QgsFileWidget" name="vegetationFile"/>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_20">
+                <property name="text">
+                 <string>Height Vegetation field [optionnal]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QComboBox" name="comboBoxFieldVegetation"/>
+              </item>
+              <item row="7" column="0">
+               <widget class="QLabel" name="label_21">
+                <property name="text">
+                 <string>Height Vegetation by default if no field [optionnal]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1">
+               <widget class="QDoubleSpinBox" name="vegetationHeightValue">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="value">
+                 <double>6.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="0">
+               <widget class="QLabel" name="label_22">
+                <property name="text">
+                 <string>MNS Raster Output</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="1">
+               <widget class="QgsFileWidget" name="outputRasterMNS">
+                <property name="storageMode">
+                 <enum>QgsFileWidget::SaveFile</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="0">
+               <widget class="QLabel" name="label_24">
+                <property name="text">
+                 <string>Raster bati vegetation</string>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="1">
+               <widget class="QgsFileWidget" name="outputRasterBatiVege">
+                <property name="storageMode">
+                 <enum>QgsFileWidget::SaveFile</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tabMViewshed">
+             <attribute name="title">
+              <string>Calcul of Viewshed</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_8">
+              <item row="0" column="2">
+               <widget class="QgsFileWidget" name="extentFileViewshed"/>
+              </item>
+              <item row="7" column="2">
+               <widget class="QDoubleSpinBox" name="radiusViewshedValue">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>2000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>500.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2">
+               <widget class="QgsFileWidget" name="rasterFileMNS">
+                <property name="storageMode">
+                 <enum>QgsFileWidget::GetFile</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>Radius of analysis field for visibility [optionnal]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="2">
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>Observer height field (if no field) 0, 1, 6, meters</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>Light points extraction</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QgsFileWidget" name="lightPointsFile"/>
+              </item>
+              <item row="7" column="0" colspan="2">
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>Radius of nalysis for visibility (if no field), meters</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QComboBox" name="comboBoxFieldSourceLight"/>
+              </item>
+              <item row="4" column="0" colspan="2">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Source light height field [optionnal]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QDoubleSpinBox" name="observerHeightValue">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>20.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0" colspan="2">
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>Source light height (if no field), meters</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Digital elevatio nmodel (MNS)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Extent zone [optionnal]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="2">
+               <widget class="QComboBox" name="comboBoxFieldRadius"/>
+              </item>
+              <item row="2" column="2">
+               <widget class="QComboBox" name="comboBoxFieldObserver"/>
+              </item>
+              <item row="5" column="2">
+               <widget class="QDoubleSpinBox" name="sourceLightHeightValue">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>20.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>6.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>Observer height field [optionnal]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="0">
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>Viewshed Raster Output</string>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="2">
+               <widget class="QgsFileWidget" name="outputRasterViewshed">
+                <property name="storageMode">
+                 <enum>QgsFileWidget::SaveFile</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tabNbLight">
+             <attribute name="title">
+              <string>Number of light visibility per grid</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_7">
+              <item row="0" column="0">
+               <widget class="QLabel" name="labelExtent_6">
+                <property name="text">
+                 <string>Extent zone [optionnal]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="3">
+               <widget class="QFrame" name="frame_5">
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_5">
+                 <item>
+                  <widget class="QRadioButton" name="radioButtonImportGridNbLight">
+                   <property name="text">
+                    <string>Import Grid</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radioButtonCreateGridNbLight">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="text">
+                    <string>Create Grid</string>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="4" column="0" rowspan="2" colspan="3">
+               <widget class="QStackedWidget" name="stackedGridImportCreateNbNbLight">
+                <property name="currentIndex">
+                 <number>0</number>
+                </property>
+                <widget class="QWidget" name="widgetImportGridNbLight">
+                 <widget class="QLabel" name="labelImportGrid_2">
+                  <property name="geometry">
+                   <rect>
+                    <x>20</x>
+                    <y>10</y>
+                    <width>121</width>
+                    <height>20</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string>Import Grid  [optionnal]</string>
+                  </property>
+                 </widget>
+                 <widget class="QgsFileWidget" name="gridFileNbLight">
+                  <property name="geometry">
+                   <rect>
+                    <x>160</x>
+                    <y>10</y>
+                    <width>241</width>
+                    <height>27</height>
+                   </rect>
+                  </property>
+                 </widget>
+                </widget>
+                <widget class="QWidget" name="widgetCreateGridNbLight">
+                 <widget class="QLabel" name="labelDiameterGrid_2">
+                  <property name="geometry">
+                   <rect>
+                    <x>30</x>
+                    <y>0</y>
+                    <width>81</width>
+                    <height>20</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string>Grid Diameter</string>
+                  </property>
+                 </widget>
+                 <widget class="QLabel" name="labelGridType_2">
+                  <property name="geometry">
+                   <rect>
+                    <x>30</x>
+                    <y>40</y>
+                    <width>81</width>
+                    <height>20</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string>Grid Type</string>
+                  </property>
+                 </widget>
+                 <widget class="QComboBox" name="gridTypeNbLight">
+                  <property name="geometry">
+                   <rect>
+                    <x>130</x>
+                    <y>40</y>
+                    <width>150</width>
+                    <height>22</height>
+                   </rect>
+                  </property>
+                  <property name="currentText">
+                   <string>Hexagon</string>
+                  </property>
+                  <property name="currentIndex">
+                   <number>2</number>
+                  </property>
+                  <property name="duplicatesEnabled">
+                   <bool>false</bool>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>Rectangle</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Diamond</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Hexagon</string>
+                   </property>
+                  </item>
+                 </widget>
+                 <widget class="QgsDoubleSpinBox" name="gridSizeNbLight">
+                  <property name="geometry">
+                   <rect>
+                    <x>130</x>
+                    <y>0</y>
+                    <width>150</width>
+                    <height>27</height>
+                   </rect>
+                  </property>
+                  <property name="decimals">
+                   <number>0</number>
+                  </property>
+                  <property name="minimum">
+                   <double>25.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1000.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>50.000000000000000</double>
+                  </property>
+                 </widget>
+                </widget>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="labelExtent_7">
+                <property name="text">
+                 <string>Layer from viewshed</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" colspan="2">
+               <widget class="QgsMapLayerComboBox" name="mMapLayerComboBoxViewshedResult"/>
+              </item>
+              <item row="8" column="0" colspan="2">
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>Output Number of light visibility</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="labelExtent_8">
+                <property name="text">
+                 <string>Raster bati vege</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="2">
+               <widget class="QgsMapLayerComboBox" name="mMapLayerComboBoxRasterBatiVege"/>
+              </item>
+              <item row="6" column="0" colspan="2">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Bounds for last class of symbology</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2">
+               <widget class="QgsFileWidget" name="outputFileNbLight">
+                <property name="storageMode">
+                 <enum>QgsFileWidget::SaveFile</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" colspan="2">
+               <widget class="QgsFileWidget" name="extentFileNbLight"/>
+              </item>
+              <item row="6" column="2">
+               <widget class="QDoubleSpinBox" name="lastBoundsValue">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="minimum">
+                 <double>10.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>200.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>50.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
          </layout>
@@ -742,6 +1248,11 @@ p, li { white-space: pre-wrap; }
    <class>QgsFileWidget</class>
    <extends>QWidget</extends>
    <header>qgsfilewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsMapLayerComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgsmaplayercombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -180,7 +180,7 @@ class ControllerConnector():
             id_to_remove = existing_layers_ids[existing_layers_paths.index(layer_path)]
             QgsProject.instance().removeMapLayer(id_to_remove)
             if layer_path.endswith(".shp"):
-                print(QgsVectorFileWriter.deleteShapeFile(layer_path))
+                QgsVectorFileWriter.deleteShapeFile(layer_path)
             
     
     def task_finished(self, context, indicator, successful, results):

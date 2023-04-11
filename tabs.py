@@ -48,34 +48,57 @@ class TabItem:
         
 radianceTabItem = TabItem(0,"Radiance","radianceHelp")
 blueTabItem = TabItem(1,"Blue","blueHelp")
-logTabItem = TabItem(2,"Log","logHelp")
+logTabItem = TabItem(3,"Log","logHelp")
+mnsTabItem = TabItem(4,"MNS","mnsHelp")
+viewshedTabItem = TabItem(5,"Viewdhed","viewshedHelp")
+nbLightVisibilityTabItem = TabItem(6,"NumberLightVisibility","nbLightVisibilityHelp")
 
 class TabConnector:
-    
+
     def __init__(self,dlg):
         self.tabs = [radianceTabItem,
                      blueTabItem,
+                     None, # correspond au menu Visibility Light Sources
                      logTabItem]
+
+        self.tabsVisibility = [mnsTabItem,
+                               viewshedTabItem,
+                               nbLightVisibilityTabItem]
         self.dlg = dlg
         self.curr_tab = 0
+        self.curr_tab_visibility = 0
         
     def initGui(self):
         self.dlg.textShortHelp.setOpenLinks(True)
         self.loadNTab(0)
         
     def loadNTab(self,n):
-        print("loadNTab")
+        if n != 2 : # ne correspond pas au menu Visibility Light Sources
+            utils.debug("[loadNTab] " + str(n))
+            nb_tabs = len(self.tabs)
+            self.curr_tab = n
+            if n >= nb_tabs:
+                utils.internal_error("[loadNTab] loading " + str(n) + " tab but nb_tabs = " + str(nb_tabs))
+            else:
+                self.loadHelpFile()
+                #utils.debug("source : " + str(self.dlg.textShortHelp.source()))
+        else:
+            self.loadHelpFile(True)
+        
+    def loadNTabVisibility(self,n):
         utils.debug("[loadNTab] " + str(n))
-        nb_tabs = len(self.tabs)
-        self.curr_tab = n
+        nb_tabs = len(self.tabsVisibility)
+        self.curr_tab_visibility = n
         if n >= nb_tabs:
             utils.internal_error("[loadNTab] loading " + str(n) + " tab but nb_tabs = " + str(nb_tabs))
         else:
-            self.loadHelpFile()
-            #utils.debug("source : " + str(self.dlg.textShortHelp.source()))
-
-    def loadHelpFile(self):
-        tabItem = self.tabs[self.curr_tab]
+            self.loadHelpFile(True)
+    
+    def loadHelpFile(self, isVisibilityTab=False):
+        if isVisibilityTab:
+            tabItem = self.tabsVisibility[self.curr_tab_visibility]
+        else:
+            tabItem = self.tabs[self.curr_tab]
         helpFile = tabItem.getHelpFile()
         utils.debug("Help file = " + str(helpFile))
         utils.checkFileExists(helpFile)
@@ -83,7 +106,6 @@ class TabConnector:
             msg = f.read()
         self.dlg.textShortHelp.setHtml(msg)
         
-            
     def connectComponents(self):
         self.dlg.tabWidget.currentChanged.connect(self.loadNTab)
-            
+        self.dlg.tabWidgetVisibility.currentChanged.connect(self.loadNTabVisibility)    
