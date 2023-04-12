@@ -77,7 +77,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(14, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(16, model_feedback)
        
         outputs = {}
         
@@ -158,7 +158,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         
         # Si la végétation est présente
         if self.inputVegetation is not None and self.inputVegetation != NULL and parameters[self.DEFAULT_HEIGHT_VEGETATION] is not None and parameters[self.DEFAULT_HEIGHT_VEGETATION] != NULL:
-            if parameters[self.HEIGHT_FIELD_VEGETATION] is not None and parameters[self.HEIGHT_FIELD_VEGETATION] != NULL:
+            if parameters[self.HEIGHT_FIELD_VEGETATION] != "" and parameters[self.HEIGHT_FIELD_VEGETATION] is not None and parameters[self.HEIGHT_FIELD_VEGETATION] != NULL:
                 # Extraire par attribut en enlevant les polygones sans hauteur
                 temp_path_veg_height = QgsProcessingUtils.generateTempFilename('temp_path_veg_height.gpkg')
                 # 'OPERATOR': 9,  # n'est pas null
@@ -212,7 +212,7 @@ class CalculMNS(QgsProcessingAlgorithm):
             if feedback.isCanceled():
                 return {}
             
-            if parameters[self.HEIGHT_FIELD_VEGETATION] is not None and parameters[self.HEIGHT_FIELD_VEGETATION] != NULL:
+            if parameters[self.HEIGHT_FIELD_VEGETATION] != "" and parameters[self.HEIGHT_FIELD_VEGETATION] is not None and parameters[self.HEIGHT_FIELD_VEGETATION] != NULL:
                 formula = '"'+parameters[self.HEIGHT_FIELD_VEGETATION]+'"'
             else:
                 formula = parameters[self.DEFAULT_HEIGHT_VEGETATION]
@@ -250,7 +250,9 @@ class CalculMNS(QgsProcessingAlgorithm):
                 return {}
             
         else: # on utilise seulement le bati
-            outputs['VectorToRasterize'] = outputs['CalculFieldHeightBatiReplaceNullByMedian']        
+            outputs['VectorToRasterize'] = outputs['CalculFieldHeightBatiReplaceNullByMedian']
+            step+=8
+            feedback.setCurrentStep(step)            
         
         # Rastériser (remplacement avec attribut)
         self.results[self.OUTPUT_RASTER_MNS] = qgsTreatments.applyRasterizeOver(outputs['VectorToRasterize'],outputs[self.SLICED_RASTER], parameters[self.HEIGHT_FIELD_BATI], context=context,feedback=feedback)
@@ -265,8 +267,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         resolution = self.inputRasterMNT.rasterUnitsPerPixelX()
         self.results[self.OUTPUT_RASTER_BATI] = qgsTreatments.applyRasterization(outputs['VectorToRasterize'], self.outputRasterBati, outputs['RasterExtent'], resolution,
                                                                                         field=parameters[self.HEIGHT_FIELD_BATI],burn_val=0,nodata_val=0, 
-                                                                                        context=context,feedback=feedback)
-        
+                                                                                        context=context,feedback=feedback)  
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():

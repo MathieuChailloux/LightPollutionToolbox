@@ -182,7 +182,7 @@ class LightPollutionToolboxPlugin(object):
         # will be set False in run()
         self.first_start = True
         
-        self.dlg.initTabs()
+        # self.dlg.initConnectors()
         
         if QgsApplication.locale() in ['fr','FR']:
             self.switchLang('fr')
@@ -222,9 +222,9 @@ class LightPollutionToolboxPlugin(object):
         if self.first_start == True:
             self.first_start = False
             self.dlg = InterfaceDialog()
+            self.dlg.initConnectors()
         
-        self.dlg.initTabs()
-        
+        self.dlg.initInterface()
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop

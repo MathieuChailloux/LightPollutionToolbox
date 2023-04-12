@@ -50,7 +50,7 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         self.setupUi(self)
         
         
-    def initTabs(self):
+    def initConnectors(self):
         #global progressFeedback, paramsModel
         logConnector = log.LogConnector(self)
         logConnector.initGui()
@@ -59,12 +59,14 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         
         self.context = QgsProcessingContext()
         utils.print_func = self.txtLog.append
-        self.txtLog.clear()
-        self.tabWidget.setCurrentWidget(self.tabRadiance)
         
         self.controllerConnector = controller.ControllerConnector(self)
         self.tabConnector = tabs.TabConnector(self)
         self.tabConnector.initGui()
         self.tabConnector.connectComponents()
         
-        
+    def initInterface(self):
+        self.txtLog.clear()
+        self.progressBar.setValue(0)
+        self.tabWidget.setCurrentWidget(self.tabRadiance)
+        self.tabWidgetVisibility.setCurrentWidget(self.tabMNS)

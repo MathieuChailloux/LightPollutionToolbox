@@ -91,7 +91,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                # le raster bati est découpé pour avoir la même taille que le viewshed
                 outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, outputs[self.EXTENT_ZONE], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
                 
-                step+=1
+                step+=2
                 feedback.setCurrentStep(step)
                 if feedback.isCanceled():
                     return {}
@@ -144,7 +144,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             if feedback.isCanceled():
                 return {}
         else:
-        # Sinon on prend la grille donnée en paramètre
+            # Sinon on prend la grille donnée en paramètre
+            step+=1
             outputs['GridTemp'] = self.inputGrid
             
 
