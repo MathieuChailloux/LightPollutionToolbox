@@ -26,6 +26,7 @@ from PyQt5.QtCore import QCoreApplication
 from plugins.processing.gui import MessageBarProgress
 
 from qgis.core import (QgsProcessing,
+                       QgsProcessingMultiStepFeedback,
                        QgsProcessingParameterDefinition,
                        QgsProcessingParameterVectorLayer,
                        QgsProcessingAlgorithm,
@@ -220,6 +221,8 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         outputs = {}
         # observers = self.parameterAsSource(parameters,self.OBSERVER_POINTS,context)
 # --------------- get observers (light points) ------------------       
+        feedback = QgsProcessingMultiStepFeedback(100, feedback)
+        feedback.setCurrentStep(0)
         # Extraire l'emprise de la couche
         # Si emprise non présente, on prend celle des points lumineux
         if self.inputExtent is None or self.inputExtent == NULL:
@@ -247,7 +250,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
 
         # Calculatrice de champ observateur (target)
-        if parameters[self.OBSERVER_HEIGHT_FIELD] is not None and parameters[self.OBSERVER_HEIGHT_FIELD] != NULL:
+        if parameters[self.OBSERVER_HEIGHT_FIELD] != "" and parameters[self.OBSERVER_HEIGHT_FIELD] is not None and parameters[self.OBSERVER_HEIGHT_FIELD] != NULL:
             formula = '"'+parameters[self.OBSERVER_HEIGHT_FIELD]+'"'
         else:
             formula = parameters[self.OBSERVER_HEIGHT]
@@ -258,7 +261,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
 
         # Calculatrice de champ radius
-        if parameters[self.RADIUS_ANALYSIS_FIELD] is not None and parameters[self.RADIUS_ANALYSIS_FIELD] != NULL:
+        if parameters[self.RADIUS_ANALYSIS_FIELD] != "" and parameters[self.RADIUS_ANALYSIS_FIELD] is not None and parameters[self.RADIUS_ANALYSIS_FIELD] != NULL:
             formula = '"'+parameters[self.RADIUS_ANALYSIS_FIELD]+'"'
         else:
             formula = parameters[self.RADIUS_ANALYSIS]
@@ -269,7 +272,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
 
         # Calculatrice de champ hauteur source lumière
-        if parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] is not None and parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] != NULL:
+        if parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] != "" and parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] is not None and parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] != NULL:
             formula = '"'+parameters[self.LIGHT_SOURCE_HEIGHT_FIELD]+'"'
         else:
             formula = parameters[self.LIGHT_SOURCE_HEIGHT]
@@ -277,7 +280,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         temp_path_lum_pts = QgsProcessingUtils.generateTempFilename('temp_path_lum_pts.gpkg')
         qgsTreatments.applyFieldCalculator(outputs['CalculFieldRadius'],self.SOURCE_FIELD, temp_path_lum_pts, formula, 10, 4, 0, context=context,feedback=feedback)
         outputs['LightPoints'] = qgsUtils.loadVectorLayer(temp_path_lum_pts)
-
+        
 # --------------- verification of inputs ------------------
 
         raster_path= self.raster.source()
@@ -296,7 +299,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
             raise QgsProcessingException(err)
 
         miss_params = points.test_fields(["radius_in", "azim_1", "azim_2"])
-
+        
         points.take(dem.extent, dem.pix)
 
         if points.count == 0:
@@ -375,7 +378,8 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
 
             cnt += 1
 
-            feedback.setProgress(int((cnt/points.count) *100))
+            feedback.setCurrentStep(int((cnt/points.count) *100))
+            # feedback.setProgress(int((cnt/points.count) *100))
             if feedback.isCanceled(): return {}
                 
        
@@ -396,11 +400,12 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
           
         results = {}
         
-        for output in self.outputDefinitions():
-            outputName = output.name()
+        results[self.OUTPUT] = self.output_path
+        # for output in self.outputDefinitions():
+            # outputName = output.name()
                 
-            if outputName in parameters :
-                results[outputName] = parameters[outputName]
+            # if outputName in parameters :
+                # results[outputName] = parameters[outputName]
 
     
         return results
@@ -415,7 +420,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         formatting characters.
         """
 
-        return 'viewshed'
+        return 'LightPointsViewshed'
     
     def displayName(self):
         """
@@ -446,4 +451,5 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
 
     def createInstance(self):
         #return ViewshedPoints() NORMALLY
-        return type(self)()
+        # return type(self)()
+        return LightPointsViewshed()

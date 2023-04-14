@@ -52,6 +52,10 @@ class ControllerConnector():
         self.dlg.outFileVectorRadiance.setFilter("*.shp;;*.gpkg")
         self.dlg.outFileRasterRadiance.setFilter("*.tif")
         self.dlg.pushRunRadianceButton.clicked.connect(self.onPbRunRadianceClicked)
+        self.dlg.extentFileRadiance.clicked.connect(partial(self.select_file, "vector", self.dlg.mMapLayerComboBoxExtentRadiance))
+        self.dlg.imageFileRadiance.clicked.connect(partial(self.select_file, "raster", self.dlg.mMapLayerComboBoxImageRadiance))
+        self.dlg.mMapLayerComboBoxExtentRadiance.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.dlg.mMapLayerComboBoxImageRadiance.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.dlg.radioButtonImportGridRadiance.clicked.connect(partial(self.onRbImportCreateClicked, self.dlg.radioButtonImportGridRadiance, self.dlg.stackedGridImportCreateRadiance, self.dlg.widgetImportGridRadiance))
         self.dlg.radioButtonCreateGridRadiance.clicked.connect(partial(self.onRbImportCreateClicked, self.dlg.radioButtonCreateGridRadiance, self.dlg.stackedGridImportCreateRadiance, self.dlg.widgetCreateGridRadiance))
         self.dlg.radioButtonImportGridRadiance.click()
@@ -59,6 +63,10 @@ class ControllerConnector():
         # init Blue emission interface
         self.dlg.outFileVectorBlue.setFilter("*.shp;;*.gpkg")
         self.dlg.pushRunBlueEmissionButton.clicked.connect(self.onPbRunBlueEmissionClicked)
+        self.dlg.extentFileBlue.clicked.connect(partial(self.select_file, "vector", self.dlg.mMapLayerComboBoxExtentBlue))
+        self.dlg.imageFileBlue.clicked.connect(partial(self.select_file, "raster", self.dlg.mMapLayerComboBoxImageBlue))
+        self.dlg.mMapLayerComboBoxExtentBlue.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.dlg.mMapLayerComboBoxImageBlue.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.dlg.radioButtonImportGridBlue.clicked.connect(partial(self.onRbImportCreateClicked, self.dlg.radioButtonImportGridBlue, self.dlg.stackedGridImportCreateBlue, self.dlg.widgetImportGridBlue))
         self.dlg.radioButtonCreateGridBlue.clicked.connect(partial(self.onRbImportCreateClicked, self.dlg.radioButtonCreateGridBlue, self.dlg.stackedGridImportCreateBlue, self.dlg.widgetCreateGridBlue))
         self.dlg.radioButtonImportGridBlue.click()
@@ -75,9 +83,28 @@ class ControllerConnector():
         self.dlg.mMapLayerComboBoxMNT.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.dlg.mMapLayerComboBoxBuildings.setFilters(QgsMapLayerProxyModel.PolygonLayer)
         self.dlg.mMapLayerComboBoxVegetation.setFilters(QgsMapLayerProxyModel.PolygonLayer)
-        self.dlg.mMapLayerComboBoxBuildings.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxBuildings, self.dlg.mFieldComboBoxBuildings))
-        self.dlg.mMapLayerComboBoxVegetation.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxVegetation, self.dlg.mFieldComboBoxVegetation))
+        self.dlg.mMapLayerComboBoxBuildings.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxBuildings, self.dlg.mFieldComboBoxBuildings, defaultField="HAUTEUR"))
+        self.dlg.mMapLayerComboBoxVegetation.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxVegetation, self.dlg.mFieldComboBoxVegetation, defaultField="HAUTEUR"))
+        # Update pour initialiser les valeurs des champs
+        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxBuildings, self.dlg.mFieldComboBoxBuildings)
+        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxVegetation, self.dlg.mFieldComboBoxVegetation)
         
+        # init calcul Viewshed
+        self.dlg.outputRasterViewshed.setFilter("*.tif")
+        self.dlg.pushRunViewshed.clicked.connect(self.onPbRunViewshedClicked)
+        self.dlg.extentFileViewshed.clicked.connect(partial(self.select_file, "vector", self.dlg.mMapLayerComboBoxExtentViewshed))
+        self.dlg.lightPointsFile.clicked.connect(partial(self.select_file, "vector", self.dlg.mMapLayerComboBoxLightPoints))
+        self.dlg.rasterFileMNS.clicked.connect(partial(self.select_file, "raster", self.dlg.mMapLayerComboBoxMNS))
+        self.dlg.mMapLayerComboBoxExtentViewshed.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.dlg.mMapLayerComboBoxLightPoints.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.dlg.mMapLayerComboBoxMNS.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxObserver))
+        self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxLightSource))
+        self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxRadius))
+        # Update pour initialiser les valeurs des champs
+        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxObserver)
+        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxLightSource)
+        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxRadius)
         
         # init Number of light visibility
         self.dlg.outputFileNbLight.setFilter("*.shp;;*.gpkg")
@@ -110,8 +137,8 @@ class ControllerConnector():
         if self.dlg.outFileRasterRadiance.filePath():
             out_path_raster = self.dlg.outFileRasterRadiance.filePath()
             
-        in_extent_zone = self.dlg.extentFileRadiance.filePath()
-        in_raster = self.dlg.ImageFileRadiance.filePath()
+        in_extent_zone = self.dlg.mMapLayerComboBoxExtentRadiance.currentLayer()
+        in_raster = self.dlg.mMapLayerComboBoxImageRadiance.currentLayer()
         grid_size = self.dlg.gridSizeRadiance.value()
         type_grid = self.dlg.gridTypeRadiance.currentIndex()
         if self.dlg.radioButtonImportGridRadiance.isChecked():
@@ -149,8 +176,8 @@ class ControllerConnector():
         if self.dlg.outFileVectorBlue.filePath():
             out_path_vector = self.dlg.outFileVectorBlue.filePath()
             
-        in_extent_zone = self.dlg.extentFileBlue.filePath()
-        in_raster = self.dlg.ImageFileBlue.filePath()
+        in_extent_zone = self.dlg.mMapLayerComboBoxExtentBlue.currentLayer()
+        in_raster = self.dlg.mMapLayerComboBoxImageBlue.currentLayer()
 
         grid_size = self.dlg.gridSizeBlue.value()
         type_grid = self.dlg.gridTypeBlue.currentIndex()
@@ -219,7 +246,49 @@ class ControllerConnector():
         self.task.executed.connect(partial(self.task_finished, self.dlg.context, self.MNS))
         QgsApplication.taskManager().addTask(self.task)
         
+   
+    def onPbRunViewshedClicked(self):
+        self.togglePushButton(False)
+        self.dlg.context.setFeedback(self.dlg.feedback)
         
+        out_path_raster_viewshed = QgsProcessing.TEMPORARY_OUTPUT
+        if self.dlg.outputRasterViewshed.filePath():
+            out_path_raster_viewshed = self.dlg.outputRasterViewshed.filePath() 
+
+        in_extent_zone = self.dlg.mMapLayerComboBoxExtentViewshed.currentLayer()
+        in_light_points = self.dlg.mMapLayerComboBoxLightPoints.currentLayer()
+        in_raster_mns = self.dlg.mMapLayerComboBoxMNS.currentLayer()
+        
+        height_observer_field = self.dlg.mFieldComboBoxObserver.currentField()
+        height_observer_value = self.dlg.observerHeightValue.value()
+        height_light_source_field = self.dlg.mFieldComboBoxLightSource.currentField()
+        height_light_source_value = self.dlg.lightSourceHeightValue.value()
+        height_radius_field = self.dlg.mFieldComboBoxRadius.currentField()
+        height_radius_value = self.dlg.radiusViewshedValue.value()
+        
+        self.testRemoveLayer(out_path_raster_viewshed)
+        
+        self.taskRun = True
+        parameters = { LightPollutionToolbox_provider.LightPointsViewshed.EXTENT_ZONE : in_extent_zone,
+                       LightPollutionToolbox_provider.LightPointsViewshed.LIGHT_PTS_INPUT : in_light_points,
+                       LightPollutionToolbox_provider.LightPointsViewshed.OBSERVER_HEIGHT_FIELD : height_observer_field,
+                       LightPollutionToolbox_provider.LightPointsViewshed.OBSERVER_HEIGHT : height_observer_value,
+                       LightPollutionToolbox_provider.LightPointsViewshed.LIGHT_SOURCE_HEIGHT_FIELD : height_light_source_field,
+                       LightPollutionToolbox_provider.LightPointsViewshed.LIGHT_SOURCE_HEIGHT : height_light_source_value,
+                       LightPollutionToolbox_provider.LightPointsViewshed.RADIUS_ANALYSIS_FIELD : height_radius_field,
+                       LightPollutionToolbox_provider.LightPointsViewshed.RADIUS_ANALYSIS : height_radius_value,
+                       LightPollutionToolbox_provider.LightPointsViewshed.DEM : in_raster_mns,
+                       LightPollutionToolbox_provider.LightPointsViewshed.USE_CURVATURE : False,
+                       LightPollutionToolbox_provider.LightPointsViewshed.ANALYSIS_TYPE : 0,
+                       LightPollutionToolbox_provider.LightPointsViewshed.REFRACTION : 0.13,
+                       LightPollutionToolbox_provider.LightPointsViewshed.OPERATOR :0,
+                       LightPollutionToolbox_provider.LightPointsViewshed.OUTPUT : out_path_raster_viewshed}
+        
+        alg = QgsApplication.processingRegistry().algorithmById("LPT:LightPointsViewshed")
+        self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
+        self.task.executed.connect(partial(self.task_finished, self.dlg.context, self.MNS))
+        QgsApplication.taskManager().addTask(self.task)
+    
     def onPbRunNbLightClicked(self):
         self.togglePushButton(False)
         self.dlg.context.setFeedback(self.dlg.feedback)
@@ -307,13 +376,16 @@ class ControllerConnector():
             mapLayerComboBox.setLayer(layer)
     
     
-    def setInLayerFromCombo(self, comboboxLayer, comboboxField):
+    def setInLayerFromCombo(self, comboboxLayer, comboboxField, defaultField=None):
         utils.debug("setInLayerFromCombo")
         layer = comboboxLayer.currentLayer()
         utils.debug(str(layer.__class__.__name__))
         if layer:
             path = qgsUtils.pathOfLayer(layer)
             comboboxField.setLayer(layer)
+            if defaultField:
+                if layer.fields().indexOf(defaultField) > 0:
+                    comboboxField.setField(defaultField)
         else:
             utils.warn("Could not load selection in layer")
             
@@ -329,7 +401,7 @@ class ControllerConnector():
     def task_finished(self, context, indicator, successful, results):
         if self.task.isCanceled():
             self.dlg.progressBar.setValue(0)
-            self.dlg.feedback.pushInfo("Treatement canceled")
+            self.dlg.feedback.pushWarning("Treatement canceled")
             self.dlg.tabWidget.setCurrentWidget(self.dlg.tabLog)
         elif bool(results): # elif successful:
             for outputkey in results.keys():
@@ -352,7 +424,7 @@ class ControllerConnector():
                         bounds = styles.getQuantileBounds(output_layer, self.FIELD_STYLE, lastBounds=self.LAST_BOUNDS_VALUE)
                         styles.setCustomClassesInd_Pol_Graduate(output_layer, self.FIELD_STYLE, bounds)
         else: # FAIL
-             self.dlg.feedback.pushInfo("Treatement failed")
+             self.dlg.feedback.pushWarning("Treatement failed")
              self.dlg.tabWidget.setCurrentWidget(self.dlg.tabLog)
         self.togglePushButton(True)
         self.task.disconnect()

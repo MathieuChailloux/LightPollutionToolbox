@@ -80,7 +80,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(18, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(19, model_feedback)
         
         outputs = {}
         
@@ -117,14 +117,14 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             qgsTreatments.createGridLayer(outputs[self.EXTENT_ZONE], outputs[self.EXTENT_ZONE], parameters[self.DIM_GRID], temp_path_grid, gtype=parameters[self.TYPE_GRID]+2, context=context,feedback=feedback)
             outputs['GridTemp'] = qgsUtils.loadVectorLayer(temp_path_grid)
             
-            step+=1
-            feedback.setCurrentStep(step)
-            if feedback.isCanceled():
-                return {}
         else:
         # Sinon on prend la grille donnée en paramètre
             outputs['GridTemp'] = self.inputGrid
-        
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+            
         # Extraire les grilles par localisation de l'emprise
         temp_path_grid_loc = QgsProcessingUtils.generateTempFilename('temp_grid_loc.gpkg')
         qgsTreatments.extractByLoc(outputs['GridTemp'], outputs[self.EXTENT_ZONE],temp_path_grid_loc, context=context,feedback=feedback)

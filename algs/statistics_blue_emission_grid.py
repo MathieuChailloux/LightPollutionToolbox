@@ -161,13 +161,14 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
             qgsTreatments.createGridLayer(outputs[self.EXTENT_ZONE], outputs[self.EXTENT_ZONE], parameters[self.DIM_GRID_CALC], temp_path_grid, gtype=parameters[self.TYPE_GRID]+2, context=context,feedback=feedback)
             outputs['GridTempCalc'] = qgsUtils.loadVectorLayer(temp_path_grid)
             
-            step+=1
-            feedback.setCurrentStep(step)
-            if feedback.isCanceled():
-                return {}
         else:
         # Sinon on prend la grille donnée en paramètre
             outputs['GridTempCalc'] = self.inputGrid
+        
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
             
         # Extraire les grilles de calcul par localisation de l'emprise
         temp_path_grid_loc = QgsProcessingUtils.generateTempFilename('temp_grid_loc.gpkg')
