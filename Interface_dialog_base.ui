@@ -50,7 +50,7 @@ p, li { white-space: pre-wrap; }
       <item row="0" column="0">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tabRadiance">
          <property name="minimumSize">
@@ -258,7 +258,7 @@ p, li { white-space: pre-wrap; }
           <item row="5" column="0">
            <widget class="QLabel" name="labelExtent_2">
             <property name="text">
-             <string>Raster total Radiance</string>
+             <string>Raster total Radiance Output</string>
             </property>
            </widget>
           </item>

@@ -86,8 +86,8 @@ class ControllerConnector():
         self.dlg.mMapLayerComboBoxBuildings.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxBuildings, self.dlg.mFieldComboBoxBuildings, defaultField="HAUTEUR"))
         self.dlg.mMapLayerComboBoxVegetation.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxVegetation, self.dlg.mFieldComboBoxVegetation, defaultField="HAUTEUR"))
         # Update pour initialiser les valeurs des champs
-        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxBuildings, self.dlg.mFieldComboBoxBuildings)
-        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxVegetation, self.dlg.mFieldComboBoxVegetation)
+        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxBuildings, self.dlg.mFieldComboBoxBuildings, defaultField="HAUTEUR")
+        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxVegetation, self.dlg.mFieldComboBoxVegetation, defaultField="HAUTEUR")
         
         # init calcul Viewshed
         self.dlg.outputRasterViewshed.setFilter("*.tif")

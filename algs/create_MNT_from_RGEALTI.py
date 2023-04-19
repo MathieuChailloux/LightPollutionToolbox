@@ -127,7 +127,7 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
         return 'Misc'
     
     def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return QCoreApplication.translate(self.__class__.__name__, string)
         
     def createInstance(self):
         return createMNTfromRGEALTI()

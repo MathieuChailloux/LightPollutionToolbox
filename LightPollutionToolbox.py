@@ -183,9 +183,11 @@ class LightPollutionToolboxPlugin(object):
         self.first_start = True
         
         # self.dlg.initConnectors()
-        
         if QgsApplication.locale() in ['fr','FR']:
             self.switchLang('fr')
+        else:
+            self.switchLang('en') 
+        
         self.initProcessing()
         
         # Switch language to english.
