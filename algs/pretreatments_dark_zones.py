@@ -154,7 +154,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
             return {}        
         
         # Fusion
-        outputs['Merge'] = qgsTreatments.applyMergeRaster([outputs['CalculRasterB1'],outputs['CalculRasterB2'],outputs['CalculRasterB3']],self.outputRaster,out_type=Qgis.UInt16, context=context,feedback=feedback)
+        outputs['Merge'] = qgsTreatments.applyMergeRaster([outputs['CalculRasterB1'],outputs['CalculRasterB2'],outputs['CalculRasterB3']],self.outputRaster,out_type=Qgis.UInt16,options='COMPRESS=DEFLATE', context=context,feedback=feedback)
         self.results['Raster'] = outputs['Merge']
         
         step+=1

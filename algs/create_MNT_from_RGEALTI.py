@@ -105,7 +105,7 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
             return {}
 
         # Convertir le raster virtuel en raster
-        self.results['RasterMNT'] = qgsTreatments.applyTranslate(outputs['ConstruireUnVecteurVirtuel'], self.outputRasterMNT,data_type=0,nodata_val=None, crs=layer.crs(),context=context,feedback=feedback)
+        self.results['RasterMNT'] = qgsTreatments.applyTranslate(outputs['ConstruireUnVecteurVirtuel'], self.outputRasterMNT,data_type=0,nodata_val=None, crs=layer.crs(), options='COMPRESS=DEFLATE', context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)

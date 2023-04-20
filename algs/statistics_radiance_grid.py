@@ -213,7 +213,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         # Calculatrice Raster Radiance totale
         formula = 'A*0.2989+B*0.5870+C*0.1140'
-        outputs['CalculRasterTotalRadiance'] = qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT], self.outputRasterRadiance, formula, context=context,feedback=feedback)
+        outputs['CalculRasterTotalRadiance'] = qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT], self.outputRasterRadiance, formula,options='COMPRESS=DEFLATE', context=context,feedback=feedback)
         self.results[self.OUTPUT_RASTER_RADIANCE] = outputs['CalculRasterTotalRadiance']
         
         step+=1

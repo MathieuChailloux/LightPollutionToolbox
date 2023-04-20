@@ -40,7 +40,8 @@ from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
 from .Interface_dialog import InterfaceDialog
-from qgis.utils import iface
+from .qgis_lib_mc import utils
+
 
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
@@ -170,7 +171,7 @@ class LightPollutionToolboxPlugin(object):
         return action
         
     def initGui(self):
-
+        print("initGui")
         # icon_path = ':/plugins/LightPollutionToolbox/lamp.png'
         icon_path = os.path.join(os.path.join(cmd_folder, 'lamp.png'))
         self.add_action(
@@ -178,35 +179,41 @@ class LightPollutionToolboxPlugin(object):
             text=self.tr(u'Light Pollution Toolbox'),
             callback=self.run,
             parent=self.iface.mainWindow())
-
+        
+        # self.dlg = InterfaceDialog()
+        # self.dlg.initConnectors()
+        # self.dlg.initInterface()
+        
         # will be set False in run()
         self.first_start = True
         
         # self.dlg.initConnectors()
         if QgsApplication.locale() in ['fr','FR']:
-            self.switchLang('fr')
+            self.switchLang('en') # car bug si init en fr TODO à changer
+            # self.switchLang('fr')
         else:
             self.switchLang('en') 
         
         self.initProcessing()
         
-        # Switch language to english.
+     # Switch language.
     def switchLang(self,lang):
         #assert(False)
         plugin_dir = os.path.dirname(__file__)
         lang_path = os.path.join(plugin_dir,'i18n','LightPollutionToolbox_' + lang + '.qm')
+        utils.curr_language = lang
         if os.path.exists(lang_path):
             #assert(False)
             self.translator = QTranslator()
             self.translator.load(lang_path)
             if qVersion() > '4.3.3':
                 #assert(False)
-                print(lang_path)
                 QCoreApplication.installTranslator(self.translator)
             else:
                 return
         else:
             raise QgsProcessingException("No translation file : " + str(en_path))
+
 
     def unload(self):
         QgsApplication.processingRegistry().removeProvider(self.provider)
@@ -225,8 +232,8 @@ class LightPollutionToolboxPlugin(object):
             self.first_start = False
             self.dlg = InterfaceDialog()
             self.dlg.initConnectors()
-        
-        self.dlg.initInterface()
+            self.dlg.initInterface()
+            
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop

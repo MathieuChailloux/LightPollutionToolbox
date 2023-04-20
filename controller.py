@@ -429,3 +429,5 @@ class ControllerConnector():
         self.togglePushButton(True)
         self.task.disconnect()
         self.taskRun = False
+
+

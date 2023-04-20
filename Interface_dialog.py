@@ -26,6 +26,7 @@ import os
 
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
+from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
 from .qgis_lib_mc import utils, qgsUtils, log, qgsTreatments, feedbacks, styles
 from qgis.core import QgsApplication, QgsProcessingContext, QgsProject, QgsProcessing
 from .algs import LightPollutionToolbox_provider
@@ -68,5 +69,45 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
     def initInterface(self):
         self.txtLog.clear()
         self.progressBar.setValue(0)
+        
+        self.langEn.clicked.connect(self.switchLangEn)
+        self.langFr.clicked.connect(self.switchLangFr)
+        # if utils.curr_language == "fr":
+            # print("fr")
+            # self.switchLangFr()
+        # else:
+            # print("en")
+            # self.switchLangEn()
+        
         self.tabWidget.setCurrentWidget(self.tabRadiance)
         self.tabWidgetVisibility.setCurrentWidget(self.tabMNS)
+        
+        
+    def switchLangEn(self):
+        self.switchLang("en")
+        self.langEn.setChecked(True)
+        self.langFr.setChecked(False)       
+        
+    def switchLangFr(self):
+        self.switchLang("fr")
+        self.langEn.setChecked(False)
+        self.langFr.setChecked(True)
+          
+    def switchLang(self,lang):
+        #assert(False)
+        plugin_dir = os.path.dirname(__file__)
+        lang_path = os.path.join(plugin_dir,'i18n','LightPollutionToolbox_' + lang + '.qm')
+        if os.path.exists(lang_path):
+            #assert(False)
+            self.translator = QTranslator()
+            self.translator.load(lang_path)
+            if qVersion() > '4.3.3':
+                #assert(False)
+                QCoreApplication.installTranslator(self.translator)
+            else:
+                return
+        else:
+            raise QgsProcessingException("No translation file : " + str(en_path))
+        self.retranslateUi(self)
+        utils.curr_language = lang
+        self.tabConnector.loadHelpFile()

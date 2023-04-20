@@ -269,7 +269,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         temp_path_RB = QgsProcessingUtils.generateTempFilename('temp_path_RB.gpkg')
         qgsTreatments.applyFieldCalculator(outputs['StatisticsBlueBand'],'R/B_mean', temp_path_RB, formula, 10, 4, 0, context=context,feedback=feedback)
         outputs['CalculFieldRb_mean'] = qgsUtils.loadVectorLayer(temp_path_RB)
-    
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -296,8 +296,21 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
 
         # Calculatrice de champ indice bleu pour la couche de calcul
         # quantiles inversés
+        # Filtre R/B_mean non NULL
+        outputs['CalculFieldRb_mean'].setSubsetString('"R/B_mean" is not NULL')
         formula = 'with_variable(\r\n\'percentile\',\r\narray_find(array_agg("R/B_mean",order_by:="R/B_mean"),"R/B_mean") / array_length(array_agg("R/B_mean")),\r\n    CASE\r\n    WHEN @percentile < 0.2 THEN 5\r\n    WHEN @percentile < 0.4 THEN 4\r\n    WHEN @percentile < 0.6 THEN 3\r\n    WHEN @percentile < 0.8 THEN 2\r\n    WHEN @percentile <= 1 THEN 1\r\n    ELSE 0\r\n    END\r\n)'
-        self.results[self.OUTPUT_STAT_CALC] = qgsTreatments.applyFieldCalculator(outputs['CalculFieldRb_mean'],self.IND_FIELD_POL, self.outputStatCalc, formula, 6, 0, 1, context=context,feedback=feedback)
+        temp_path_RBmeanNotNull = QgsProcessingUtils.generateTempFilename('temp_path_RBmeanNotNull.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['CalculFieldRb_mean'],self.IND_FIELD_POL, temp_path_RBmeanNotNull, formula, 6, 0, 1, context=context,feedback=feedback)
+        
+        # Filtre R/B_mean NULL
+        outputs['CalculFieldRb_mean'].setSubsetString('"R/B_mean" is NULL')
+        formula = '0'
+        temp_path_RBmeanNull = QgsProcessingUtils.generateTempFilename('temp_path_RBmeanNull.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['CalculFieldRb_mean'],self.IND_FIELD_POL, temp_path_RBmeanNull, formula, 6, 0, 1, context=context,feedback=feedback)
+        
+        # Fusion R/B_mean NULL et non NULL
+        layersToMerge = [temp_path_RBmeanNotNull,temp_path_RBmeanNull]
+        self.results[self.OUTPUT_STAT_CALC] = qgsTreatments.mergeVectorLayers(layersToMerge,outputs['CalculFieldRb_mean'],self.outputStatCalc, context=context, feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
