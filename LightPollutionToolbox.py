@@ -40,6 +40,7 @@ from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
 from .Interface_dialog import InterfaceDialog
+from .Interface_dialog import LightPollutionAboutDialog
 from .qgis_lib_mc import utils
 
 

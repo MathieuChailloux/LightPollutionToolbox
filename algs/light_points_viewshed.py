@@ -105,13 +105,13 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), [QgsProcessing.TypeVectorPoint], defaultValue=None))
         
         self.addParameter(QgsProcessingParameterField(self.OBSERVER_HEIGHT_FIELD, self.tr('Observer height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, 'Observer height (if no field) 0, 1, 6, meters', type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
+        self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, self.tr('Observer height (if no field) 0, 1, 6, meters'), type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
 
         self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.LIGHT_SOURCE_HEIGHT, 'Source light height (if no field), meters', type=QgsProcessingParameterNumber.Double, defaultValue=6))
+        self.addParameter(QgsProcessingParameterNumber(self.LIGHT_SOURCE_HEIGHT, self.tr('Source light height (if no field), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=6))
 
         self.addParameter(QgsProcessingParameterField(self.RADIUS_ANALYSIS_FIELD, self.tr('Radius of analysis field for visibility'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, 'Radius of analysis for visibility (if no field), meters', type=QgsProcessingParameterNumber.Double, defaultValue=500))
+        self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, self.tr('Radius of analysis for visibility (if no field), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=500))
 
         
         # self.addParameter(

@@ -1,25 +1,24 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-<html>
-    <head>
-        <meta name="qrichtext" content="1" />
-        <style type="text/css">p, li { white-space: pre-wrap; }</style>
-    </head>
-    <body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-        <p><span style=" font-size:14pt; font-weight:600;">Bleu</span></p>
-        <br/>
-        <p><span style=" font-size:10pt; font-weight:600;">Description générale</span></p>
-        <br/>
-        <p ><span style=" font-size:8pt;">Ceci est une description générale</span></p>
-        <br/>
-        <p ><span style=" font-size:10pt; font-weight:600;">Description détaillée</span></p>
-        <p>
-        <span style=&quot; font-size:8pt; font-style:italic;&quot; >param1</span><span style=" font-size:8pt;"> : description du param 1</span>
-        <span style=" font-size:8pt; font-style:italic;">param2</span><span style=" font-size:8pt;"> : description du param 2</span>
-        </p>
-        <p >
-        <span style=" font-size:8pt; font-style:italic;">param2</span><span style=" font-size:8pt;"> : description du param 2</span>
-        </p>
-        <br/>
-        <p><span style=" font-size:8pt;">Ceci est un test</span></p>
-    </body>
-</html>
+<head>
+	<meta name="qrichtext" content="1" />
+	<style type="text/css">p, li { white-space: pre-wrap; }</style>
+</head>
+<body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+	<p><span style=" font-size:14pt; font-weight:600;">Emission dans la partie bleue du spectre</span></p>
+	<!-- <p><span style=" font-size:10pt; font-weight:600;">Cet indicateur permet d'évaluer les zones éclairées émettant le plus dans la partie bleue du spectre.</span></p> -->
+	<p ><span style=" font-size:8pt;">L’objectif de cet indicateur est de classer les sources lumineuses en fonction du ratio « émissions dans le rouge/émissions dans le bleu », calculé à partir des images satellites nocturnes, et d’identifier quelles zones et quels usages sont les plus concernés par la lumière bleue.</span></p>
+	<p ><span style=" font-size:10pt; font-weight:600;">Paramètres d'entrés</span></p>
+	<ul>
+		<li>Zone d'étude : Etendue de la zone d'étude permettant de délémiter l'indicateur calculé.</li>
+		<li>Image Satellite : Image Satellite nocturne au format raster (tif).</li>
+		
+		<li>Choix de la maille : Maille sur laquelle sera calculé l'indicateur, elle peut être importée ou créée.
+		<ul>
+			<li>Importer une maille : Couche vecteur de maille déjà créée.</li>
+			<li>Créer une maille :</li>
+			<ul><li>Diamètre : Diamètre de la maille en mètres.</li><li>Type : Forme de la maille à créer.</li></ul>
+		</ul></li></ul>
+	<p ><span style=" font-size:10pt; font-weight:600;">Données de sortie</span></p>
+	<ul>
+		<li>Statistiques d'émission dans le bleue : Couche vecteur représentant l'indicateur calculé par maille avec une classification par quantile en 5 classes des plus faibles valeurs vers les plus élevées, avec aussi une classe représentant les mailles sans émission bleue.</li>
+	</ul>
+</body>

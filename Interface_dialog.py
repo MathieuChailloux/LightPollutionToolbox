@@ -37,6 +37,14 @@ from . import tabs
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'Interface_dialog_base.ui'))
 
+ABOUT_DLG_CLASS, _ = uic.loadUiType(os.path.join(
+ os.path.dirname(__file__), 'LightPollutionAbout_dialog_base.ui'))
+ 
+class LightPollutionAboutDialog(QtWidgets.QDialog,ABOUT_DLG_CLASS):
+    def __init__(self,parent=None):
+        #super(ABOUT_DLG_CLASS).__init__(parent)
+        super(LightPollutionAboutDialog, self).__init__(parent)
+        self.setupUi(self)
 
 class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
 
@@ -48,8 +56,7 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         # self.<objectname>, and you can use autoconnect slots - see
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
-        self.setupUi(self)
-        
+        self.setupUi(self)  
         
     def initConnectors(self):
         #global progressFeedback, paramsModel
@@ -72,14 +79,14 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
             self.switchLangFr()
         else:
             self.switchLangEn()
+            
+        self.aboutButton.clicked.connect(self.openHelpDialog)    
         
     def initInterface(self):
         self.txtLog.clear()
         self.progressBar.setValue(0)
-
         self.tabWidget.setCurrentWidget(self.tabRadiance)
-        self.tabWidgetVisibility.setCurrentWidget(self.tabMNS)
-        
+        # self.tabWidgetVisibility.setCurrentWidget(self.tabMNS)        
         
     def switchLangEn(self):
         self.switchLang("en")
@@ -109,3 +116,8 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         self.retranslateUi(self)
         utils.curr_language = lang
         self.tabConnector.loadHelpFile()
+        
+    def openHelpDialog(self):
+        utils.debug("openHelpDialog")
+        about_dlg = LightPollutionAboutDialog(self)
+        about_dlg.show()
