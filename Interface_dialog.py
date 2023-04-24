@@ -66,19 +66,17 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
         self.tabConnector.initGui()
         self.tabConnector.connectComponents()
         
+        self.langEn.clicked.connect(self.switchLangEn)
+        self.langFr.clicked.connect(self.switchLangFr)
+        if QgsApplication.locale() in ['fr','FR']:
+            self.switchLangFr()
+        else:
+            self.switchLangEn()
+        
     def initInterface(self):
         self.txtLog.clear()
         self.progressBar.setValue(0)
-        
-        self.langEn.clicked.connect(self.switchLangEn)
-        self.langFr.clicked.connect(self.switchLangFr)
-        # if utils.curr_language == "fr":
-            # print("fr")
-            # self.switchLangFr()
-        # else:
-            # print("en")
-            # self.switchLangEn()
-        
+
         self.tabWidget.setCurrentWidget(self.tabRadiance)
         self.tabWidgetVisibility.setCurrentWidget(self.tabMNS)
         

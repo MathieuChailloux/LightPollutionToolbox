@@ -67,7 +67,10 @@ class LightPollutionToolboxPlugin(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         
+        self.initProcessing()
+        
         self.dlg = InterfaceDialog()
+        
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&LightPollutionToolbox')
@@ -171,7 +174,6 @@ class LightPollutionToolboxPlugin(object):
         return action
         
     def initGui(self):
-        print("initGui")
         # icon_path = ':/plugins/LightPollutionToolbox/lamp.png'
         icon_path = os.path.join(os.path.join(cmd_folder, 'lamp.png'))
         self.add_action(
@@ -180,21 +182,15 @@ class LightPollutionToolboxPlugin(object):
             callback=self.run,
             parent=self.iface.mainWindow())
         
-        # self.dlg = InterfaceDialog()
-        # self.dlg.initConnectors()
-        # self.dlg.initInterface()
-        
         # will be set False in run()
         self.first_start = True
         
-        # self.dlg.initConnectors()
-        if QgsApplication.locale() in ['fr','FR']:
-            self.switchLang('en') # car bug si init en fr TODO à changer
+        # if QgsApplication.locale() in ['fr','FR']:
             # self.switchLang('fr')
-        else:
-            self.switchLang('en') 
+        # else:
+            # self.switchLang('en') 
         
-        self.initProcessing()
+        self.dlg.initConnectors()
         
      # Switch language.
     def switchLang(self,lang):
@@ -213,6 +209,7 @@ class LightPollutionToolboxPlugin(object):
                 return
         else:
             raise QgsProcessingException("No translation file : " + str(en_path))
+        utils.curr_language = lang
 
 
     def unload(self):
@@ -225,15 +222,12 @@ class LightPollutionToolboxPlugin(object):
 
     def run(self):
         """Run method that performs all the real work"""
-
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
-            self.dlg = InterfaceDialog()
-            self.dlg.initConnectors()
-            self.dlg.initInterface()
             
+        self.dlg.initInterface()   
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
