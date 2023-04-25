@@ -34,7 +34,7 @@ class TabItem:
     def __init__(self,idx,name,helpFile):
         self.idx = idx
         self.name = name
-        self.descr = "TODO"
+        self.descr = "TabsLightToolbox"
         self.helpFile = helpFile
         
     def setDescr(self,descr):
@@ -67,6 +67,7 @@ class TabConnector:
         self.dlg = dlg
         self.curr_tab = 0
         self.curr_tab_visibility = 0
+        self.is_visibility_tab = False
         
     def initGui(self):
         self.dlg.textShortHelp.setOpenLinks(True)
@@ -80,10 +81,12 @@ class TabConnector:
             if n >= nb_tabs:
                 utils.internal_error("[loadNTab] loading " + str(n) + " tab but nb_tabs = " + str(nb_tabs))
             else:
+                self.is_visibility_tab = False
                 self.loadHelpFile()
                 #utils.debug("source : " + str(self.dlg.textShortHelp.source()))
         else:
-            self.loadHelpFile(True)
+            self.is_visibility_tab = True
+            self.loadHelpFile()
         
     def loadNTabVisibility(self,n):
         utils.debug("[loadNTab] " + str(n))
@@ -92,10 +95,11 @@ class TabConnector:
         if n >= nb_tabs:
             utils.internal_error("[loadNTab] loading " + str(n) + " tab but nb_tabs = " + str(nb_tabs))
         else:
-            self.loadHelpFile(True)
+            self.is_visibility_tab = True
+            self.loadHelpFile()
     
-    def loadHelpFile(self, isVisibilityTab=False):
-        if isVisibilityTab:
+    def loadHelpFile(self):
+        if self.is_visibility_tab:
             tabItem = self.tabsVisibility[self.curr_tab_visibility]
         else:
             tabItem = self.tabs[self.curr_tab]

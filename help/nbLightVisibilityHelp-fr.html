@@ -1,25 +1,28 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-<html>
-    <head>
-        <meta name="qrichtext" content="1" />
-        <style type="text/css">p, li { white-space: pre-wrap; }</style>
-    </head>
-    <body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-        <p><span style=" font-size:14pt; font-weight:600;">Visibility Light Source</span></p>
-        <br/>
-        <p><span style=" font-size:10pt; font-weight:600;">Nombre de sources lumineuses par maille</span></p>
-        <br/>
-        <p ><span style=" font-size:8pt;">Ceci est une description générale</span></p>
-        <br/>
-        <p ><span style=" font-size:10pt; font-weight:600;">Description détaillée</span></p>
-        <p>
-        <span style=&quot; font-size:8pt; font-style:italic;&quot; >param1</span><span style=" font-size:8pt;"> : description du param 1</span>
-        <span style=" font-size:8pt; font-style:italic;">param2</span><span style=" font-size:8pt;"> : description du param 2</span>
-        </p>
-        <p >
-        <span style=" font-size:8pt; font-style:italic;">param2</span><span style=" font-size:8pt;"> : description du param 2</span>
-        </p>
-        <br/>
-        <p><span style=" font-size:8pt;">Ceci est un test</span></p>
-    </body>
-</html>
+<head>
+	<meta name="qrichtext" content="1" />
+	<style type="text/css">p, li { white-space: pre-wrap; }</style>
+</head>
+<body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+	<p><span style=" font-size:14pt; font-weight:600;">Visibilité des sources lumineuses</span></p>
+	<p ><span style=" font-size:8pt;">L'indicateur de visibilité des sources lumineuses permet d'évaluer pour chaque maille, le nombre de sources lumineuses visibles par un observatur à une hauteur donnée.<br/>Il nécessite plusieurs données calculées dans l'onglet 1 et 2, pour ensuite calculer les résultats dans l'onglet 3.</span></p>
+	<p><span style=" font-size:10pt; font-weight:600;">Nombre de sources lumineuses</span></p>
+	<p ><span style=" font-size:8pt;">L'indicateur permet de représenter par maille (importée ou créée) le nombre moyen de lumières observées en fonction du relief, de la hauteur de l'observateur et des sources lumineuses. Un masque est également appliqué pour enlever l’éclairement sur les murs du bati supérieur à une certaine hauteur en paramètre.</span></p>
+	<p ><span style=" font-size:10pt; font-weight:600;">Paramètres d'entrés</span></p>
+	<ul>
+		<li>Zone d'étude : Etendue de la zone d'étude permettant de délémiter l'indicateur calculé.</li><li>MNT : Modèle Numérique de Terrain au format raster.</li>
+		<li>Couche résultat du viewshed : Couche raster issu du traitement viewshed.</li>
+		<li>Bati végétation Raster: Couche raster créée lors du calcul du MNS, qui permet d'enlever l'éclairement sur le bati et la végétation (si présente).</li>
+		<li>Hauteur du masque: Hauteur en mètre du masque à appliquer qui permet de ne pas prendre l'éclairement en compte si il est inférieur ou égal à cette hauteur, elle doit normalement être identique à la hauteur de l'observateur indiqué dans le calcul du viewshed.</li>
+		<li>Choix de la maille : Maille sur laquelle sera calculé l'indicateur, elle peut être importée ou créée.
+		<ul>
+			<li>Importer une maille : Couche vecteur de maille déjà créée.</li>
+			<li>Créer une maille :</li>
+			<ul><li>Diamètre : Diamètre de la maille en mètres.</li><li>Type : Forme de la maille à créer.</li></ul>
+		</ul></li>
+		<li>Seuil max : Indique le seuil maximum de la dernière classe de la symbologie représentée, par défaut 50 sources lumineuses.</li>
+	</ul>
+	<p ><span style=" font-size:10pt; font-weight:600;">Données de sortie</span></p>
+	<ul>
+		<li>Nombre de sources lumineuses visibiles : Couche vecteur représentant le nombre moyen de sources lumineuses par maille.</li>
+	</ul>
+</body>

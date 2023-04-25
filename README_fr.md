@@ -1,5 +1,5 @@
 
-[[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README_fr.md)]
+[[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/ase_dev/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/ase_dev/README_fr.md)]
 
 # Aperçu
 
@@ -7,15 +7,30 @@
 
 *LightPollutionToolbox* regroupe divers géotraitements pour caractériser et cartographier la pollution lumineuse. Développé initialement pour vérifier la conformité à la réglementation depuis des couches d'éclairage public, cet outil a vocation à évoluer et d'être augmenté de tout géotraitement pertinent sur la thématique pollution lumineuse et Trame noire.
 
-*LightPollutionToolbox* a été développé par Mathieu Chailloux ([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) pour le [*Centre de ressources Trame verte et bleue*](http://www.trameverteetbleue.fr/).
+*LightPollutionToolbox* a été développé par Mathieu Chailloux et Antoine Sensier([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) pour le [*Centre de ressources Trame verte et bleue*](http://www.trameverteetbleue.fr/).
 
 # Documentation
 
 Documentation disponible :
  - [Tutoriels vidéo](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
  - [Note méthodologique sur la Densité Surfacique de Flux Lumineux Installée](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
+ - TODO Doc Indicateur POLLUM
 
-# Algorithmes
+# Algorithmes Indicateurs de Pollution Lumineuse
+Les Algorithmes sont disponible dans la boite à outils de traitements ou via le bouton "LightPollutionToolbox" du menu.
+Les 3 principaux indicatateur sont les suivants:
+- Contribution au halo lumineux (Radiance)
+- Emission dans le partie bleue du spectre
+- Visibilité des sources lumineuses : ce traitement est divisés en 3 sous-traitements : (TODO ADD extraction points lumineux)
+	- 1 : Calcul du MNS (Modèle Numérique de Surface) avec le MNT, le bati et éventuellement la végétation (opitonnel)
+	- 2 : Calcul du champ de visibilité (viewshed), une partie du code provient du plugin Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
+	- 3 : Calcul du nombre moyen de sources lumineuses par maille
+
+Il existe aussi 2 autres traitements dans le sous-menu Divers de la bôite à outils :
+- create MNT from RGE Alti : permet de créer un MNT à partir d'une zone d'emprise, de la dalles et du dossier MNT ASC de RGE Alti
+- Pretreatments to remove dark zones : permet de mettre à 0 les pixels inférieurs à la médiane des pixels par bande
+ 
+# Algorithmes DSFLI
 
 Les 2 algorithmes principaux sont :
  - *Classify lighting layer* : vérifie la conformité d'une couche d'éclairage public à certains indicateurs de la réglementation (ULR, flux lumineux, température de couleur)
@@ -37,7 +52,7 @@ La description détaillée des paramètres est disponible dans chaque algorithme
 
 # Contact
 
-*Développement* : Mathieu Chailloux (mathieu.chailloux@inrae.fr)
+*Développement* : Mathieu Chailloux (mathieu.chailloux@inrae.fr) & Antoine Sensier (antoine.sensier@inrae.fr)
 
 *Coordination* : Jennifer Amsallem (jennifer.amsallem@inrae.fr)
 

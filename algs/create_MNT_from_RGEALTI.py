@@ -35,7 +35,7 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon]))
         self.addParameter(QgsProcessingParameterNumber(self.EXTENT_BUFFER, self.tr('Buffer to apply to extent, meters'), type=QgsProcessingParameterNumber.Double,optional=True, defaultValue=1000))
-        self.addParameter(QgsProcessingParameterVectorLayer(self.GRID, self.tr('dalles'), defaultValue=None))
+        self.addParameter(QgsProcessingParameterVectorLayer(self.GRID, self.tr('grids'), defaultValue=None))
         
         self.addParameter(QgsProcessingParameterFile(self.FOLDER_MNT_FILES, self.tr('folder MNT ASC'), behavior=QgsProcessingParameterFile.Folder, fileFilter='Tous les fichiers (*.*)', defaultValue=None))
         

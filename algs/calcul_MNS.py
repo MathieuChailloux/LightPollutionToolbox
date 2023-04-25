@@ -51,15 +51,15 @@ class CalculMNS(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_MNT_INPUT, self.tr('MNT'), defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.BUFFER_RADIUS, self.tr('Radius of analysis for visibility (buffer of extent), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=500))
         
-        self.addParameter(QgsProcessingParameterFeatureSource(self.BATI_INPUT, self.tr('Buildings (BD TOPO)'), types=[QgsProcessing.TypeVectorPolygon], defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.BATI_INPUT, self.tr('Buildings (TOPO DB)'), types=[QgsProcessing.TypeVectorPolygon], defaultValue=None))
         self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_BATI, self.tr('Height Buildings field'), type=QgsProcessingParameterField.Any, parentLayerParameterName=self.BATI_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
         
-        self.addParameter(QgsProcessingParameterFeatureSource(self.VEGETATION_INPUT, self.tr('Vegetation (BD TOPO)'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.VEGETATION_INPUT, self.tr('Vegetation (TOPO DB)'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_VEGETATION, self.tr('Height Vegetation field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.VEGETATION_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
         self.addParameter(QgsProcessingParameterNumber(self.DEFAULT_HEIGHT_VEGETATION, self.tr('Height Vegetation by default if no field'), optional=True, type=QgsProcessingParameterNumber.Double, defaultValue=6))
         
-        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNS, self.tr('MNS'), createByDefault=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_BATI, self.tr('Raster bati vegetation'), createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNS, self.tr('DEM'), createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_BATI, self.tr('Raster buildings vegetation'), createByDefault=True, defaultValue=None))
         
         # self.addParameter(QgsProcessingParameterVectorDestination('VegetationWithoutBati', 'vegetation', type=QgsProcessing.TypeVectorAnyGeometry,createByDefault=True, defaultValue=None)) # POUR TESTER
 

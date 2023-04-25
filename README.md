@@ -1,5 +1,5 @@
 
-[[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README_fr.md)]
+[[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/ase_dev/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/ase_dev/README_fr.md)]
 
 # Overview
 
@@ -14,8 +14,24 @@
 Available documentation:
  - [Video tutorials](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
  - [Notice about Light Flux Surfacic density (french only)](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
+ - TODO Doc Indicateur POLLUM
 
-# Algorithms
+# Algorithms Indicators Light Pollution
+Algorithms are available in the processing toolbox or via the "LightPollutionToolbox" button in the menu.
+The 3 main indicators are as follows :
+- Contribution to the luminous halo (Radiance)
+- Emission in the blue part of the spectrum	
+- Visibility Light Source : this treatment is divided into 3 sub-treatments : (TODO ADD extraction points lumineux)
+	- 1 : Calcul of DSM (Digital Surface Model) with DEM, buildings and possibly the vegetation (opitonal)
+	- 2 : Calcul of Viewshed, this processing uses a part of the plugin code in Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
+	- 3 : Numver of light visibility per grid
+
+There are also 2 other treatments in the Misc sub-menu of the toolbox:
+- create MNT from RGE Alti : reate a DTM from an area of ​​influence, the slabs and the DTM ASC folder of RGE Alti
+- Pretreatments to remove dark zones : Set to 0 pixels lower than the median of the pixels per band.
+
+
+# Algorithms DSFLI
 
 Main algorithms are:
  - *Classify lighting layer*: checks compliance of a lighting layer to french regulations indicators (Upward Light Ratio, light flux, color temperature)
@@ -40,7 +56,7 @@ Sample data to compute light flux surfacic density is provided with plugin (dire
 
 # Contact
 
-*Development* : Mathieu Chailloux (mathieu.chailloux@inrae.fr)
+*Development* : Mathieu Chailloux (mathieu.chailloux@inrae.fr) & Antoine Sensier (antoine.sensier@inrae.fr)
 
 *Coordination* : Jennifer Amsallem (jennifer.amsallem@inrae.fr)
 

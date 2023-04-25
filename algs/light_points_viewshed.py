@@ -123,7 +123,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
 
         self.addParameter(QgsProcessingParameterRasterLayer
                           (self.DEM,
-            self.tr('Digital elevation model (MNS)')))
+            self.tr('DES (Digital surface model)')))
         self.addParameter(QgsProcessingParameterBoolean(
             self.USE_CURVATURE,
             self.tr('Take in account Earth curvature'),
