@@ -7,7 +7,7 @@
 
 *LightPollutionToolbox* provides multiple algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ... 
 
-*LightPollutionToolbox* has been developed by Mathieu Chailloux ([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) on mission for the [*French ecological network resource center*](http://www.trameverteetbleue.fr/).
+*LightPollutionToolbox* has been developed by Mathieu Chailloux and Antoine Sensier ([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) on mission for the [*French ecological network resource center*](http://www.trameverteetbleue.fr/).
 
 # Documentation
 
@@ -24,7 +24,7 @@ The 3 main indicators are as follows :
 - Visibility Light Source : this treatment is divided into 3 sub-treatments : (TODO ADD extraction points lumineux)
 	- 1 : Calcul of DSM (Digital Surface Model) with DEM, buildings and possibly the vegetation (opitonal)
 	- 2 : Calcul of Viewshed, this processing uses a part of the plugin code in Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
-	- 3 : Numver of light visibility per grid
+	- 3 : Number of light visibility per grid
 
 There are also 2 other treatments in the Misc sub-menu of the toolbox:
 - create MNT from RGE Alti : reate a DTM from an area of ​​influence, the slabs and the DTM ASC folder of RGE Alti

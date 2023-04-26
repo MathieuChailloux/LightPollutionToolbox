@@ -7,7 +7,7 @@
 
 *LightPollutionToolbox* regroupe divers géotraitements pour caractériser et cartographier la pollution lumineuse. Développé initialement pour vérifier la conformité à la réglementation depuis des couches d'éclairage public, cet outil a vocation à évoluer et d'être augmenté de tout géotraitement pertinent sur la thématique pollution lumineuse et Trame noire.
 
-*LightPollutionToolbox* a été développé par Mathieu Chailloux et Antoine Sensier([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) pour le [*Centre de ressources Trame verte et bleue*](http://www.trameverteetbleue.fr/).
+*LightPollutionToolbox* a été développé par Mathieu Chailloux et Antoine Sensier ([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) pour le [*Centre de ressources Trame verte et bleue*](http://www.trameverteetbleue.fr/).
 
 # Documentation
 
@@ -24,7 +24,7 @@ Les 3 principaux indicatateur sont les suivants:
 - Visibilité des sources lumineuses : ce traitement est divisés en 3 sous-traitements : (TODO ADD extraction points lumineux)
 	- 1 : Calcul du MNS (Modèle Numérique de Surface) avec le MNT, le bati et éventuellement la végétation (opitonnel)
 	- 2 : Calcul du champ de visibilité (viewshed), une partie du code provient du plugin Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
-	- 3 : Calcul du nombre moyen de sources lumineuses par maille
+	- 3 : Nombre moyen de sources lumineuses par maille
 
 Il existe aussi 2 autres traitements dans le sous-menu Divers de la bôite à outils :
 - create MNT from RGE Alti : permet de créer un MNT à partir d'une zone d'emprise, de la dalles et du dossier MNT ASC de RGE Alti

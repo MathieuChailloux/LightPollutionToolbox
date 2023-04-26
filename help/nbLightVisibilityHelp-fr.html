@@ -6,13 +6,13 @@
 	<p><span style=" font-size:14pt; font-weight:600;">Visibilité des sources lumineuses</span></p>
 	<p ><span style=" font-size:8pt;">L'indicateur de visibilité des sources lumineuses permet d'évaluer pour chaque maille, le nombre de sources lumineuses visibles par un observatur à une hauteur donnée.<br/>Il nécessite plusieurs données calculées dans l'onglet 1 et 2, pour ensuite calculer les résultats dans l'onglet 3.</span></p>
 	<p><span style=" font-size:10pt; font-weight:600;">Nombre de sources lumineuses</span></p>
-	<p ><span style=" font-size:8pt;">L'indicateur permet de représenter par maille (importée ou créée) le nombre moyen de lumières observées en fonction du relief, de la hauteur de l'observateur et des sources lumineuses. Un masque est également appliqué pour enlever l’éclairement sur les murs du bati supérieur à une certaine hauteur en paramètre.</span></p>
+	<p ><span style=" font-size:8pt;">L'indicateur permet de représenter par maille (importée ou créée) le nombre moyen de lumières observées en fonction du relief, de la hauteur de l'observateur et des sources lumineuses. Un masque est également appliqué pour enlever l’éclairement sur les murs du bati (et bordure de la végétation si présente) supérieur à une certaine hauteur en paramètre.</span></p>
 	<p ><span style=" font-size:10pt; font-weight:600;">Paramètres d'entrés</span></p>
 	<ul>
 		<li>Zone d'étude : Etendue de la zone d'étude permettant de délémiter l'indicateur calculé.</li><li>MNT : Modèle Numérique de Terrain au format raster.</li>
 		<li>Couche résultat du viewshed : Couche raster issu du traitement viewshed.</li>
 		<li>Bati végétation Raster: Couche raster créée lors du calcul du MNS, qui permet d'enlever l'éclairement sur le bati et la végétation (si présente).</li>
-		<li>Hauteur du masque: Hauteur en mètre du masque à appliquer qui permet de ne pas prendre l'éclairement en compte si il est inférieur ou égal à cette hauteur, elle doit normalement être identique à la hauteur de l'observateur indiqué dans le calcul du viewshed.</li>
+		<li>Hauteur du masque: Hauteur en mètres du masque à appliquer qui permet de ne pas prendre l'éclairement en compte si il est inférieur ou égal à cette hauteur, elle doit normalement être identique à la hauteur de l'observateur indiquée dans le calcul du viewshed.</li>
 		<li>Choix de la maille : Maille sur laquelle sera calculé l'indicateur, elle peut être importée ou créée.
 		<ul>
 			<li>Importer une maille : Couche vecteur de maille déjà créée.</li>

@@ -644,7 +644,7 @@ p, li { white-space: pre-wrap; }
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabWidgetVisibility">
             <property name="currentIndex">
-             <number>0</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="tabMNS">
              <attribute name="title">
@@ -1119,7 +1119,7 @@ p, li { white-space: pre-wrap; }
             </widget>
             <widget class="QWidget" name="tabNbLight">
              <attribute name="title">
-              <string>3- Number of light visibility per grid</string>
+              <string>3 - Number of light visibility per grid</string>
              </attribute>
              <layout class="QGridLayout" name="gridLayout_7">
               <item row="3" column="1" colspan="2">

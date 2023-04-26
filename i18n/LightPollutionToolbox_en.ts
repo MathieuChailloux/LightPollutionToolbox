@@ -723,11 +723,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="855"/>
-        <source>3- Number of light visibility per grid</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../Interface_dialog_base.py" line="856"/>
         <source>Visibility Light Sources</source>
         <translation type="unfinished"></translation>
@@ -870,6 +865,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="814"/>
         <source>1 - Calcul of DSM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="855"/>
+        <source>3 - Number of light visibility per grid</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

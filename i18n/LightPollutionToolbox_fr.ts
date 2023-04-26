@@ -811,7 +811,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="832"/>
         <source>2 - Calcul of Viewshed</source>
-        <translation type="unfinished">2- Calcul de la visibilité (Viewshed)</translation>
+        <translation type="unfinished">2 - Calcul de la visibilité (Viewshed)</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="847"/>
@@ -836,7 +836,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="855"/>
         <source>3- Number of light visibility per grid</source>
-        <translation type="unfinished">3 - Nombre de sources visibles</translation>
+        <translation type="obsolete">3 - Nombre de sources visibles</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="856"/>
@@ -1001,7 +1001,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="814"/>
         <source>1 - Calcul of DSM</source>
-        <translation>Calcul du MNS</translation>
+        <translation type="unfinished">1 - Calcul du MNS</translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="855"/>
+        <source>3 - Number of light visibility per grid</source>
+        <translation>3 - Nombre de sources visibles</translation>
     </message>
 </context>
 <context>
