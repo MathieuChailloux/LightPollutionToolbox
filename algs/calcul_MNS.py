@@ -255,6 +255,7 @@ class CalculMNS(QgsProcessingAlgorithm):
             feedback.setCurrentStep(step)            
         
         # Rastériser (remplacement avec attribut)
+        # TODO ajout compression DEFLATE
         self.results[self.OUTPUT_RASTER_MNS] = qgsTreatments.applyRasterizeOver(outputs['VectorToRasterize'],outputs[self.SLICED_RASTER], parameters[self.HEIGHT_FIELD_BATI], context=context,feedback=feedback)
         
         step+=1
@@ -264,6 +265,7 @@ class CalculMNS(QgsProcessingAlgorithm):
 
         # Rasteriser (vecteur vers raster)
         # prendre la résolution du raster en hauteur/largeur
+        # TODO ajout compression DEFLATE
         resolution = self.inputRasterMNT.rasterUnitsPerPixelX()
         self.results[self.OUTPUT_RASTER_BATI] = qgsTreatments.applyRasterization(outputs['VectorToRasterize'], self.outputRasterBati, outputs['RasterExtent'], resolution,
                                                                                         field=parameters[self.HEIGHT_FIELD_BATI],burn_val=0,nodata_val=0, 

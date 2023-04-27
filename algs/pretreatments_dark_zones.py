@@ -1,6 +1,6 @@
 """
 Model exported as python.
-Name : Prétraitement d'image reaster pour enlever les zones sombres
+Name : Prétraitement d'image raster pour enlever les zones sombres
 Group : POLLUM
 With QGIS : 32215
 """

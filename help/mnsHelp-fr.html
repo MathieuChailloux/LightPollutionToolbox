@@ -9,12 +9,12 @@
 	<p ><span style=" font-size:8pt;">Le calcul du MNS (Modèle Numérique de Surface) se fait en ajoutant au MNT, le bati avec sa hauteur et éventuellement la végétation (optionnel).</span></p>
 	<p ><span style=" font-size:10pt; font-weight:600;">Paramètres d'entrés</span></p>
 	<ul>
-		<li>Zone d'étude : Etendue de la zone d'étude permettant de délémiter l'indicateur calculé.</li><li>MNT : Modèle Numérique de Terrain au format raster.</li>
+		<li>Zone d'étude : Etendue de la zone d'étude permettant de délimiter les traitements.</li><li>MNT : Modèle Numérique de Terrain au format raster.</li>
 		<li>Rayon de visibilité : Distance du tampon autour de la zone d'étude (similaire au rayon de visibilité du viewshed).</li>
 		<li>Bati : Couche vecteur du bati issu de la BD Topo.</li>
 		<li>Champ hauteur du bati : Champ représentant la hauteur dans la couche du bati.</li>
-		<li>Végétation : Couche vecteur de la végétation issu de la BD Topo (optionnel). Pour éviter d'avoir de la végétation qui chevauche le bati, une différence est appliquée entre la végétation et la couche du bati avec un buffer de 5 mètres.</li>
-		<li>Champ hauteur Végétation : Champ représentant la hauteur dans la couche de la végétation (optionnel), les végétations avec une hauteur nulle ne sont pas pris en compte.</li>
+		<li>Végétation : Couche vecteur de la végétation issue de la BD Topo (optionnel). Pour éviter d'avoir de la végétation qui chevauche le bati, une différence est appliquée entre la végétation et la couche du bati avec un tampon de 5 mètres.</li>
+		<li>Champ hauteur Végétation : Champ représentant la hauteur dans la couche de la végétation (optionnel), les végétations avec une hauteur nulle ne sont pas prises en compte.</li>
 		<li>Hauteur de la végétation par défaut : Valeur de hauteur appliquée sur toute la végétation si pas de champ hauteur choisi.</li>
 	</ul>
 	<p ><span style=" font-size:10pt; font-weight:600;">Données de sortie</span></p>
