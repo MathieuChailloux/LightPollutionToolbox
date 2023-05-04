@@ -95,14 +95,14 @@ class ControllerConnector():
         self.dlg.extentFileViewshed.clicked.connect(partial(self.select_file, "vector", self.dlg.mMapLayerComboBoxExtentViewshed))
         self.dlg.lightPointsFile.clicked.connect(partial(self.select_file, "vector", self.dlg.mMapLayerComboBoxLightPoints))
         self.dlg.rasterFileMNS.clicked.connect(partial(self.select_file, "raster", self.dlg.mMapLayerComboBoxMNS))
+        self.dlg.rasterBatiVegeFileViewshed.clicked.connect(partial(self.select_file, "raster", self.dlg.mMapLayerComboBoxRasterBatiVegeViewshed))
         self.dlg.mMapLayerComboBoxExtentViewshed.setFilters(QgsMapLayerProxyModel.PolygonLayer)
         self.dlg.mMapLayerComboBoxLightPoints.setFilters(QgsMapLayerProxyModel.PointLayer)
         self.dlg.mMapLayerComboBoxMNS.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxObserver))
+        self.dlg.mMapLayerComboBoxRasterBatiVegeViewshed.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxLightSource))
         self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxRadius))
         # Update pour initialiser les valeurs des champs
-        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxObserver)
         self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxLightSource)
         self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxRadius)
         
@@ -258,8 +258,8 @@ class ControllerConnector():
         in_extent_zone = self.dlg.mMapLayerComboBoxExtentViewshed.currentLayer()
         in_light_points = self.dlg.mMapLayerComboBoxLightPoints.currentLayer()
         in_raster_mns = self.dlg.mMapLayerComboBoxMNS.currentLayer()
+        in_raster_bati_vege = self.dlg.mMapLayerComboBoxRasterBatiVegeViewshed.currentLayer()
         
-        height_observer_field = self.dlg.mFieldComboBoxObserver.currentField()
         height_observer_value = self.dlg.observerHeightValue.value()
         height_light_source_field = self.dlg.mFieldComboBoxLightSource.currentField()
         height_light_source_value = self.dlg.lightSourceHeightValue.value()
@@ -271,12 +271,12 @@ class ControllerConnector():
         self.taskRun = True
         parameters = { LightPollutionToolbox_provider.LightPointsViewshed.EXTENT_ZONE : in_extent_zone,
                        LightPollutionToolbox_provider.LightPointsViewshed.LIGHT_PTS_INPUT : in_light_points,
-                       LightPollutionToolbox_provider.LightPointsViewshed.OBSERVER_HEIGHT_FIELD : height_observer_field,
                        LightPollutionToolbox_provider.LightPointsViewshed.OBSERVER_HEIGHT : height_observer_value,
                        LightPollutionToolbox_provider.LightPointsViewshed.LIGHT_SOURCE_HEIGHT_FIELD : height_light_source_field,
                        LightPollutionToolbox_provider.LightPointsViewshed.LIGHT_SOURCE_HEIGHT : height_light_source_value,
                        LightPollutionToolbox_provider.LightPointsViewshed.RADIUS_ANALYSIS_FIELD : height_radius_field,
                        LightPollutionToolbox_provider.LightPointsViewshed.RADIUS_ANALYSIS : height_radius_value,
+                       LightPollutionToolbox_provider.LightPointsViewshed.RASTER_BATI_INPUT : in_raster_bati_vege,
                        LightPollutionToolbox_provider.LightPointsViewshed.DEM : in_raster_mns,
                        LightPollutionToolbox_provider.LightPointsViewshed.USE_CURVATURE : False,
                        LightPollutionToolbox_provider.LightPointsViewshed.ANALYSIS_TYPE : 0,
@@ -363,7 +363,7 @@ class ControllerConnector():
         if fileType == "raster":
             filt = self.dlg.tr("Raster files(*.tif)")
         elif fileType == "vector":
-            filt = self.dlg.tr("Vector files(*.shp)")
+            filt = self.dlg.tr("(*.shp);;(*.gpkg)")
             
         title = self.dlg.tr("Select a "+fileType+" file")
         f, _ = QtWidgets.QFileDialog.getOpenFileName(qfd, title, ".", filt)

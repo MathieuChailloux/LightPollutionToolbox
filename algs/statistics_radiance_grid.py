@@ -22,6 +22,7 @@ from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterVectorDestination
 from qgis.core import QgsProcessingParameterRasterDestination
 from qgis.core import QgsProcessingParameterFeatureSource
+from qgis.core import QgsCoordinateReferenceSystem
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 
@@ -114,7 +115,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             # Créer une grille
             # Ajoute +2 pour aligner le bon type de grille
             temp_path_grid = QgsProcessingUtils.generateTempFilename('temp_grid.gpkg')
-            qgsTreatments.createGridLayer(outputs[self.EXTENT_ZONE], outputs[self.EXTENT_ZONE], parameters[self.DIM_GRID], temp_path_grid, gtype=parameters[self.TYPE_GRID]+2, context=context,feedback=feedback)
+            qgsTreatments.createGridLayer(outputs[self.EXTENT_ZONE], outputs[self.EXTENT_ZONE].crs(), parameters[self.DIM_GRID], temp_path_grid, gtype=parameters[self.TYPE_GRID]+2, context=context,feedback=feedback)
+            # qgsTreatments.createGridLayer(outputs[self.EXTENT_ZONE], QgsCoordinateReferenceSystem('EPSG:2154'), parameters[self.DIM_GRID], temp_path_grid, gtype=parameters[self.TYPE_GRID]+2, context=context,feedback=feedback)
             outputs['GridTemp'] = qgsUtils.loadVectorLayer(temp_path_grid)
             
         else:

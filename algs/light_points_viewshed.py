@@ -69,11 +69,11 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
     LIGHT_PTS_INPUT = 'LumPointsExtraction'
     EXTENT_ZONE = 'ExtentZone'
     OBSERVER_HEIGHT = 'ObserverHeight'
-    OBSERVER_HEIGHT_FIELD = 'ObserverHeightField'
     LIGHT_SOURCE_HEIGHT = 'LightHeight'
     LIGHT_SOURCE_HEIGHT_FIELD = 'LightHeightField'
     RADIUS_ANALYSIS = 'RadiusAnalysis'
     RADIUS_ANALYSIS_FIELD = 'RadiusAnalysisField'
+    RASTER_BATI_INPUT = 'RasterBatiInput'
     
     OBSERVER_FIELD = 'observ_hgt' # old target_hgt
     SOURCE_FIELD = 'source_hgt' # old observ_hgt
@@ -104,15 +104,15 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterFeatureSource(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), [QgsProcessing.TypeVectorPoint], defaultValue=None))
         
-        self.addParameter(QgsProcessingParameterField(self.OBSERVER_HEIGHT_FIELD, self.tr('Observer height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, self.tr('Observer height (if no field) 0, 1, 6, meters'), type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
-
         self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.LIGHT_SOURCE_HEIGHT, self.tr('Source light height (if no field), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=6))
+        
+        self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, self.tr('Observer height (0, 1, 6, meters)'), type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
 
         self.addParameter(QgsProcessingParameterField(self.RADIUS_ANALYSIS_FIELD, self.tr('Radius of analysis field for visibility'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, self.tr('Radius of analysis for visibility (if no field), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=500))
-
+        
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster buildings vegetation')))
         
         # self.addParameter(
             # QgsProcessingParameterFeatureSource(
@@ -206,6 +206,8 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1] 
         self.inputLightPoints = qgsTreatments.parameterAsSourceLayer(self, parameters,self.LIGHT_PTS_INPUT,context,feedback=feedback)[1] 
         
+        self.inputRasterBatiVege = self.parameterAsRasterLayer(parameters, self.RASTER_BATI_INPUT, context)
+        
         self.raster = self.parameterAsRasterLayer(parameters,self.DEM, context)
         self.useEarthCurvature = self.parameterAsBool(parameters,self.USE_CURVATURE,context)
         self.refraction = self.parameterAsDouble(parameters,self.REFRACTION,context)
@@ -225,6 +227,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         feedback.setCurrentStep(0)
         # Extraire l'emprise de la couche
         # Si emprise non présente, on prend celle des points lumineux
+        print(self.inputLightPoints)
         if self.inputExtent is None or self.inputExtent == NULL:
             extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
             outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputLightPoints, extent_zone, context=context,feedback=feedback)
@@ -250,10 +253,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
 
         # Calculatrice de champ observateur (target)
-        if parameters[self.OBSERVER_HEIGHT_FIELD] != "" and parameters[self.OBSERVER_HEIGHT_FIELD] is not None and parameters[self.OBSERVER_HEIGHT_FIELD] != NULL:
-            formula = '"'+parameters[self.OBSERVER_HEIGHT_FIELD]+'"'
-        else:
-            formula = parameters[self.OBSERVER_HEIGHT]
+        formula = parameters[self.OBSERVER_HEIGHT]
 
         temp_path_obs = QgsProcessingUtils.generateTempFilename('temp_path_obs.gpkg')
         qgsTreatments.applyFieldCalculator(outputs['AddFieldIncr'], self.OBSERVER_FIELD, temp_path_obs, formula, 10, 4, 0, context=context,feedback=feedback)
@@ -270,15 +270,24 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         qgsTreatments.applyFieldCalculator(outputs['CalculFieldObserv'],self.RADIUS_FIELD,temp_path_radius, formula, 10, 4, 0, context=context,feedback=feedback)
         outputs['CalculFieldRadius'] = qgsUtils.loadVectorLayer(temp_path_radius)
         
-
-        # Calculatrice de champ hauteur source lumière
+        # Mise à 0 nécessaire de la hauteur de la source si interescte le bati ou la végétation
+        
+        # Raster vers vecteur du raster bati vegetation
+        outputs['PolygoniseBatiVege'] = qgsTreatments.applyPolygonize(self.inputRasterBatiVege, 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
+        
+        # Jointure par localisation entre les points et bati-végétation
+        temp_path_join_pts_bati = QgsProcessingUtils.generateTempFilename('temp_path_join_pts_bati.gpkg')
+        qgsTreatments.joinByLoc(outputs['CalculFieldRadius'],outputs['PolygoniseBatiVege'],predicates=[0],out_path=temp_path_join_pts_bati,discard=False,method=1,context=context,feedback=feedback)
+        outputs['JoinPointsBatiVege'] = qgsUtils.loadVectorLayer(temp_path_join_pts_bati)
+        
+        # Calculatrice de champ hauteur source lumière (si intersection : DN non NULL, on met la hauteur à 0
         if parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] != "" and parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] is not None and parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] != NULL:
-            formula = '"'+parameters[self.LIGHT_SOURCE_HEIGHT_FIELD]+'"'
+            formula = 'CASE WHEN  "DN" IS NULL THEN "'+str(parameters[self.LIGHT_SOURCE_HEIGHT_FIELD])+'" ELSE 0 END'
         else:
-            formula = parameters[self.LIGHT_SOURCE_HEIGHT]
+            formula = 'CASE WHEN  "DN" IS NULL THEN '+str(parameters[self.LIGHT_SOURCE_HEIGHT])+' ELSE 0 END'
         
         temp_path_lum_pts = QgsProcessingUtils.generateTempFilename('temp_path_lum_pts.gpkg')
-        qgsTreatments.applyFieldCalculator(outputs['CalculFieldRadius'],self.SOURCE_FIELD, temp_path_lum_pts, formula, 10, 4, 0, context=context,feedback=feedback)
+        qgsTreatments.applyFieldCalculator(outputs['JoinPointsBatiVege'],self.SOURCE_FIELD, temp_path_lum_pts, formula, 10, 4, 0, context=context,feedback=feedback)
         outputs['LightPoints'] = qgsUtils.loadVectorLayer(temp_path_lum_pts)
         
 # --------------- verification of inputs ------------------

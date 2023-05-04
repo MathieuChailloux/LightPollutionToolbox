@@ -59,6 +59,10 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
          # Tampon optionnel autour de la zone d'emprise pour prendre plus de dalles
         if parameters[self.EXTENT_BUFFER] is not None and parameters[self.EXTENT_BUFFER] != NULL and parameters[self.EXTENT_BUFFER] > 0:
             temp_path_buf = QgsProcessingUtils.generateTempFilename('temp_path_buf.gpkg')
+            # if self.inputExtent.crs().authid() != "EPSG:2154": # on reprojette le input
+                # extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
+                # qgsTreatments.applyReprojectLayer(self.inputExtent,QgsCoordinateReferenceSystem('EPSG:2154'), extent_zone, context=context,feedback=feedback)
+                # self.inputExtent = qgsUtils.loadVectorLayer(extent_zone)
             qgsTreatments.applyBufferFromExpr(self.inputExtent,parameters[self.EXTENT_BUFFER], temp_path_buf,context=context,feedback=feedback)
             outputs[self.EXTENT_ZONE] =  qgsUtils.loadVectorLayer(temp_path_buf)
         else:

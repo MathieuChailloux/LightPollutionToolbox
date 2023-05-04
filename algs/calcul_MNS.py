@@ -48,7 +48,7 @@ class CalculMNS(QgsProcessingAlgorithm):
     
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_MNT_INPUT, self.tr('MNT'), defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_MNT_INPUT, self.tr('DEM'), defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.BUFFER_RADIUS, self.tr('Radius of analysis for visibility (buffer of extent), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=500))
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.BATI_INPUT, self.tr('Buildings (TOPO DB)'), types=[QgsProcessing.TypeVectorPolygon], defaultValue=None))
@@ -58,8 +58,8 @@ class CalculMNS(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_VEGETATION, self.tr('Height Vegetation field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.VEGETATION_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
         self.addParameter(QgsProcessingParameterNumber(self.DEFAULT_HEIGHT_VEGETATION, self.tr('Height Vegetation by default if no field'), optional=True, type=QgsProcessingParameterNumber.Double, defaultValue=6))
         
-        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNS, self.tr('DEM'), createByDefault=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_BATI, self.tr('Raster buildings vegetation'), createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNS, self.tr('DSM Output'), createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_BATI, self.tr('Raster buildings vegetation Output'), createByDefault=True, defaultValue=None))
         
         # self.addParameter(QgsProcessingParameterVectorDestination('VegetationWithoutBati', 'vegetation', type=QgsProcessing.TypeVectorAnyGeometry,createByDefault=True, defaultValue=None)) # POUR TESTER
 
@@ -105,7 +105,7 @@ class CalculMNS(QgsProcessingAlgorithm):
             return {}
             
         # Découper le raster selon une emprise
-        outputs[self.SLICED_RASTER] = qgsTreatments.applyClipRasterByExtent(self.inputRasterMNT, outputs[self.EXTENT_ZONE], self.outputRasterMNS,data_type=6, context=context,feedback=feedback)
+        outputs[self.SLICED_RASTER] = qgsTreatments.applyClipRasterByExtent(self.inputRasterMNT, outputs[self.EXTENT_ZONE], self.outputRasterMNS,data_type=6,options='COMPRESS=DEFLATE', context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -122,7 +122,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
-
+        
         # Extraire par localisation le bati
         # Filtre sur l'emprise
         temp_path_loc_bati = QgsProcessingUtils.generateTempFilename('temp_path_loc_bati.gpkg')
@@ -255,7 +255,6 @@ class CalculMNS(QgsProcessingAlgorithm):
             feedback.setCurrentStep(step)            
         
         # Rastériser (remplacement avec attribut)
-        # TODO ajout compression DEFLATE
         self.results[self.OUTPUT_RASTER_MNS] = qgsTreatments.applyRasterizeOver(outputs['VectorToRasterize'],outputs[self.SLICED_RASTER], parameters[self.HEIGHT_FIELD_BATI], context=context,feedback=feedback)
         
         step+=1
@@ -265,11 +264,10 @@ class CalculMNS(QgsProcessingAlgorithm):
 
         # Rasteriser (vecteur vers raster)
         # prendre la résolution du raster en hauteur/largeur
-        # TODO ajout compression DEFLATE
         resolution = self.inputRasterMNT.rasterUnitsPerPixelX()
         self.results[self.OUTPUT_RASTER_BATI] = qgsTreatments.applyRasterization(outputs['VectorToRasterize'], self.outputRasterBati, outputs['RasterExtent'], resolution,
                                                                                         field=parameters[self.HEIGHT_FIELD_BATI],burn_val=0,nodata_val=0, 
-                                                                                        context=context,feedback=feedback)  
+                                                                                        options='COMPRESS=DEFLATE',context=context,feedback=feedback)  
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
