@@ -100,11 +100,11 @@ class ControllerConnector():
         self.dlg.mMapLayerComboBoxLightPoints.setFilters(QgsMapLayerProxyModel.PointLayer)
         self.dlg.mMapLayerComboBoxMNS.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.dlg.mMapLayerComboBoxRasterBatiVegeViewshed.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxLightSource))
-        self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxRadius))
+        self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxLightSource, defaultField=None))
+        self.dlg.mMapLayerComboBoxLightPoints.layerChanged.connect(partial(self.setInLayerFromCombo, self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxRadius, defaultField=None))
         # Update pour initialiser les valeurs des champs
-        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxLightSource)
-        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxRadius)
+        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxLightSource, defaultField=None)
+        self.setInLayerFromCombo(self.dlg.mMapLayerComboBoxLightPoints, self.dlg.mFieldComboBoxRadius, defaultField=None)
         
         # init Number of light visibility
         self.dlg.outputFileNbLight.setFilter("*.shp;;*.gpkg")
@@ -376,7 +376,7 @@ class ControllerConnector():
             mapLayerComboBox.setLayer(layer)
     
     
-    def setInLayerFromCombo(self, comboboxLayer, comboboxField, defaultField=None):
+    def setInLayerFromCombo(self, comboboxLayer, comboboxField, defaultField):
         utils.debug("setInLayerFromCombo")
         layer = comboboxLayer.currentLayer()
         utils.debug(str(layer.__class__.__name__))

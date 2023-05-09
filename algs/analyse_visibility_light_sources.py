@@ -136,7 +136,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             # Créer une grille
             # Ajoute +2 pour aligner le bon type de grille
             temp_path_grid = QgsProcessingUtils.generateTempFilename('temp_grid.gpkg')
-            qgsTreatments.createGridLayer(outputs[self.EXTENT_ZONE], outputs[self.EXTENT_ZONE], parameters[self.DIM_GRID], temp_path_grid, gtype=parameters[self.TYPE_GRID]+2, context=context,feedback=feedback)
+            qgsTreatments.createGridLayer(outputs[self.EXTENT_ZONE], outputs[self.EXTENT_ZONE].crs(), parameters[self.DIM_GRID], temp_path_grid, gtype=parameters[self.TYPE_GRID]+2, context=context,feedback=feedback)
             outputs['GridTemp'] = qgsUtils.loadVectorLayer(temp_path_grid)
             
             step+=1

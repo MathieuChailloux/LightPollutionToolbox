@@ -74,6 +74,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
     RADIUS_ANALYSIS = 'RadiusAnalysis'
     RADIUS_ANALYSIS_FIELD = 'RadiusAnalysisField'
     RASTER_BATI_INPUT = 'RasterBatiInput'
+    SLICED_RASTER_BATI = 'SlicedRasterBati'
     
     OBSERVER_FIELD = 'observ_hgt' # old target_hgt
     SOURCE_FIELD = 'source_hgt' # old observ_hgt
@@ -96,9 +97,6 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
   
     OPERATORS = [ 'Addition', "Minimum", "Maximum"]
 
-    def __init__(self):
-        super().__init__()
-
     def initAlgorithm(self, config=None):
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
@@ -112,7 +110,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterField(self.RADIUS_ANALYSIS_FIELD, self.tr('Radius of analysis field for visibility'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, self.tr('Radius of analysis for visibility (if no field), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=500))
         
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster buildings vegetation')))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster buildings vegetation'),defaultValue=None))
         
         # self.addParameter(
             # QgsProcessingParameterFeatureSource(
@@ -218,16 +216,17 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.output_path = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
         
     def processAlgorithm(self, parameters, context, feedback):
-
+        
+        feedback = QgsProcessingMultiStepFeedback(100, feedback)
         self.parseParams(parameters,context, feedback)
         outputs = {}
+                
         # observers = self.parameterAsSource(parameters,self.OBSERVER_POINTS,context)
 # --------------- get observers (light points) ------------------       
-        feedback = QgsProcessingMultiStepFeedback(100, feedback)
+        
         feedback.setCurrentStep(0)
         # Extraire l'emprise de la couche
         # Si emprise non présente, on prend celle des points lumineux
-        print(self.inputLightPoints)
         if self.inputExtent is None or self.inputExtent == NULL:
             extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
             outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputLightPoints, extent_zone, context=context,feedback=feedback)
@@ -239,7 +238,10 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
             qgsTreatments.applyBufferFromExpr(self.inputExtent,expr, temp_path_buf,context=context,feedback=feedback)
             outputs[self.EXTENT_ZONE] =  qgsUtils.loadVectorLayer(temp_path_buf)
             
-                
+        
+        # Découper le raster Bati selon une emprise
+        outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBatiVege, outputs[self.EXTENT_ZONE], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+        
         # Extraire par localisation
         temp_path_pts = QgsProcessingUtils.generateTempFilename('temp_path_pts.gpkg')
         qgsTreatments.extractByLoc(self.inputLightPoints, outputs[self.EXTENT_ZONE],temp_path_pts, context=context,feedback=feedback)
@@ -271,9 +273,9 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         outputs['CalculFieldRadius'] = qgsUtils.loadVectorLayer(temp_path_radius)
         
         # Mise à 0 nécessaire de la hauteur de la source si interescte le bati ou la végétation
-        
+        feedback.setCurrentStep(1)
         # Raster vers vecteur du raster bati vegetation
-        outputs['PolygoniseBatiVege'] = qgsTreatments.applyPolygonize(self.inputRasterBatiVege, 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
+        outputs['PolygoniseBatiVege'] = qgsTreatments.applyPolygonize(outputs[self.SLICED_RASTER_BATI], 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
         
         # Jointure par localisation entre les points et bati-végétation
         temp_path_join_pts_bati = QgsProcessingUtils.generateTempFilename('temp_path_join_pts_bati.gpkg')
@@ -289,7 +291,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         temp_path_lum_pts = QgsProcessingUtils.generateTempFilename('temp_path_lum_pts.gpkg')
         qgsTreatments.applyFieldCalculator(outputs['JoinPointsBatiVege'],self.SOURCE_FIELD, temp_path_lum_pts, formula, 10, 4, 0, context=context,feedback=feedback)
         outputs['LightPoints'] = qgsUtils.loadVectorLayer(temp_path_lum_pts)
-        
+
 # --------------- verification of inputs ------------------
 
         raster_path= self.raster.source()
@@ -299,8 +301,8 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
 
         # Get result of first points extractions
         points = pts.Points(outputs['LightPoints']) #pts.Points(observers)
+        
         miss = points.test_fields(["source_hgt", "radius"])
-           
         
         if miss:
             err= " \n ****** \n ERROR! \n Missing fields: \n" + "\n".join(miss)
@@ -308,9 +310,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
             raise QgsProcessingException(err)
 
         miss_params = points.test_fields(["radius_in", "azim_1", "azim_2"])
-        
         points.take(dem.extent, dem.pix)
-
         if points.count == 0:
             err= "  \n ******* \n ERROR! \n No viewpoints in the chosen area!"
             feedback.reportError(err, fatalError = True)
@@ -387,7 +387,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
 
             cnt += 1
 
-            feedback.setCurrentStep(int((cnt/points.count) *100))
+            feedback.setCurrentStep(1+int((cnt/points.count) *99))
             # feedback.setProgress(int((cnt/points.count) *100))
             if feedback.isCanceled(): return {}
                 
