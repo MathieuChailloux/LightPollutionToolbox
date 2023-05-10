@@ -20,15 +20,22 @@ Available documentation:
 Algorithms are available in the processing toolbox or via the "LightPollutionToolbox" button in the menu.
 The 3 main indicators are as follows :
 - Contribution to the luminous halo (Radiance)
+  File : ./algs/statistics_radiance_grid.py
 - Emission in the blue part of the spectrum	
-- Visibility Light Source : this treatment is divided into 3 sub-treatments : (TODO ADD extraction points lumineux) TODO add names of algo files
+  File : ./algs/statistics_blue_emission_grid.py
+- Visibility Light Source : this treatment is divided into 3 sub-treatments : (TODO ADD extraction points lumineux)
 	- 1 : Calcul of DSM (Digital Surface Model) with DEM, buildings and possibly the vegetation (opitonal)
+		  File : ./algs/calcul_MNS.py
 	- 2 : Calcul of Viewshed, this processing uses a part of the plugin code in Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
+		  File : ./algs/light_points_viewshed.py
 	- 3 : Number of light visibility per grid
+		  File : ./algs/analyse_visibility_light_sources.py
 
 There are also 2 other treatments in the Misc sub-menu of the toolbox:
 - create MNT from RGE Alti : reate a DTM from an area of ​​influence, the slabs and the DTM ASC folder of RGE Alti
+  File : ./algs/create_MNT_from_RGEALTI.py 
 - Pretreatments to remove dark zones : Set to 0 pixels lower than the median of the pixels per band.
+  File : ./algs/pretreatments_dark_zones.py 
 
 
 # Algorithms DSFLI

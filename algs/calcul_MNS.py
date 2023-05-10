@@ -8,6 +8,7 @@ With QGIS : 32215
 from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
+from qgis.core import QgsUnitTypes
 from qgis.core import Qgis
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingUtils
@@ -83,7 +84,11 @@ class CalculMNS(QgsProcessingAlgorithm):
         
         self.parseParams(parameters, context, feedback)
         
-        # Extraire l'emprise de la couche
+        # Test si la projection du raster MNT est bien en unité métrique
+        if self.inputRasterMNT.crs().mapUnits() != 0: # QgsUnitTypes.encodeUnit(0) == "meters"
+            utils.internal_error("The layer "+self.inputRasterMNT.name()+" has a projection in "+self.inputRasterMNT.crs().authid()+", with "+QgsUnitTypes.encodeUnit(self.inputRasterMNT.crs().mapUnits())+" unit, it must be in meter unit (like EPSG:2154).")
+       
+       # Extraire l'emprise de la couche
         # Si emprise non présente, on prend celle du MNS
         if self.inputExtent is None or self.inputExtent == NULL:
             # Mise à 1 à tous les pixels
@@ -126,6 +131,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         # Extraire par localisation le bati
         # Filtre sur l'emprise
         temp_path_loc_bati = QgsProcessingUtils.generateTempFilename('temp_path_loc_bati.gpkg')
+        # qgsTreatments.createSpatialIndex(self.inputBati, context=context,feedback=feedback) # plus lent
         qgsTreatments.extractByLoc(self.inputBati, outputs[self.EXTENT_ZONE],temp_path_loc_bati, predicate=[6], context=context,feedback=feedback) # predicate=[6] # est à l'intérieur
         outputs['LocalisationBatiExtraction'] = qgsUtils.loadVectorLayer(temp_path_loc_bati)
         
@@ -265,6 +271,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         # Rasteriser (vecteur vers raster)
         # prendre la résolution du raster en hauteur/largeur
         resolution = self.inputRasterMNT.rasterUnitsPerPixelX()
+        print(resolution)
         self.results[self.OUTPUT_RASTER_BATI] = qgsTreatments.applyRasterization(outputs['VectorToRasterize'], self.outputRasterBati, outputs['RasterExtent'], resolution,
                                                                                         field=parameters[self.HEIGHT_FIELD_BATI],burn_val=0,nodata_val=0, 
                                                                                         options='COMPRESS=DEFLATE',context=context,feedback=feedback)  

@@ -109,9 +109,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
 
         self.addParameter(QgsProcessingParameterField(self.RADIUS_ANALYSIS_FIELD, self.tr('Radius of analysis field for visibility'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, self.tr('Radius of analysis for visibility (if no field), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=500))
-        
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster buildings vegetation'),defaultValue=None))
-        
+
         # self.addParameter(
             # QgsProcessingParameterFeatureSource(
   
@@ -122,6 +120,9 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterRasterLayer
                           (self.DEM,
             self.tr('DES (Digital surface model)')))
+            
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster buildings vegetation'),defaultValue=None))
+        
         self.addParameter(QgsProcessingParameterBoolean(
             self.USE_CURVATURE,
             self.tr('Take in account Earth curvature'),

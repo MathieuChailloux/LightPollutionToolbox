@@ -85,7 +85,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             # Si grille non présente prendre l'emprise de la couche raster Viewshed
             if self.inputGrid is None or self.inputGrid == NULL:
                 extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
-                outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputViewshed, extent_zone, context=context,feedback=feedback)
+                qgsTreatments.applyGetLayerExtent(self.inputViewshed, extent_zone, context=context,feedback=feedback)
+                outputs[self.EXTENT_ZONE] = qgsUtils.loadVectorLayer(extent_zone)
                 outputs[self.SLICED_RASTER_VIEWSHED] = self.inputViewshed # le raster n'est pas découpé
                
                # le raster bati est découpé pour avoir la même taille que le viewshed
@@ -148,7 +149,14 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             step+=1
             outputs['GridTemp'] = self.inputGrid
             
+        # grille indexée  
+        qgsTreatments.createSpatialIndex(outputs['GridTemp'], context=context,feedback=feedback)
 
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+            
         # Extraire la grille par localisation de l'emprise
         temp_path_grid_loc = QgsProcessingUtils.generateTempFilename('temp_grid_loc.gpkg')
         qgsTreatments.extractByLoc(outputs['GridTemp'], outputs[self.EXTENT_ZONE],temp_path_grid_loc, context=context,feedback=feedback)
@@ -158,14 +166,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
-            
-        # grille indexée  
-        qgsTreatments.createSpatialIndex(outputs['GridTempExtract'], context=context,feedback=feedback)
-
-        step+=1
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
+        
             
         # Calculatrice Raster enleve bati haut
         # Masque bati

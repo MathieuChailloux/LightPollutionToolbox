@@ -8,6 +8,7 @@ With QGIS : 32215
 from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
+from qgis.core import QgsUnitTypes
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
 from qgis.core import QgsProcessingParameterRasterLayer
@@ -87,13 +88,19 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         
         self.parseParams(parameters, context, feedback)
         
+        # Test si la projection du raster de l'image satellite est bien en unité métrique
+        if self.inputRaster.crs().mapUnits() != 0: # QgsUnitTypes.encodeUnit(0) == "meters"
+            utils.internal_error("The layer "+self.inputRaster.name()+" has a projection in "+self.inputRaster.crs().authid()+", with "+QgsUnitTypes.encodeUnit(self.inputRaster.crs().mapUnits())+" unit, it must be in meter unit (like EPSG:2154).")
+        
+        
         # Si emprise non présente
         if self.inputExtent is None or self.inputExtent == NULL:
             # Si grille non présente prendre l'emprise de la couche raster
             # Extraire l'emprise de la couche raster
             if self.inputGrid is None or self.inputGrid == NULL:
                 extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
-                outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputRaster, extent_zone, context=context,feedback=feedback)
+                qgsTreatments.applyGetLayerExtent(self.inputRaster, extent_zone, context=context,feedback=feedback)
+                outputs[self.EXTENT_ZONE] = qgsUtils.loadVectorLayer(extent_zone)
                 outputs[self.SLICED_RASTER] = self.inputRaster # le raster n'est pas découpé
             # Sinon prendre l'emprise de la grille
             else:
@@ -169,20 +176,20 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
-            
+        
+        # grille de calcul indexée
+        qgsTreatments.createSpatialIndex(outputs['GridTempCalc'], context=context,feedback=feedback)
+
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+        
         # Extraire les grilles de calcul par localisation de l'emprise
         temp_path_grid_loc = QgsProcessingUtils.generateTempFilename('temp_grid_loc.gpkg')
         qgsTreatments.extractByLoc(outputs['GridTempCalc'], outputs[self.EXTENT_ZONE],temp_path_grid_loc, context=context,feedback=feedback)
         outputs['GridTempCalcExtract'] = qgsUtils.loadVectorLayer(temp_path_grid_loc)
         
-        step+=1
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
-
-        # grille de calcul indexée
-        qgsTreatments.createSpatialIndex(outputs['GridTempCalcExtract'], context=context,feedback=feedback)
-
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
