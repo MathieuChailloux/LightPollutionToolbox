@@ -88,10 +88,12 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         
         self.parseParams(parameters, context, feedback)
         
-        # Test si la projection du raster de l'image satellite est bien en unité métrique
-        if self.inputRaster.crs().mapUnits() != 0: # QgsUnitTypes.encodeUnit(0) == "meters"
-            utils.internal_error("The layer "+self.inputRaster.name()+" has a projection in "+self.inputRaster.crs().authid()+", with "+QgsUnitTypes.encodeUnit(self.inputRaster.crs().mapUnits())+" unit, it must be in meter unit (like EPSG:2154).")
-        
+        # Test projection des input sont bien en unité métrique
+        if self.inputExtent is not None or self.inputExtent != NULL:
+            qgsUtils.checkProjectionUnit(self.inputExtent)
+        qgsUtils.checkProjectionUnit(self.inputRaster)
+        if self.inputGrid is not None or self.inputGrid != NULL:
+            qgsUtils.checkProjectionUnit(self.inputGrid)
         
         # Si emprise non présente
         if self.inputExtent is None or self.inputExtent == NULL:

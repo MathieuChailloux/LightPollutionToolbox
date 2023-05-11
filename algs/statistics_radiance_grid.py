@@ -8,6 +8,7 @@ With QGIS : 32215
 from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
+from qgis.core import Qgis
 from qgis.core import QgsUnitTypes
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingUtils
@@ -88,10 +89,13 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         self.parseParams(parameters, context, feedback)
         
-        # Test si la projection du raster de l'image satellite est bien en unité métrique
-        if self.inputRaster.crs().mapUnits() != 0: # QgsUnitTypes.encodeUnit(0) == "meters"
-            utils.internal_error("The layer "+self.inputRaster.name()+" has a projection in "+self.inputRaster.crs().authid()+", with "+QgsUnitTypes.encodeUnit(self.inputRaster.crs().mapUnits())+" unit, it must be in meter unit (like EPSG:2154).")
-        
+        # Test projection des input sont bien en unité métrique
+        if self.inputExtent is not None or self.inputExtent != NULL:
+            qgsUtils.checkProjectionUnit(self.inputExtent)
+        qgsUtils.checkProjectionUnit(self.inputRaster)
+        if self.inputGrid is not None or self.inputGrid != NULL:
+            qgsUtils.checkProjectionUnit(self.inputGrid)
+            
         # Si emprise non présente
         if self.inputExtent is None or self.inputExtent == NULL:
             # Si grille non présente prendre l'emprise de la couche raster
@@ -220,7 +224,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         # Calculatrice Raster Radiance totale
         formula = 'A*0.2989+B*0.5870+C*0.1140'
-        outputs['CalculRasterTotalRadiance'] = qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT], self.outputRasterRadiance, formula,options='COMPRESS=DEFLATE', context=context,feedback=feedback)
+        outputs['CalculRasterTotalRadiance'] = qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT], self.outputRasterRadiance, formula, out_type=Qgis.UInt16, context=context,feedback=feedback)
         self.results[self.OUTPUT_RASTER_RADIANCE] = outputs['CalculRasterTotalRadiance']
         
         step+=1

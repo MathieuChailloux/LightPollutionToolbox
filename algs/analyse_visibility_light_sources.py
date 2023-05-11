@@ -78,8 +78,16 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         feedback = QgsProcessingMultiStepFeedback(9, model_feedback)
         outputs = {}
         
-        self.parseParams(parameters, context, feedback)
+        self.parseParams(parameters, context, feedback)  
         
+        # Test projection des input sont bien en unité métrique
+        if self.inputExtent is not None or self.inputExtent != NULL:
+            qgsUtils.checkProjectionUnit(self.inputExtent)
+        qgsUtils.checkProjectionUnit(self.inputViewshed)
+        qgsUtils.checkProjectionUnit(self.inputRasterBati)
+        if self.inputGrid is not None or self.inputGrid != NULL:
+            qgsUtils.checkProjectionUnit(self.inputGrid)
+              
         # Si emprise non présente
         if self.inputExtent is None or self.inputExtent == NULL:
             # Si grille non présente prendre l'emprise de la couche raster Viewshed

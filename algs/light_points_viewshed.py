@@ -223,6 +223,16 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         outputs = {}
                 
         # observers = self.parameterAsSource(parameters,self.OBSERVER_POINTS,context)
+        
+        
+        # Test projection des input sont bien en unité métrique
+        if self.inputExtent is not None or self.inputExtent != NULL:
+            qgsUtils.checkProjectionUnit(self.inputExtent)
+        qgsUtils.checkProjectionUnit(self.inputLightPoints)
+        qgsUtils.checkProjectionUnit(self.raster)
+        qgsUtils.checkProjectionUnit(self.inputRasterBatiVege)
+        
+        
 # --------------- get observers (light points) ------------------       
         
         feedback.setCurrentStep(0)
@@ -336,7 +346,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         if not live_memory:
             # !! we cannot use compression because of a strange memory bloat 
             # produced by GDAL
-            dem.write_output(self.output_path, compression = False)
+            dem.write_output(self.output_path, compression = False) # TODO TO TEST avec compression : bug ?
 
         pt = points.pt #this is a dict of obs. points
 # --------------------- analysis ----------------------   

@@ -148,6 +148,10 @@ class ControllerConnector():
         else:
             in_grid = None           
         
+        red_band = self.dlg.doubleSpinBox_redband_radiance.value()
+        green_band = self.dlg.doubleSpinBox_greenband_radiance.value()
+        blue_band = self.dlg.doubleSpinBox_blueband_radiance.value()
+        
         self.testRemoveLayer(out_path_vector)
         self.testRemoveLayer(out_path_raster)
         self.taskRun = True
@@ -156,9 +160,9 @@ class ControllerConnector():
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.GRID_LAYER_INPUT : in_grid,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.DIM_GRID: grid_size,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.TYPE_GRID: type_grid,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RED_BAND_INPUT:1, # TODO ADD to interface ?
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.GREEN_BAND_INPUT:2,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.BLUE_BAND_INPUT:3,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RED_BAND_INPUT:red_band,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.GREEN_BAND_INPUT:green_band,
+                       LightPollutionToolbox_provider.StatisticsRadianceGrid.BLUE_BAND_INPUT:blue_band,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_STAT : out_path_vector,
                        LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_RASTER_RADIANCE : out_path_raster}
         
@@ -188,6 +192,10 @@ class ControllerConnector():
         else:
             in_grid = None
         
+        red_band = self.dlg.doubleSpinBox_redband_blue.value()
+        green_band = self.dlg.doubleSpinBox_greenband_blue.value()
+        blue_band = self.dlg.doubleSpinBox_blueband_blue.value()
+        
         self.testRemoveLayer(out_path_vector)
         self.taskRun = True
         parameters = { LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.EXTENT_ZONE : in_extent_zone,
@@ -195,9 +203,9 @@ class ControllerConnector():
                        LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.GRID_LAYER_INPUT : in_grid,
                        LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.DIM_GRID_CALC: grid_size,
                        LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.TYPE_GRID: type_grid,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.RED_BAND_INPUT:1,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.GREEN_BAND_INPUT:2,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.BLUE_BAND_INPUT:3,
+                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.RED_BAND_INPUT:red_band,
+                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.GREEN_BAND_INPUT:green_band,
+                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.BLUE_BAND_INPUT:blue_band,
                        LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.OUTPUT_STAT_CALC : out_path_vector}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:StatisticsBlueEmissionGrid")

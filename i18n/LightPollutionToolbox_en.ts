@@ -589,12 +589,12 @@
 <context>
     <name>InterfaceDialogBase</name>
     <message>
-        <location filename="../Interface_dialog_base.py" line="752"/>
+        <location filename="../Interface_dialog_base.py" line="816"/>
         <source>Light Pollution Toolbox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="758"/>
+        <location filename="../Interface_dialog_base.py" line="822"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -603,268 +603,288 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="859"/>
+        <location filename="../Interface_dialog_base.py" line="931"/>
         <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="869"/>
+        <location filename="../Interface_dialog_base.py" line="941"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="785"/>
+        <location filename="../Interface_dialog_base.py" line="853"/>
         <source>Image JILIN RGB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="847"/>
+        <location filename="../Interface_dialog_base.py" line="919"/>
         <source>Grid Diameter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="848"/>
+        <location filename="../Interface_dialog_base.py" line="920"/>
         <source>Grid Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="852"/>
+        <location filename="../Interface_dialog_base.py" line="924"/>
         <source>Hexagon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="850"/>
+        <location filename="../Interface_dialog_base.py" line="922"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="851"/>
+        <location filename="../Interface_dialog_base.py" line="923"/>
         <source>Diamond</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="778"/>
+        <location filename="../Interface_dialog_base.py" line="836"/>
         <source>Statistics Radiance Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="779"/>
+        <location filename="../Interface_dialog_base.py" line="838"/>
         <source>Raster total Radiance Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="843"/>
+        <location filename="../Interface_dialog_base.py" line="915"/>
         <source>Run</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="841"/>
+        <location filename="../Interface_dialog_base.py" line="913"/>
         <source>Import Grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="842"/>
+        <location filename="../Interface_dialog_base.py" line="914"/>
         <source>Create Grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="797"/>
+        <location filename="../Interface_dialog_base.py" line="865"/>
         <source>Statistics Blue Emission Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="799"/>
+        <location filename="../Interface_dialog_base.py" line="871"/>
         <source>Blue Emission</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="806"/>
+        <location filename="../Interface_dialog_base.py" line="878"/>
         <source>Radius of analysis for visibility (buffer of extent), meters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="810"/>
+        <location filename="../Interface_dialog_base.py" line="882"/>
         <source>Height Buildings field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="823"/>
+        <location filename="../Interface_dialog_base.py" line="895"/>
         <source>Light points extraction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="827"/>
+        <location filename="../Interface_dialog_base.py" line="899"/>
         <source>Source light height (if no field), meters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="839"/>
+        <location filename="../Interface_dialog_base.py" line="911"/>
         <source>2 - Calcul of Viewshed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="854"/>
+        <location filename="../Interface_dialog_base.py" line="926"/>
         <source>Layer from viewshed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="840"/>
+        <location filename="../Interface_dialog_base.py" line="912"/>
         <source>Mask height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="861"/>
+        <location filename="../Interface_dialog_base.py" line="933"/>
         <source>Bounds for last class of symbology</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="853"/>
+        <location filename="../Interface_dialog_base.py" line="925"/>
         <source>Output Number of light visibility</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="863"/>
+        <location filename="../Interface_dialog_base.py" line="935"/>
         <source>Visibility Light Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="864"/>
+        <location filename="../Interface_dialog_base.py" line="936"/>
         <source>Debug mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="866"/>
+        <location filename="../Interface_dialog_base.py" line="938"/>
         <source>Save log as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="868"/>
+        <location filename="../Interface_dialog_base.py" line="940"/>
         <source>Clear log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="870"/>
+        <location filename="../Interface_dialog_base.py" line="942"/>
         <source>Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="871"/>
+        <location filename="../Interface_dialog_base.py" line="943"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="753"/>
+        <location filename="../Interface_dialog_base.py" line="817"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="755"/>
+        <location filename="../Interface_dialog_base.py" line="819"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="756"/>
+        <location filename="../Interface_dialog_base.py" line="820"/>
         <source>French</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="830"/>
+        <location filename="../Interface_dialog_base.py" line="902"/>
         <source>Radius of analysis for visibility (if no field), meters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="781"/>
+        <location filename="../Interface_dialog_base.py" line="849"/>
         <source>Radiance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="855"/>
+        <location filename="../Interface_dialog_base.py" line="927"/>
         <source>Extent zone [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="846"/>
+        <location filename="../Interface_dialog_base.py" line="918"/>
         <source>Import Grid  [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="800"/>
+        <location filename="../Interface_dialog_base.py" line="872"/>
         <source>Extent zone [opitonal]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="814"/>
+        <location filename="../Interface_dialog_base.py" line="886"/>
         <source>Height Vegetation field [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="815"/>
+        <location filename="../Interface_dialog_base.py" line="887"/>
         <source>Height Vegetation by default if no field [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="826"/>
+        <location filename="../Interface_dialog_base.py" line="898"/>
         <source>Source light height field [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="829"/>
+        <location filename="../Interface_dialog_base.py" line="901"/>
         <source>Radius of analysis field for visibility [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="803"/>
+        <location filename="../Interface_dialog_base.py" line="875"/>
         <source>DEM (Digital Elevation Model)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="807"/>
+        <location filename="../Interface_dialog_base.py" line="879"/>
         <source>Buildings (Topo DB)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="811"/>
+        <location filename="../Interface_dialog_base.py" line="883"/>
         <source>Vegetation (Topo BD) [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="817"/>
+        <location filename="../Interface_dialog_base.py" line="889"/>
         <source>Raster buildings vegetation Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="831"/>
+        <location filename="../Interface_dialog_base.py" line="903"/>
         <source>DSM (Digital surface model)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="837"/>
+        <location filename="../Interface_dialog_base.py" line="909"/>
         <source>Raster Viewshed Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="856"/>
+        <location filename="../Interface_dialog_base.py" line="928"/>
         <source>Raster buildings vegetation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="819"/>
+        <location filename="../Interface_dialog_base.py" line="891"/>
         <source>1 - Calcul of DSM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="862"/>
+        <location filename="../Interface_dialog_base.py" line="934"/>
         <source>3 - Number of light visibility per grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="816"/>
+        <location filename="../Interface_dialog_base.py" line="888"/>
         <source>Raster DSM Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="828"/>
+        <location filename="../Interface_dialog_base.py" line="900"/>
         <source>Observer height (0, 1, 6, meters)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="866"/>
+        <source>Adanced Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="867"/>
+        <source>Index of the green band</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="868"/>
+        <source>Index of the red band</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="869"/>
+        <source>Index of the blue band</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

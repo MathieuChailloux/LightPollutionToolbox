@@ -454,7 +454,7 @@ class Raster:
     """
     def write_output (self, file_name=None,
                      no_data = np.nan,
-                     dataFormat = gdal.GDT_Float32, 
+                     dataFormat = gdal.GDT_Float32, #gdal.GDT_Int16, # TODO TO TEST 
                      compression = True):
 
         if file_name:  # create a file

@@ -84,10 +84,14 @@ class CalculMNS(QgsProcessingAlgorithm):
         
         self.parseParams(parameters, context, feedback)
         
-        # Test si la projection du raster MNT est bien en unité métrique
-        if self.inputRasterMNT.crs().mapUnits() != 0: # QgsUnitTypes.encodeUnit(0) == "meters"
-            utils.internal_error("The layer "+self.inputRasterMNT.name()+" has a projection in "+self.inputRasterMNT.crs().authid()+", with "+QgsUnitTypes.encodeUnit(self.inputRasterMNT.crs().mapUnits())+" unit, it must be in meter unit (like EPSG:2154).")
-       
+        # Test  projection des input sont bien en unité métrique
+        if self.inputExtent is not None or self.inputExtent != NULL:
+            qgsUtils.checkProjectionUnit(self.inputExtent)
+        qgsUtils.checkProjectionUnit(self.inputBati)
+        if self.inputVegetation is not None and self.inputVegetation != NULL and parameters[self.DEFAULT_HEIGHT_VEGETATION] is not None and parameters[self.DEFAULT_HEIGHT_VEGETATION] != NULL:
+            qgsUtils.checkProjectionUnit(self.inputVegetation)
+        qgsUtils.checkProjectionUnit(self.inputRasterMNT)
+        
        # Extraire l'emprise de la couche
         # Si emprise non présente, on prend celle du MNS
         if self.inputExtent is None or self.inputExtent == NULL:
@@ -110,7 +114,8 @@ class CalculMNS(QgsProcessingAlgorithm):
             return {}
             
         # Découper le raster selon une emprise
-        outputs[self.SLICED_RASTER] = qgsTreatments.applyClipRasterByExtent(self.inputRasterMNT, outputs[self.EXTENT_ZONE], self.outputRasterMNS,data_type=6,options='COMPRESS=DEFLATE', context=context,feedback=feedback)
+        #data_type=2 pour 16 bits
+        outputs[self.SLICED_RASTER] = qgsTreatments.applyClipRasterByExtent(self.inputRasterMNT, outputs[self.EXTENT_ZONE], self.outputRasterMNS,data_type=2,options='COMPRESS=DEFLATE', context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -273,7 +278,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         resolution = self.inputRasterMNT.rasterUnitsPerPixelX()
         print(resolution)
         self.results[self.OUTPUT_RASTER_BATI] = qgsTreatments.applyRasterization(outputs['VectorToRasterize'], self.outputRasterBati, outputs['RasterExtent'], resolution,
-                                                                                        field=parameters[self.HEIGHT_FIELD_BATI],burn_val=0,nodata_val=0, 
+                                                                                        field=parameters[self.HEIGHT_FIELD_BATI],burn_val=0,out_type=Qgis.Int16,nodata_val=0, 
                                                                                         options='COMPRESS=DEFLATE',context=context,feedback=feedback)  
         step+=1
         feedback.setCurrentStep(step)
