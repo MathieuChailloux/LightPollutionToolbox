@@ -5,7 +5,7 @@
 <body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
 	<p><span style=" font-size:14pt; font-weight:600;">Visibility Light Source</span></p>
 	<p ><span style=" font-size:8pt;">The light source visibility indicator allows to evaluate at each grid, the number of light sources visible by an observatur at a given height.<br/>It requires several data calculated in tab 1 and 2, to then calculate the results in tab 3.</span></p>
-	<p><span style=" font-size:10pt; font-weight:600;">Number of light visibility per grid</span></p>
+	<p><span style=" font-size:10pt; font-weight:600;">Number of visible lights</span></p>
 	<p ><span style=" font-size:8pt;">The indicator represent the number of light sources by grid (imported or created) observed according to the relief, the height of the observer and the light sources. A mask is also applied to remove the illumination on the walls of the upper frame at a certain height as a parameter.</span></p>
 	<p ><span style=" font-size:10pt; font-weight:600;">Input parameters</span></p>
 	<ul>
@@ -24,6 +24,7 @@
 	</ul>
 	<p ><span style=" font-size:10pt; font-weight:600;">Output data</span></p>
 	<ul>
-		<li>Number of lights source visible : Vector layer representing the average number of light sources per grid.</li>
+		<li>Raster Number of visible lights : Raster layer, represinting the number of visible light sources per pixels with the mask.</li>
+		<li>Number of visible lights per grid : Vector layer representing the average number of light sources per grid.</li>
 	</ul>
 </body>

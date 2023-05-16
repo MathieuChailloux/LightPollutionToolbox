@@ -29,120 +29,125 @@
 <context>
     <name>AnalyseVisibilityLightSources</name>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="51"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="53"/>
         <source>Extent zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="52"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="54"/>
         <source>Layer resulting from viewshed processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="53"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="55"/>
         <source>Raster bati</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="54"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="56"/>
         <source>Mask height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="56"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="58"/>
         <source>Grid Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="58"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="60"/>
         <source>Grid diameter (meter) if no grid layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="59"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="61"/>
         <source>Type of grid if no grid layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="61"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="63"/>
         <source>Bounds for the last class of symbology</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="64"/>
-        <source>Output Number of light visibility</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="216"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="228"/>
         <source>Number sources of light visibility per grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="222"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="234"/>
         <source>Visibility Light Sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="65"/>
+        <source>Output Raster Number of visible lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="66"/>
+        <source>Output Number of visible lights per grid</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>CalculMNS</name>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="50"/>
+        <location filename="../algs/calcul_MNS.py" line="51"/>
         <source>Extent zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="55"/>
+        <location filename="../algs/calcul_MNS.py" line="56"/>
         <source>Height Buildings field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="58"/>
+        <location filename="../algs/calcul_MNS.py" line="59"/>
         <source>Height Vegetation field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="284"/>
+        <location filename="../algs/calcul_MNS.py" line="296"/>
         <source>Calcul of MNS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="287"/>
+        <location filename="../algs/calcul_MNS.py" line="299"/>
         <source>Visibility Light Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="52"/>
+        <location filename="../algs/calcul_MNS.py" line="53"/>
         <source>Radius of analysis for visibility (buffer of extent), meters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="59"/>
+        <location filename="../algs/calcul_MNS.py" line="60"/>
         <source>Height Vegetation by default if no field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="54"/>
+        <location filename="../algs/calcul_MNS.py" line="55"/>
         <source>Buildings (TOPO DB)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="57"/>
+        <location filename="../algs/calcul_MNS.py" line="58"/>
         <source>Vegetation (TOPO DB)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="51"/>
+        <location filename="../algs/calcul_MNS.py" line="52"/>
         <source>DEM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="61"/>
+        <location filename="../algs/calcul_MNS.py" line="62"/>
         <source>DSM Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="62"/>
+        <location filename="../algs/calcul_MNS.py" line="63"/>
         <source>Raster buildings vegetation Output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -589,12 +594,12 @@
 <context>
     <name>InterfaceDialogBase</name>
     <message>
-        <location filename="../Interface_dialog_base.py" line="816"/>
+        <location filename="../Interface_dialog_base.py" line="831"/>
         <source>Light Pollution Toolbox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="822"/>
+        <location filename="../Interface_dialog_base.py" line="837"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -603,177 +608,172 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="931"/>
+        <location filename="../Interface_dialog_base.py" line="934"/>
         <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="941"/>
+        <location filename="../Interface_dialog_base.py" line="957"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="853"/>
+        <location filename="../Interface_dialog_base.py" line="868"/>
         <source>Image JILIN RGB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="919"/>
+        <location filename="../Interface_dialog_base.py" line="940"/>
         <source>Grid Diameter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="920"/>
+        <location filename="../Interface_dialog_base.py" line="941"/>
         <source>Grid Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="924"/>
+        <location filename="../Interface_dialog_base.py" line="945"/>
         <source>Hexagon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="922"/>
+        <location filename="../Interface_dialog_base.py" line="943"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="923"/>
+        <location filename="../Interface_dialog_base.py" line="944"/>
         <source>Diamond</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="836"/>
+        <location filename="../Interface_dialog_base.py" line="851"/>
         <source>Statistics Radiance Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="838"/>
+        <location filename="../Interface_dialog_base.py" line="853"/>
         <source>Raster total Radiance Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="915"/>
+        <location filename="../Interface_dialog_base.py" line="949"/>
         <source>Run</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="913"/>
+        <location filename="../Interface_dialog_base.py" line="937"/>
         <source>Import Grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="914"/>
+        <location filename="../Interface_dialog_base.py" line="938"/>
         <source>Create Grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="865"/>
+        <location filename="../Interface_dialog_base.py" line="880"/>
         <source>Statistics Blue Emission Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="871"/>
+        <location filename="../Interface_dialog_base.py" line="886"/>
         <source>Blue Emission</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="878"/>
+        <location filename="../Interface_dialog_base.py" line="893"/>
         <source>Radius of analysis for visibility (buffer of extent), meters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="882"/>
+        <location filename="../Interface_dialog_base.py" line="897"/>
         <source>Height Buildings field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="895"/>
+        <location filename="../Interface_dialog_base.py" line="910"/>
         <source>Light points extraction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="899"/>
+        <location filename="../Interface_dialog_base.py" line="914"/>
         <source>Source light height (if no field), meters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="911"/>
+        <location filename="../Interface_dialog_base.py" line="926"/>
         <source>2 - Calcul of Viewshed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="926"/>
+        <location filename="../Interface_dialog_base.py" line="930"/>
         <source>Layer from viewshed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="912"/>
+        <location filename="../Interface_dialog_base.py" line="936"/>
         <source>Mask height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="933"/>
+        <location filename="../Interface_dialog_base.py" line="946"/>
         <source>Bounds for last class of symbology</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="925"/>
-        <source>Output Number of light visibility</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Interface_dialog_base.py" line="935"/>
+        <location filename="../Interface_dialog_base.py" line="951"/>
         <source>Visibility Light Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="936"/>
+        <location filename="../Interface_dialog_base.py" line="952"/>
         <source>Debug mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="938"/>
+        <location filename="../Interface_dialog_base.py" line="954"/>
         <source>Save log as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="940"/>
+        <location filename="../Interface_dialog_base.py" line="956"/>
         <source>Clear log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="942"/>
+        <location filename="../Interface_dialog_base.py" line="958"/>
         <source>Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="943"/>
+        <location filename="../Interface_dialog_base.py" line="959"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="817"/>
+        <location filename="../Interface_dialog_base.py" line="832"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="819"/>
+        <location filename="../Interface_dialog_base.py" line="834"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="820"/>
+        <location filename="../Interface_dialog_base.py" line="835"/>
         <source>French</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="902"/>
+        <location filename="../Interface_dialog_base.py" line="917"/>
         <source>Radius of analysis for visibility (if no field), meters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="849"/>
+        <location filename="../Interface_dialog_base.py" line="864"/>
         <source>Radiance</source>
         <translation type="unfinished"></translation>
     </message>
@@ -783,108 +783,118 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="918"/>
+        <location filename="../Interface_dialog_base.py" line="939"/>
         <source>Import Grid  [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="872"/>
+        <location filename="../Interface_dialog_base.py" line="887"/>
         <source>Extent zone [opitonal]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="886"/>
+        <location filename="../Interface_dialog_base.py" line="901"/>
         <source>Height Vegetation field [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="887"/>
+        <location filename="../Interface_dialog_base.py" line="902"/>
         <source>Height Vegetation by default if no field [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="898"/>
+        <location filename="../Interface_dialog_base.py" line="913"/>
         <source>Source light height field [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="901"/>
+        <location filename="../Interface_dialog_base.py" line="916"/>
         <source>Radius of analysis field for visibility [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="875"/>
+        <location filename="../Interface_dialog_base.py" line="890"/>
         <source>DEM (Digital Elevation Model)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="879"/>
+        <location filename="../Interface_dialog_base.py" line="894"/>
         <source>Buildings (Topo DB)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="883"/>
+        <location filename="../Interface_dialog_base.py" line="898"/>
         <source>Vegetation (Topo BD) [optional]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="889"/>
+        <location filename="../Interface_dialog_base.py" line="904"/>
         <source>Raster buildings vegetation Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="903"/>
+        <location filename="../Interface_dialog_base.py" line="918"/>
         <source>DSM (Digital surface model)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="909"/>
+        <location filename="../Interface_dialog_base.py" line="924"/>
         <source>Raster Viewshed Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="928"/>
+        <location filename="../Interface_dialog_base.py" line="933"/>
         <source>Raster buildings vegetation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="891"/>
+        <location filename="../Interface_dialog_base.py" line="906"/>
         <source>1 - Calcul of DSM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="934"/>
-        <source>3 - Number of light visibility per grid</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Interface_dialog_base.py" line="888"/>
+        <location filename="../Interface_dialog_base.py" line="903"/>
         <source>Raster DSM Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="900"/>
+        <location filename="../Interface_dialog_base.py" line="915"/>
         <source>Observer height (0, 1, 6, meters)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="866"/>
+        <location filename="../Interface_dialog_base.py" line="881"/>
         <source>Adanced Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="867"/>
+        <location filename="../Interface_dialog_base.py" line="882"/>
         <source>Index of the green band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="868"/>
+        <location filename="../Interface_dialog_base.py" line="883"/>
         <source>Index of the red band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="869"/>
+        <location filename="../Interface_dialog_base.py" line="884"/>
         <source>Index of the blue band</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="947"/>
+        <source>Output Raster Number of visible lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="948"/>
+        <source>Output Number of visible lightsy per grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="950"/>
+        <source>3 - Number of visible lights</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -962,37 +972,37 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="125"/>
+        <location filename="../algs/light_points_viewshed.py" line="126"/>
         <source>Take in account Earth curvature</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="130"/>
+        <location filename="../algs/light_points_viewshed.py" line="131"/>
         <source>Analysis type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="137"/>
+        <location filename="../algs/light_points_viewshed.py" line="138"/>
         <source>Atmoshpheric refraction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="150"/>
+        <location filename="../algs/light_points_viewshed.py" line="151"/>
         <source>Combining multiple outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="158"/>
+        <location filename="../algs/light_points_viewshed.py" line="159"/>
         <source>Output file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="439"/>
+        <location filename="../algs/light_points_viewshed.py" line="455"/>
         <source>Calcul of Viewshed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="446"/>
+        <location filename="../algs/light_points_viewshed.py" line="462"/>
         <source>Visibility Light Sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1007,7 +1017,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="122"/>
+        <location filename="../algs/light_points_viewshed.py" line="120"/>
         <source>DES (Digital surface model)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1017,7 +1027,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="113"/>
+        <location filename="../algs/light_points_viewshed.py" line="124"/>
         <source>Raster buildings vegetation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1367,52 +1377,52 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>StatisticsBlueEmissionGrid</name>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="55"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="56"/>
         <source>Extent zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="56"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="57"/>
         <source>Image JILIN radiance RGB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="57"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="58"/>
         <source>Grid Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="58"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="59"/>
         <source>Grid diameter (min 150 meters) if no grid layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="60"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="61"/>
         <source>Type of grid if no grid layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="61"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="62"/>
         <source>statistics blue emission</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="64"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="65"/>
         <source>Index of the red band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="67"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="68"/>
         <source>Index of the green band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="70"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="71"/>
         <source>Index of the blue band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="367"/>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="376"/>
         <source>Statistics of blue emission per grid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1420,57 +1430,57 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>StatisticsRadianceGrid</name>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="53"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="55"/>
         <source>Extent zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="54"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="56"/>
         <source>Image JILIN radiance RGB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="55"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="57"/>
         <source>Grid Layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="57"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="59"/>
         <source>Grid diameter (meter) if no grid layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="58"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="60"/>
         <source>Type of grid if no grid layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="60"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="62"/>
         <source>Statistics Radiance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="61"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="63"/>
         <source>Raster total Radiance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="63"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="65"/>
         <source>Index of the red band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="66"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="68"/>
         <source>Index of the green band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="69"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="71"/>
         <source>Index of the blue band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="393"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="402"/>
         <source>Statistics of radiance per grid</source>
         <translation type="unfinished"></translation>
     </message>

@@ -5,7 +5,7 @@
 <body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
 	<p><span style=" font-size:14pt; font-weight:600;">Visibilité des sources lumineuses</span></p>
 	<p ><span style=" font-size:8pt;">L'indicateur de visibilité des sources lumineuses permet d'évaluer pour chaque maille, le nombre de sources lumineuses visibles par un observatur à une hauteur donnée.<br/>Il nécessite plusieurs données calculées dans l'onglet 1 et 2, pour ensuite calculer les résultats dans l'onglet 3.</span></p>
-	<p><span style=" font-size:10pt; font-weight:600;">Nombre de sources lumineuses</span></p>
+	<p><span style=" font-size:10pt; font-weight:600;">Nombre de sources visibles</span></p>
 	<p ><span style=" font-size:8pt;">L'indicateur permet de représenter par maille (importée ou créée) le nombre moyen de lumières observées en fonction du relief, de la hauteur de l'observateur et des sources lumineuses. Un masque est également appliqué pour enlever l’éclairement sur les murs du bati (et bordure de la végétation si présente) supérieur à une certaine hauteur en paramètre.</span></p>
 	<p ><span style=" font-size:10pt; font-weight:600;">Paramètres d'entrés</span></p>
 	<ul>
@@ -23,6 +23,7 @@
 	</ul>
 	<p ><span style=" font-size:10pt; font-weight:600;">Données de sortie</span></p>
 	<ul>
-		<li>Nombre de sources lumineuses visibles : Couche vecteur représentant le nombre moyen de sources lumineuses par maille.</li>
+		<li>Raster Nombre de sources lumineuses visibles: Couche raster représentant le nombre de sources lumineuses visibles par pixel avec le masque.</li>
+		<li>Nombre de sources lumineuses visibles par maille: Couche vecteur représentant le nombre moyen de sources lumineuses par maille.</li>
 	</ul>
 </body>

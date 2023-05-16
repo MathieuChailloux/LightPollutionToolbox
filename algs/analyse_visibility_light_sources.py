@@ -8,6 +8,7 @@ With QGIS : 32215
 from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
+from qgis.core import Qgis
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingUtils
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -40,6 +41,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     SLICED_RASTER_VIEWSHED = 'SlicedRasterViewshed'
     SLICED_RASTER_BATI = 'SlicedRasterBati'
     OUTPUT_BUILDINGS_MASK = 'OutputBuildingsMask'
+    OUTPUT_NB_SRC_RASTER = 'OutputNbSrcRaster'
     OUTPUT_NB_SRC_VIS = 'OutputNbSrcVis'
     
     FIELD_STYLE = '_mean'
@@ -60,15 +62,15 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         
         self.addParameter(QgsProcessingParameterNumber(self.LAST_BOUNDS, self.tr('Bounds for the last class of symbology'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
 
-        # self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_BUILDINGS_MASK, self.tr('Buildings mask'), createByDefault=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NB_SRC_VIS, self.tr('Output Number of light visibility'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_NB_SRC_RASTER, self.tr('Output Raster Number of visible lights'), createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NB_SRC_VIS, self.tr('Output Number of visible lights per grid'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
     
     def parseParams(self, parameters, context, feedback):
         self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1] 
         self.inputViewshed = self.parameterAsRasterLayer(parameters, self.VIEWSHED_INPUT, context)
         self.inputRasterBati = self.parameterAsRasterLayer(parameters, self.RASTER_BATI_INPUT, context)
         self.inputGrid = qgsTreatments.parameterAsSourceLayer(self, parameters,self.GRID_LAYER_INPUT,context,feedback=feedback)[1] 
-        # self.outputBuildingsMarsk = self.parameterAsOutputLayer(parameters,self.OUTPUT_BUILDINGS_MASK, context)
+        self.outputbSrcRaster = self.parameterAsOutputLayer(parameters,self.OUTPUT_NB_SRC_RASTER, context)
         self.outputNbSrcVis = self.parameterAsOutputLayer(parameters,self.OUTPUT_NB_SRC_VIS, context)
     
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -196,7 +198,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             return {}
 
         # Mise à zéro du pixel sur bati supérieur à une certaine hauteur
-        outputs['BatiWithHeightMask'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_VIEWSHED], outputs['FillCellsWithoutData'], QgsProcessing.TEMPORARY_OUTPUT, 'A*B',nodata_val=None, context=context,feedback=feedback)
+        outputs['BatiWithHeightMask'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_VIEWSHED], outputs['FillCellsWithoutData'], self.outputbSrcRaster, 'A*B',nodata_val=None, out_type=Qgis.Int16, context=context,feedback=feedback)
+        self.results[self.OUTPUT_NB_SRC_RASTER] = outputs['BatiWithHeightMask']
         
         step+=1
         feedback.setCurrentStep(step)

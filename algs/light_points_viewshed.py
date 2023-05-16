@@ -215,6 +215,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.operator = self.parameterAsInt(parameters,self.OPERATOR,context) +1       
 
         self.output_path = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
+
         
     def processAlgorithm(self, parameters, context, feedback):
         
@@ -240,7 +241,9 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         # Si emprise non présente, on prend celle des points lumineux
         if self.inputExtent is None or self.inputExtent == NULL:
             extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
-            outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputLightPoints, extent_zone, context=context,feedback=feedback)
+            qgsTreatments.applyGetLayerExtent(self.raster, extent_zone, context=context,feedback=feedback)
+            outputs[self.EXTENT_ZONE] = qgsUtils.loadVectorLayer(extent_zone)
+            # outputs[self.EXTENT_ZONE] = qgsTreatments.applyGetLayerExtent(self.inputLightPoints, extent_zone, context=context,feedback=feedback)
             
         else:
             # Tampon
@@ -304,11 +307,13 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         outputs['LightPoints'] = qgsUtils.loadVectorLayer(temp_path_lum_pts)
 
 # --------------- verification of inputs ------------------
-
-        raster_path= self.raster.source()
+        # ajout pour découper si MNS + grand que emprise
+        temp_decoup_raster = QgsProcessingUtils.generateTempFilename('temp_decoup_raster.tif')
+        qgsTreatments.applyClipRasterByExtent(self.raster, outputs[self.EXTENT_ZONE], temp_decoup_raster, context=context,feedback=feedback)
+        raster_path= temp_decoup_raster
+        # raster_path = self.raster.source()
         dem = rst.Raster(raster_path, output=self.output_path)
         
-
 
         # Get result of first points extractions
         points = pts.Points(outputs['LightPoints']) #pts.Points(observers)
@@ -346,7 +351,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         if not live_memory:
             # !! we cannot use compression because of a strange memory bloat 
             # produced by GDAL
-            dem.write_output(self.output_path, compression = False) # TODO TO TEST avec compression : bug ?
+            dem.write_output(self.output_path, compression = False)
 
         pt = points.pt #this is a dict of obs. points
 # --------------------- analysis ----------------------   
@@ -387,7 +392,6 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
                 if not inner_radius_specified:
                     mask += [ None ]
                 mask += [ pt[id1]["azim_1"], pt[id1]["azim_2"] ]
-                print (mask)
 
             dem.set_mask(*mask)
 
@@ -420,7 +424,14 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
           
         results = {}
         
+        # TODO : marche pas
+        # temp_decoup_raster = QgsProcessingUtils.generateTempFilename('temp_decoup_raster.tif')
+        # qgsTreatments.applyClipRasterByExtent(self.output_path, outputs[self.EXTENT_ZONE], temp_decoup_raster, context=context,feedback=feedback)
+        # self.output_path = qgsUtils.loadRasterLayer(temp_decoup_raster)
+        
         results[self.OUTPUT] = self.output_path
+            
+            
         # for output in self.outputDefinitions():
             # outputName = output.name()
                 

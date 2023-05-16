@@ -108,6 +108,7 @@ class ControllerConnector():
         
         # init Number of light visibility
         self.dlg.outputFileNbLight.setFilter("*.shp;;*.gpkg")
+        self.dlg.outputRasterFileNbLight.setFilter("*.tif")
         self.dlg.pushRunNbLightButton.clicked.connect(self.onPbRunNbLightClicked)
         self.dlg.extentFileNbLight.clicked.connect(partial(self.select_file, "vector", self.dlg.mMapLayerComboBoxExtentNbLight))
         self.dlg.viewshedFile.clicked.connect(partial(self.select_file, "raster", self.dlg.mMapLayerComboBoxViewshedResult))
@@ -304,6 +305,9 @@ class ControllerConnector():
         out_path_vector = QgsProcessing.TEMPORARY_OUTPUT
         if self.dlg.outputFileNbLight.filePath():
             out_path_vector = self.dlg.outputFileNbLight.filePath()
+        out_path_raster = QgsProcessing.TEMPORARY_OUTPUT
+        if self.dlg.outputRasterFileNbLight.filePath():
+            out_path_raster = self.dlg.outputRasterFileNbLight.filePath()    
             
         in_extent_zone = self.dlg.mMapLayerComboBoxExtentNbLight.currentLayer()
         in_raster_viewshed = self.dlg.mMapLayerComboBoxViewshedResult.currentLayer()
@@ -329,7 +333,8 @@ class ControllerConnector():
                        LightPollutionToolbox_provider.AnalyseVisibilityLightSources.TYPE_GRID: type_grid,
                        LightPollutionToolbox_provider.AnalyseVisibilityLightSources.MASK_HEIGHT: mask_height,
                        LightPollutionToolbox_provider.AnalyseVisibilityLightSources.LAST_BOUNDS: self.LAST_BOUNDS_VALUE,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.OUTPUT_NB_SRC_VIS : out_path_vector}
+                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.OUTPUT_NB_SRC_RASTER: out_path_raster,
+                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.OUTPUT_NB_SRC_VIS: out_path_vector}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:AnalyseVisibilityLightSources")
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
