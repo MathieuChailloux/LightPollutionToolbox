@@ -1183,12 +1183,12 @@ p, li { white-space: pre-wrap; }
         <translation>Fichier de sortie</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="455"/>
+        <location filename="../algs/light_points_viewshed.py" line="461"/>
         <source>Calcul of Viewshed</source>
         <translation>Calcul du Viewshed (champ de vision)</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="462"/>
+        <location filename="../algs/light_points_viewshed.py" line="468"/>
         <source>Visibility Light Sources</source>
         <translation>Visibilité des sources lumineuses</translation>
     </message>
@@ -1210,7 +1210,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/light_points_viewshed.py" line="120"/>
         <source>DES (Digital surface model)</source>
-        <translation type="unfinished">MNS (Modèle Numérique de Surface)</translation>
+        <translation type="obsolete">MNS (Modèle Numérique de Surface)</translation>
     </message>
     <message>
         <location filename="../algs/light_points_viewshed.py" line="108"/>
@@ -1221,6 +1221,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../algs/light_points_viewshed.py" line="124"/>
         <source>Raster buildings vegetation</source>
         <translation type="unfinished">Bati vegetation raster</translation>
+    </message>
+    <message>
+        <location filename="../algs/light_points_viewshed.py" line="120"/>
+        <source>DSM (Digital surface model)</source>
+        <translation type="unfinished">MNS (Modèle Numérique de Surface)</translation>
     </message>
 </context>
 <context>

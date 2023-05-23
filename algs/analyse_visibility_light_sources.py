@@ -110,7 +110,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
              # Sinon prendre l'emprise de la grille
             else:
                 # Découper le raster Viewshed selon une emprise (celle de la grille)
-                outputs[self.SLICED_RASTER_VIEWSHED] = qgsTreatments.applyClipRasterByExtent(self.inputViewshed, self.inputGrid, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+                outputs[self.SLICED_RASTER_VIEWSHED] = qgsTreatments.applyClipRasterByExtent(self.inputViewshed, self.inputGrid, QgsProcessing.TEMPORARY_OUTPUT, no_data=-999999999, context=context,feedback=feedback)
                 outputs[self.EXTENT_ZONE] = self.inputGrid
                 
                 step+=1
@@ -127,7 +127,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                     return {}
         else:
             # Découper le raster Viewshed selon une emprise
-            outputs[self.SLICED_RASTER_VIEWSHED] = qgsTreatments.applyClipRasterByExtent(self.inputViewshed, self.inputExtent, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+            outputs[self.SLICED_RASTER_VIEWSHED] = qgsTreatments.applyClipRasterByExtent(self.inputViewshed, self.inputExtent, QgsProcessing.TEMPORARY_OUTPUT, no_data=-999999999, context=context,feedback=feedback)
             outputs[self.EXTENT_ZONE] = self.inputExtent
             
             step+=1

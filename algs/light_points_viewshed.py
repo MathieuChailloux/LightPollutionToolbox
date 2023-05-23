@@ -119,7 +119,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
 
         self.addParameter(QgsProcessingParameterRasterLayer
                           (self.DEM,
-            self.tr('DES (Digital surface model)')))
+            self.tr('DSM (Digital surface model)')))
             
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster buildings vegetation'),defaultValue=None))
         

@@ -997,12 +997,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="455"/>
+        <location filename="../algs/light_points_viewshed.py" line="461"/>
         <source>Calcul of Viewshed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="462"/>
+        <location filename="../algs/light_points_viewshed.py" line="468"/>
         <source>Visibility Light Sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1017,11 +1017,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="120"/>
-        <source>DES (Digital surface model)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../algs/light_points_viewshed.py" line="108"/>
         <source>Observer height (0, 1, 6, meters)</source>
         <translation type="unfinished"></translation>
@@ -1029,6 +1024,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/light_points_viewshed.py" line="124"/>
         <source>Raster buildings vegetation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/light_points_viewshed.py" line="120"/>
+        <source>DSM (Digital surface model)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
