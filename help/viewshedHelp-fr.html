@@ -9,19 +9,19 @@
 	<p ><span style=" font-size:8pt;">Calcul un raster qui indique pour chaque pixel le nombre de sources de lumières visibles en fonction du relief, du bati et éventuellement la végétation.</span></p>
 	<p ><span style=" font-size:10pt; font-weight:600;">Paramètres d'entrés</span></p>
 	<ul>
-		<li>Zone d'étude : Etendue de la zone d'étude permettant de délimiter les traitements.</li>
-		<li>Extraction des points lumineux : Couche vecteur de points lumineux issue d'un traitement effectué sur l'image satellite nocturne.</li>
+		<li>Zone d'étude : Etendue de la zone d'étude permettant de délimiter les traitements.</li><li>Extraction des points lumineux : Couche vecteur de points lumineux issue d'un traitement effectué sur l'image satellite nocturne.</li>
 		<li>Champ hauteur de la source lumineuse : Champ représentant la hauteur de la source lumineuse dans la couche des points lumineux (optionnel).</li>
 		<li>Hauteur de la source lumineuse : Hauteur de la source, si aucun champ selectionné, 6 mètres par défaut.</li>
 		<li>Hauteur de l'observateur : Hauteur de l'observateur, 0, 1 ou 6 mètres.</li>
 		<li>Champ de rayon de visibilité : Champ indiquant la distance maximale de visibilité dans la couche des points lumineux (optionnel).</li>
 		<li>Rayon de visibilité : Distance maximale de visibilité, si aucun champ sélectionné, en mètres.</li>
-		<li>MNS : Modèle Numérique de Surface à prendre en compte pour calculer la visibilité.</li>
-		<li>Raster bati vegetation : Couche raster avec comme valeurs du bati et de la végétation si présente.</li>
+		<li>MNS : Modèle Numérique de Surface à prendre en compte pour calculer la visibilité.</li><li>Raster bati vegetation : Couche raster avec comme valeurs du bati et de la végétation si présente.</li>
 	</ul>
 	<p ><span style=" font-size:10pt; font-weight:600;">Données de sortie</span></p>
 	<ul>
 		<li>Viewshed Raster : Couche raster du viewshed qui indique le nombre de sources visibles par pixel.</li>
+Sauvegarde vers fichier temporaire si non rempli.	
 	</ul>
+<br/>
 Ce traitement utilise le code du plugin Visibility Analysis : <br/><a target='_blank' href='https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis'>https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis</a>
 </body>

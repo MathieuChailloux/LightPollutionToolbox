@@ -238,7 +238,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
         feedback.setCurrentStep(0)
         # Extraire l'emprise de la couche
-        # Si emprise non présente, on prend celle des points lumineux
+        # Si emprise non présente, on prend celle du raster
         if self.inputExtent is None or self.inputExtent == NULL:
             extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
             qgsTreatments.applyGetLayerExtent(self.raster, extent_zone, context=context,feedback=feedback)
@@ -250,7 +250,11 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
             expr = parameters[self.RADIUS_ANALYSIS]
             temp_path_buf = QgsProcessingUtils.generateTempFilename('temp_path_buf.gpkg')
             qgsTreatments.applyBufferFromExpr(self.inputExtent,expr, temp_path_buf,context=context,feedback=feedback)
-            outputs[self.EXTENT_ZONE] =  qgsUtils.loadVectorLayer(temp_path_buf)
+            outputs['ExtentTemp'] =  qgsUtils.loadVectorLayer(temp_path_buf)
+            # Doit correspondre à l'emprise carré pour ne pas fausser les bordures
+            extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
+            qgsTreatments.applyGetLayerExtent(outputs['ExtentTemp'], extent_zone, context=context,feedback=feedback)
+            outputs[self.EXTENT_ZONE] = qgsUtils.loadVectorLayer(extent_zone)
             
         
         # Découper le raster Bati selon une emprise

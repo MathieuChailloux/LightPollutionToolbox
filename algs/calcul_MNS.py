@@ -137,7 +137,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         # Filtre sur l'emprise
         temp_path_loc_bati = QgsProcessingUtils.generateTempFilename('temp_path_loc_bati.gpkg')
         # qgsTreatments.createSpatialIndex(self.inputBati, context=context,feedback=feedback) # plus lent
-        qgsTreatments.extractByLoc(self.inputBati, outputs[self.EXTENT_ZONE],temp_path_loc_bati, predicate=[6], context=context,feedback=feedback) # predicate=[6] # est à l'intérieur
+        qgsTreatments.extractByLoc(self.inputBati, outputs['RasterExtent'],temp_path_loc_bati, predicate=[6], context=context,feedback=feedback) # predicate=[6] # est à l'intérieur
         outputs['LocalisationBatiExtraction'] = qgsUtils.loadVectorLayer(temp_path_loc_bati)
         
         step+=1
@@ -185,7 +185,7 @@ class CalculMNS(QgsProcessingAlgorithm):
                 
             # Extraction en fonction de l'emprise
             temp_path_loc_veg = QgsProcessingUtils.generateTempFilename('temp_path_loc_veg.gpkg')
-            qgsTreatments.extractByLoc(outputs['FilterVegetationWithHeight'], outputs[self.EXTENT_ZONE],temp_path_loc_veg, predicate=[6], context=context,feedback=feedback)
+            qgsTreatments.extractByLoc(outputs['FilterVegetationWithHeight'], outputs['RasterExtent'],temp_path_loc_veg, predicate=[6], context=context,feedback=feedback)
             outputs['LocalisationVegetationExtraction'] = qgsUtils.loadVectorLayer(temp_path_loc_veg)
             
             step+=1

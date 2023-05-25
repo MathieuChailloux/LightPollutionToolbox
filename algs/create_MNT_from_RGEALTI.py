@@ -89,9 +89,18 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
         selected_grids_index = []
         if fields.indexOf(self.FIELD_DALLE) > -1:
             features = layer.getFeatures()
+            i=0
             for feature in features:
                 field_value = feature[self.FIELD_DALLE]
-                selected_grids_index.append(field_value[20:29])
+                split_value = ""
+                if i==0:
+                    if "EXT" in field_value:
+                        split_value="EXT"
+                    elif "FXX" in field_value:
+                        split_value="FXX"
+                    else:
+                        break
+                selected_grids_index.append(field_value.split(split_value)[1][0:10])
             list_grids_raster = []
             for grid_index in selected_grids_index:
                 for file in os.listdir(temp_path_folder):

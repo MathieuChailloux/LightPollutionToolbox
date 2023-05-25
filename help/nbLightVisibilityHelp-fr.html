@@ -12,7 +12,9 @@
 		<li>Zone d'étude : Etendue de la zone d'étude permettant de délémiter l'indicateur calculé.</li><li>MNT : Modèle Numérique de Terrain au format raster.</li>
 		<li>Couche résultat du viewshed : Couche raster issu du traitement viewshed.</li>
 		<li>Bati végétation Raster: Couche raster créée lors du calcul du MNS, qui permet d'enlever l'éclairement sur le bati et la végétation (si présente).</li>
+		
 		<li>Hauteur du masque: Hauteur en mètres du masque à appliquer qui permet de ne pas prendre l'éclairement en compte si il est inférieur ou égal à cette hauteur, elle doit normalement être identique à la hauteur de l'observateur indiquée dans le calcul du viewshed.</li>
+		
 		<li>Choix de la maille : Maille sur laquelle sera calculé l'indicateur, elle peut être importée ou créée.
 		<ul>
 			<li>Importer une maille : Couche vecteur de maille déjà créée.</li>
@@ -24,6 +26,8 @@
 	<p ><span style=" font-size:10pt; font-weight:600;">Données de sortie</span></p>
 	<ul>
 		<li>Raster Nombre de sources lumineuses visibles: Couche raster représentant le nombre de sources lumineuses visibles par pixel avec le masque.</li>
+		
 		<li>Nombre de sources lumineuses visibles par maille: Couche vecteur représentant le nombre moyen de sources lumineuses par maille.</li>
+Sauvegarde vers fichier temporaire si non rempli.	
 	</ul>
 </body>
