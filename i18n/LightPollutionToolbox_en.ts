@@ -74,11 +74,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="234"/>
-        <source>Visibility Light Sources</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="65"/>
         <source>Output Raster Number of visible lights</source>
         <translation type="unfinished"></translation>
@@ -86,6 +81,11 @@
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="66"/>
         <source>Output Number of visible lights per grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="234"/>
+        <source>Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -109,11 +109,6 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="296"/>
         <source>Calcul of MNS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algs/calcul_MNS.py" line="299"/>
-        <source>Visibility Light Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -149,6 +144,11 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="63"/>
         <source>Raster buildings vegetation Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/calcul_MNS.py" line="299"/>
+        <source>Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -939,13 +939,13 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/old/light_points_extraction.py" line="197"/>
-        <source>Visibility Light Sources</source>
+        <location filename="../algs/old/light_points_extraction.py" line="63"/>
+        <source>Raster buildings vegetation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/old/light_points_extraction.py" line="63"/>
-        <source>Raster buildings vegetation</source>
+        <location filename="../algs/old/light_points_extraction.py" line="197"/>
+        <source>Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -997,13 +997,8 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="461"/>
+        <location filename="../algs/light_points_viewshed.py" line="465"/>
         <source>Calcul of Viewshed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algs/light_points_viewshed.py" line="468"/>
-        <source>Visibility Light Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1029,6 +1024,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/light_points_viewshed.py" line="120"/>
         <source>DSM (Digital surface model)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/light_points_viewshed.py" line="472"/>
+        <source>Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1182,7 +1182,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="175"/>
-        <source>Misc</source>
+        <source>Utils Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1426,6 +1426,11 @@ p, li { white-space: pre-wrap; }
         <source>Statistics of blue emission per grid</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="379"/>
+        <source>Light Pollution Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>StatisticsRadianceGrid</name>
@@ -1482,6 +1487,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/statistics_radiance_grid.py" line="402"/>
         <source>Statistics of radiance per grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/statistics_radiance_grid.py" line="405"/>
+        <source>Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1552,7 +1562,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../algs/old/viewshed_raster.py" line="347"/>
-        <source>Visibility Light Sources</source>
+        <source>Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1574,18 +1584,18 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/create_MNT_from_RGEALTI.py" line="126"/>
+        <location filename="../algs/create_MNT_from_RGEALTI.py" line="135"/>
         <source>Create MNT from RGEALTI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algs/create_MNT_from_RGEALTI.py" line="129"/>
-        <source>Misc</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="38"/>
         <source>grids</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/create_MNT_from_RGEALTI.py" line="138"/>
+        <source>Utils Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

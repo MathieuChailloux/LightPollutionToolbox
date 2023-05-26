@@ -194,10 +194,10 @@ class LightPointsExtraction(QgsProcessingAlgorithm):
         return self.tr('Light points extraction')
 
     def group(self):
-        return  self.tr('Visibility Light Sources')
+        return  self.tr('Light Pollution Indicators')
 
     def groupId(self):
-        return 'VisibilityLightSources'
+        return 'lightPollutionIndicators'
         
     def tr(self, string):
         return QCoreApplication.translate(self.__class__.__name__, string)

@@ -135,10 +135,10 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
         return self.tr('Create MNT from RGEALTI')
 
     def group(self):
-        return self.tr('Misc')
+        return self.tr('Utils Light Pollution Indicators')
 
     def groupId(self):
-        return 'Misc'
+        return 'utilsLightPollutionIndicators'
     
     def tr(self, string):
         return QCoreApplication.translate(self.__class__.__name__, string)

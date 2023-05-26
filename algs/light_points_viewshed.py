@@ -469,7 +469,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         Returns the name of the group this algorithm belongs to. This string
         should be localised.
         """
-        return self.tr('Visibility Light Sources')
+        return self.tr('Light Pollution Indicators')
 
     def groupId(self):
         """
@@ -479,7 +479,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         contain lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return 'VisibilityLightSources'
+        return 'lightPollutionIndicators'
 
     def tr(self, string):
         return QCoreApplication.translate(self.__class__.__name__, string)

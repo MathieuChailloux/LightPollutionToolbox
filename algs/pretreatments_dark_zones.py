@@ -172,10 +172,10 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         return self.tr('Pretreatments to remove dark zones')
         
     def group(self):
-        return self.tr('Misc')
+        return self.tr('Utils Light Pollution Indicators')
 
     def groupId(self):
-        return 'Misc'
+        return 'utilsLightPollutionIndicators'
 
     def tr(self, string):
         """

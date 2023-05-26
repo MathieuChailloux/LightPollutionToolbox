@@ -45,22 +45,29 @@ PLUGINNAME = LightPollutionToolbox
 PY_FILES = \
 	*.py
 
-UI_FILES = 
-
+UI_FILES = \
+	*.ui
+	
+MD_FILES = \
+	*.md
+		
 EXTRAS = metadata.txt \
 	lamp.png
 
 EXTRA_DIRS = \
 	docs \
-	sample_data
+	sample_data \
+	icons \
+	help
 
 EXTRA_PY_DIRS = \
 	algs \
-	qgis_lib_mc
+	qgis_lib_mc \
+	algs/DSFLI \
+	algs/modules
 
 EXCLUDE_DIRS = \
 	sample_data/outputs \
-	help
 
 EXCLUDE_FILES = \
 	docs/fr/NoteDSFLI_25012021_v2.docx
@@ -139,6 +146,8 @@ archive:
 	rm -rf $(PLUGINNAME)
 	mkdir -p $(PLUGINNAME)
 	cp -vf $(PY_FILES) $(PLUGINNAME)
+	cp -vf $(UI_FILES) $(PLUGINNAME)
+	cp -vf $(MD_FILES) $(PLUGINNAME)
 	cp -vf $(EXTRAS) $(PLUGINNAME)
 	cp -vfr i18n $(PLUGINNAME)
 	$(foreach EXTRA_PY_DIR,$(EXTRA_PY_DIRS), mkdir $(PLUGINNAME)/$(EXTRA_PY_DIR);)

@@ -58,7 +58,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
                 
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
-        self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
+        self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, defaultValue=2))
         
         self.addParameter(QgsProcessingParameterNumber(self.LAST_BOUNDS, self.tr('Bounds for the last class of symbology'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
 
@@ -231,10 +231,10 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         return QCoreApplication.translate(self.__class__.__name__, string)
 
     def group(self):
-        return  self.tr('Visibility Light Sources')
+        return  self.tr('Light Pollution Indicators')
 
     def groupId(self):
-        return 'VisibilityLightSources'
+        return 'lightPollutionIndicators'
 
     def createInstance(self):
         return AnalyseVisibilityLightSources()

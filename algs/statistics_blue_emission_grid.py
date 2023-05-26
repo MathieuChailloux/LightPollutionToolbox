@@ -58,7 +58,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID_CALC, self.tr('Grid diameter (min 150 meters) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=150))
         # self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID_RES, self.tr('Diameter grid result (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
-        self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
+        self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, defaultValue=2))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_CALC, self.tr('statistics blue emission'), type=QgsProcessing.TypeVectorAnyGeometry))
         # self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_RES, self.tr('statistics blue emission 50m'), type=QgsProcessing.TypeVectorAnyGeometry))
                 
@@ -375,11 +375,11 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
     def displayName(self):
         return self.tr('Statistics of blue emission per grid')
 
-    # def group(self):
-        # return self.tr('Misc')
+    def group(self):
+        return self.tr('Light Pollution Indicators')
 
-    # def groupId(self):
-        # return 'Misc'
+    def groupId(self):
+        return 'lightPollutionIndicators'
 
     def tr(self, string):
         """

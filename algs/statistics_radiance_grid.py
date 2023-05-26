@@ -57,7 +57,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
-        self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, usesStaticStrings=False, defaultValue=2))
+        self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, defaultValue=2))
         
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry))
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_RADIANCE, self.tr('Raster total Radiance'), createByDefault=True, defaultValue=None))
@@ -401,11 +401,11 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     def displayName(self):
         return self.tr('Statistics of radiance per grid')
         
-    # def group(self):
-        # return self.tr('Misc')
+    def group(self):
+        return self.tr('Light Pollution Indicators')
 
-    # def groupId(self):
-        # return 'Misc'
+    def groupId(self):
+        return 'lightPollutionIndicators'
 
     def tr(self, string):
         """
