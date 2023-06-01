@@ -21,6 +21,7 @@ from qgis.core import QgsProcessingParameterDefinition
 from qgis.core import QgsProcessingParameterVectorDestination
 from qgis.core import QgsProcessingParameterRasterDestination
 from qgis.core import QgsProcessingParameterFeatureSource
+from qgis.core import QgsProcessingException
 from qgis import processing
 from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 

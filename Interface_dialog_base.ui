@@ -1656,7 +1656,7 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>:/plugins/BioDispersal/icons/debug_icon/mActionAnnotation.svg</normaloff>:/plugins/BioDispersal/icons/debug_icon/mActionAnnotation.svg</iconset>
+                <normaloff>icons/debug_icon/mActionAnnotation.svg</normaloff>icons/debug_icon/mActionAnnotation.svg</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1676,7 +1676,7 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>:/plugins/BioDispersal/icons/mActionFileSave.svg</normaloff>:/plugins/BioDispersal/icons/mActionFileSave.svg</iconset>
+                <normaloff>icons/debug_icon/mActionFileSave.svg</normaloff>icons/debug_icon/mActionFileSave.svg</iconset>
               </property>
               <property name="autoRaise">
                <bool>true</bool>
@@ -1693,7 +1693,7 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>:/plugins/BioDispersal/icons/iconClearConsole.svg</normaloff>:/plugins/BioDispersal/icons/iconClearConsole.svg</iconset>
+                <normaloff>icons/debug_icon/iconClearConsole.svg</normaloff>icons/debug_icon/iconClearConsole.svg</iconset>
               </property>
               <property name="autoRaise">
                <bool>true</bool>
