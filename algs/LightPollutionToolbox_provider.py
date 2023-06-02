@@ -38,12 +38,12 @@ from qgis.core import QgsProcessingProvider
 from .DSFLI.fluxDensity_algorithm import DSFLRaw, FluxDensityAlgorithm, DSFLSymbology, DSFLSurface
 from .DSFLI.mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
 from .DSFLI.mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
-# from .DSFLI.fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
+from .DSFLI.fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
 from .DSFLI.mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
-# from .DSFLI.viirs import VIIRS_Untar
-# from .DSFLI.fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
+from .DSFLI.viirs import VIIRS_Untar
+from .DSFLI.fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
 from .DSFLI.classifyLamps import ClassifyLightingAlg
-# from .DSFLI.radiance_stats import RadianceStats
+from .DSFLI.radiance_stats import RadianceStats
 from .pretreatments_dark_zones import PretreatmentsDarkZones
 from .statistics_radiance_grid import StatisticsRadianceGrid
 from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
@@ -74,7 +74,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             RoadsExtentBDTOPO(),
             RoadsExtentFromCadastre(),
             AddParcellesAlg(),
-            # RadianceStats(),
+            RadianceStats(),
             ClassifyLightingAlg(),
             PretreatmentsDarkZones(),
             StatisticsRadianceGrid(),
@@ -85,14 +85,14 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             LightPointsViewshed(),
             AnalyseVisibilityLightSources(),
             createMNTfromRGEALTI()]
-        # self.alglist2 = [
-            # VIIRS_Untar(),
-            # FluxDispAlg(),
-            # FluxDispTempCoulAlg(),
-            # FluxEstimationAlgorithm(),
-            # FluxTimeAlgorithm(),
-            # LightDispSymbology()
-            # ]
+        self.alglist2 = [
+            VIIRS_Untar(),
+            FluxDispAlg(),
+            FluxDispTempCoulAlg(),
+            FluxEstimationAlgorithm(),
+            FluxTimeAlgorithm(),
+            LightDispSymbology()
+            ]
         for a in self.alglist:
             a.initAlgorithm()
         QgsProcessingProvider.__init__(self)

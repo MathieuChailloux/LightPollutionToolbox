@@ -81,10 +81,10 @@ class RadianceStats(qgsUtils.BaseProcessingAlgorithm):
         return self.tr('Radiance zonal statistics')
 
     def group(self):
-        return self.tr('Statistics')
+        return self.tr('Utils DSFLI')
 
     def groupId(self):
-        return 'stats'
+        return 'utilsDSFLI'
 
     def shortHelpString(self):
         return self.tr("Computes statistics of radiance per population/surface according to source layer.")

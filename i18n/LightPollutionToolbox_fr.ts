@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.1" language="fr">
 <context>
     <name>@default</name>
     <message>
@@ -44,42 +45,42 @@
 <context>
     <name>AnalyseVisibilityLightSources</name>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="53"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="54"/>
         <source>Extent zone</source>
         <translation type="unfinished">Zone d&apos;étude</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="54"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="55"/>
         <source>Layer resulting from viewshed processing</source>
         <translation type="unfinished">Couche résultat de traitement viewshed</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="55"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="56"/>
         <source>Raster bati</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="56"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
         <source>Mask height</source>
         <translation type="unfinished">Hauteur du masque</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="58"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="59"/>
         <source>Grid Layer</source>
         <translation type="unfinished">Couche de maille</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="60"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="61"/>
         <source>Grid diameter (meter) if no grid layer</source>
         <translation type="unfinished">Diamètre de la maille (mètres) si pas d&apos;import</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="61"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="62"/>
         <source>Type of grid if no grid layer</source>
         <translation type="unfinished">Type de maille si pas d&apos;import</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="63"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="64"/>
         <source>Bounds for the last class of symbology</source>
         <translation type="unfinished">Seuil max de la dernière classe de la symbologie</translation>
     </message>
@@ -89,7 +90,7 @@
         <translation type="obsolete">Sortie du Nombre de sources lumineuses visibles</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="228"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="229"/>
         <source>Number sources of light visibility per grid</source>
         <translation>Nombre de sources lumineuses visibles par maille</translation>
     </message>
@@ -99,17 +100,17 @@
         <translation type="obsolete">Visibilité des sources lumineuses</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="65"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="66"/>
         <source>Output Raster Number of visible lights</source>
         <translation type="unfinished">Sortie Raster du Nombre de sources lumineuses visibles</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="66"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="67"/>
         <source>Output Number of visible lights per grid</source>
         <translation type="unfinished">Sortie du Nombre de sources lumineuses visibles par maille</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="234"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="235"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
     </message>
@@ -260,7 +261,7 @@
     <message>
         <location filename="../algs/DSFLI/mkReporting_algs.py" line="247"/>
         <source>Utils DSFLI</source>
-        <translation type="unfinished">Utiliraires DSFLI</translation>
+        <translation type="unfinished">Utils DSFLI</translation>
     </message>
     <message>
         <location filename="../algs/DSFLI/mkReporting_algs.py" line="254"/>
@@ -402,7 +403,7 @@
     <message>
         <location filename="../algs/DSFLI/mkRoadsExtent.py" line="64"/>
         <source>Utils DSFLI</source>
-        <translation type="unfinished">Utiliraires DSFLI</translation>
+        <translation type="unfinished">Utils DSFLI</translation>
     </message>
 </context>
 <context>
@@ -1265,12 +1266,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LightPollutionToolboxPlugin</name>
     <message>
-        <location filename="../LightPollutionToolbox.py" line="219"/>
+        <location filename="../LightPollutionToolbox.py" line="223"/>
         <source>&amp;LightPollutionToolbox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../LightPollutionToolbox.py" line="180"/>
+        <location filename="../LightPollutionToolbox.py" line="184"/>
         <source>Light Pollution Toolbox</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
     </message>
@@ -1326,7 +1327,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/DSFLI/mergeGeometry_algorithm.py" line="83"/>
         <source>Utils DSFLI</source>
-        <translation>Utilitaires DSFLI</translation>
+        <translation type="unfinished">Utils DSFLI</translation>
     </message>
 </context>
 <context>
@@ -1441,7 +1442,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="175"/>
         <source>Utils Light Pollution Indicators</source>
-        <translation type="unfinished">Utilitaires Indicateurs de pollution lumineuse</translation>
+        <translation type="unfinished">Utils Indicateurs de pollution lumineuse</translation>
     </message>
 </context>
 <context>
@@ -1454,7 +1455,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/DSFLI/radiance_stats.py" line="84"/>
         <source>Statistics</source>
-        <translation type="unfinished">Statistiques</translation>
+        <translation type="obsolete">Statistiques</translation>
     </message>
     <message>
         <location filename="../algs/DSFLI/radiance_stats.py" line="90"/>
@@ -1500,6 +1501,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../algs/DSFLI/radiance_stats.py" line="133"/>
         <source>Output layer</source>
         <translation type="unfinished">Couche de sortie</translation>
+    </message>
+    <message>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="84"/>
+        <source>Utils DSFLI</source>
+        <translation type="unfinished">Utils DSFLI</translation>
     </message>
 </context>
 <context>
@@ -1874,7 +1880,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="138"/>
         <source>Utils Light Pollution Indicators</source>
-        <translation type="unfinished">Utilitaires Indicateurs de pollution lumineuse</translation>
+        <translation type="unfinished">Utils Indicateurs de pollution lumineuse</translation>
     </message>
 </context>
 <context>
