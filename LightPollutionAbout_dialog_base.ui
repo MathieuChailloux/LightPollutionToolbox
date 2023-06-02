@@ -59,7 +59,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>icons/logoINRAE.png</pixmap>
+         <pixmap resource="resources.qrc">:/plugins/LightPollutionToolbox/icons/logoINRAE.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -84,7 +84,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>icons/logoTetis.png</pixmap>
+         <pixmap resource="resources.qrc">:/plugins/LightPollutionToolbox/icons/logoTetis.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -109,7 +109,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>icons/logoMTES.png</pixmap>
+         <pixmap resource="resources.qrc">:/plugins/LightPollutionToolbox/icons/logoMTES.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -140,7 +140,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>icons/logoUI.png</pixmap>
+         <pixmap resource="resources.qrc">:/plugins/LightPollutionToolbox/icons/logoUI.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -168,6 +168,5 @@
    </item>
   </layout>
  </widget>
- <resources/>
  <connections/>
 </ui>

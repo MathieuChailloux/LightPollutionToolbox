@@ -23,8 +23,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>icons/iconHelpConsole.svg</normaloff>icons/iconHelpConsole.svg</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/plugins/LightPollutionToolbox/icons/iconHelpConsole.svg</normaloff>:/plugins/LightPollutionToolbox/icons/iconHelpConsole.svg</iconset>
      </property>
     </widget>
    </item>
@@ -50,8 +50,8 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>icons/enFlag.svg</normaloff>icons/enFlag.svg</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/plugins/LightPollutionToolbox/icons/enFlag.svg</normaloff>:/plugins/LightPollutionToolbox/icons/enFlag.svg</iconset>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -73,8 +73,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>icons/frFlag.svg</normaloff>icons/frFlag.svg</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/plugins/LightPollutionToolbox/icons/frFlag.svg</normaloff>:/plugins/LightPollutionToolbox/icons/frFlag.svg</iconset>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -1655,8 +1655,8 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>icons/debug_icon/mActionAnnotation.svg</normaloff>icons/debug_icon/mActionAnnotation.svg</iconset>
+               <iconset resource="resources.qrc">
+                <normaloff>:/plugins/LightPollutionToolbox/icons/debug_icon/mActionAnnotation.svg</normaloff>:/plugins/LightPollutionToolbox/icons/debug_icon/mActionAnnotation.svg</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1675,8 +1675,8 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>icons/debug_icon/mActionFileSave.svg</normaloff>icons/debug_icon/mActionFileSave.svg</iconset>
+               <iconset resource="resources.qrc">
+                <normaloff>:/plugins/LightPollutionToolbox/icons/debug_icon/mActionFileSave.svg</normaloff>:/plugins/LightPollutionToolbox/icons/debug_icon/mActionFileSave.svg</iconset>
               </property>
               <property name="autoRaise">
                <bool>true</bool>
@@ -1692,8 +1692,8 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>icons/debug_icon/iconClearConsole.svg</normaloff>icons/debug_icon/iconClearConsole.svg</iconset>
+               <iconset resource="resources.qrc">
+                <normaloff>:/plugins/LightPollutionToolbox/icons/debug_icon/iconClearConsole.svg</normaloff>:/plugins/LightPollutionToolbox/icons/debug_icon/iconClearConsole.svg</iconset>
               </property>
               <property name="autoRaise">
                <bool>true</bool>
@@ -1759,7 +1759,7 @@ p, li { white-space: pre-wrap; }
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>icons/logoINRAE.png</pixmap>
+         <pixmap resource="resources.qrc">:/plugins/LightPollutionToolbox/icons/logoINRAE.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -1787,7 +1787,7 @@ p, li { white-space: pre-wrap; }
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>icons/logoTetis.png</pixmap>
+         <pixmap resource="resources.qrc">:/plugins/LightPollutionToolbox/icons/logoTetis.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -1834,6 +1834,5 @@ p, li { white-space: pre-wrap; }
    <header>qgsmaplayercombobox.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
  <connections/>
 </ui>

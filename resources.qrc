@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/plugins/LightPollutionToolbox" >
+        <file>icons/enFlag.svg</file>
+        <file>icons/frFlag.svg</file>
+        <file>icons/debug_icon/iconClearConsole.svg</file>
+        <file>icons/debug_icon/mActionAnnotation.svg</file>
+        <file>icons/debug_icon/mActionFileSave.svg</file>
+        <file>icons/logoUI.png</file>
+        <file>icons/logoINRAE.png</file>
+        <file>icons/logoMTES.png</file>
+        <file>icons/logoTetis.png</file>
+        <file>icons/iconHelpConsole.svg</file>
+    </qresource>
+</RCC>
