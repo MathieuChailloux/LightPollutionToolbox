@@ -55,6 +55,7 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
 
         self.parseParams(parameters, context, feedback)
         
+        qgsUtils.checkProjectionUnit(self.inputExtent)
         
          # Tampon optionnel autour de la zone d'emprise pour prendre plus de dalles
         if parameters[self.EXTENT_BUFFER] is not None and parameters[self.EXTENT_BUFFER] != NULL and parameters[self.EXTENT_BUFFER] > 0:
@@ -108,6 +109,8 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
                         list_grids_raster.append(temp_path_folder+'/'+file)
                         break
             
+        if len(list_grids_raster) == 0:
+            utils.internal_error("The extent zone intesect no grid")
         
         # Construire un vecteur virtuel
         outputs['ConstruireUnVecteurVirtuel'] = qgsTreatments.applyBuildVirtualRaster(list_grids_raster, QgsProcessing.TEMPORARY_OUTPUT, crs=layer.crs(), context=context,feedback=feedback)
