@@ -29,7 +29,7 @@ from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
 # TODO : ajouter prétraitements pour enlever les pixels mono-couleurs ?
 class PretreatmentsDarkZones(QgsProcessingAlgorithm):
     
-    RASTER_INPUT = 'ImageJILINradianceRGB'
+    RASTER_INPUT = 'ImageSat'
     RED_BAND_INPUT = 'RedBandInput'
     GREEN_BAND_INPUT = 'GreenBandInput'
     BLUE_BAND_INPUT = 'BlueBandInput'
@@ -46,7 +46,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
     
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
 
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Satellite Image RGB'),defaultValue=None))
 
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER, self.tr('Clean Raster'), defaultValue=None))
         

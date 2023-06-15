@@ -471,7 +471,7 @@ class DSFLSurface(FluxDensityAlgorithm):
                 self.tr('Reporting mode'),
                 options=self.reporting_modes,
                 defaultValue=0))
-        self.initLightingParams()
+        # self.initLightingParams() # inutile ?
 
     def initAlgorithm(self, config=None):
         # Inputs

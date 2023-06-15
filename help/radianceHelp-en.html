@@ -8,7 +8,7 @@
 	<p ><span style=" font-size:10pt; font-weight:600;">Input parameters</span></p>
 	<ul>
 		<li>Extent zone : Extent of the study area used to delimit the calculated indicator.</li>
-		<li>Satellite Image: Night Satellite Image in raster format.</li>
+		<li>Satellite Image: Night Satellite Image in raster format (image with 3 RGB bands, or with a single band which corresponds to the total radiance).</li>
 		
 		<li>Choice of grid: Grid on which the indicator will be calculated, it can be imported or created.
 		<ul>
@@ -21,7 +21,7 @@
 	<ul>
 		<li>Statistics Radiance Output : Vector layer representing the indicator calculated by grid with a classification by quantile in 5 classes from the lowest values ​​to the highest, with also a class representing the grid without radiance.</li>
 		
-		<li>Raster total Radiance Output : Raster layer with the total radiance per pixel.</li>
+		<li>Raster total Radiance Output : Raster layer with the total radiance per pixel (only if the input satellite image has at least 3 spectral bands).</li>
 Save to temporary file if not filled.
 	</ul>
 </body>

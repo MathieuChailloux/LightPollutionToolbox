@@ -8,7 +8,7 @@
 	<p ><span style=" font-size:10pt; font-weight:600;">Paramètres d'entrés</span></p>
 	<ul>
 		<li>Zone d'étude : Etendue de la zone d'étude permettant de délémiter l'indicateur calculé.</li>
-		<li>Image Satellite : Image Satellite nocturne au format raster.</li>
+		<li>Image Satellite : Image Satellite nocturne au format raster (image avec 3 bandes RGB, ou avec une seule bande qui correspond à la radiance totale).</li>
 		
 		<li>Choix de la maille : Maille sur laquelle sera calculé l'indicateur, elle peut être importée ou créée.
 		<ul>
@@ -20,7 +20,7 @@
 	<ul>
 		<li>Statistiques de radiance : Couche vecteur représentant l'indicateur calculé par maille avec une classification par quantile en 5 classes des plus faibles valeurs vers les plus élevées, avec aussi une classe représentant les mailles sans radiance.</li>
 		
-		<li>Sortie Raster de Radiance totale : Couche raster avec la radiance totale par pixel.</li>
+		<li>Sortie Raster de Radiance totale : Couche raster avec la radiance totale par pixel (uniquement si l'image satellite en entrée a au moins 3 bandes spectrales).</li>
 Sauvegarde vers fichier temporaire si non rempli.
 	</ul>
 </body>

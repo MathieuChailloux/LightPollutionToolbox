@@ -56,9 +56,13 @@ class ControllerConnector():
         self.dlg.imageFileRadiance.clicked.connect(partial(self.select_file, "raster", self.dlg.mMapLayerComboBoxImageRadiance))
         self.dlg.mMapLayerComboBoxExtentRadiance.setFilters(QgsMapLayerProxyModel.PolygonLayer)
         self.dlg.mMapLayerComboBoxImageRadiance.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        
+        self.dlg.mMapLayerComboBoxImageRadiance.layerChanged.connect(self.changeImageInputRadiance)
+        
         self.dlg.radioButtonImportGridRadiance.clicked.connect(partial(self.onRbImportCreateClicked, self.dlg.radioButtonImportGridRadiance, self.dlg.stackedGridImportCreateRadiance, self.dlg.widgetImportGridRadiance))
         self.dlg.radioButtonCreateGridRadiance.clicked.connect(partial(self.onRbImportCreateClicked, self.dlg.radioButtonCreateGridRadiance, self.dlg.stackedGridImportCreateRadiance, self.dlg.widgetCreateGridRadiance))
         self.dlg.radioButtonImportGridRadiance.click()
+        self.changeImageInputRadiance()
         
         # init Blue emission interface
         self.dlg.outFileVectorBlue.setFilter("*.shp;;*.gpkg")
@@ -358,7 +362,6 @@ class ControllerConnector():
     
     def testRemoveLayer(self, layer_path):
         # Remove layer if existe
-        # todo : problème avec shapefile, se supprime mal si ouvert dans QGIS
         # List existing layers ids
         existing_layers_ids = [layer.id() for layer in QgsProject.instance().mapLayers().values()]
         # List existing layers paths
@@ -402,7 +405,20 @@ class ControllerConnector():
         else:
             utils.warn("Could not load selection in layer")
             
-            
+     
+    def changeImageInputRadiance(self):
+        # on cache la sortie raster de radiance et les paramètres avancées de choix des bandes si le raster en entrée a une seule bande
+        in_raster = self.dlg.mMapLayerComboBoxImageRadiance.currentLayer()
+        if  in_raster and in_raster.bandCount() == 1:
+            self.dlg.mGroupBox.hide()
+            self.dlg.labelExtentOutputRasterRadiance.hide()
+            self.dlg.outFileRasterRadiance.hide()
+        else:
+            self.dlg.mGroupBox.show()
+            self.dlg.labelExtentOutputRasterRadiance.show()
+            self.dlg.outFileRasterRadiance.show()
+        
+     
     def togglePushButton(self, activate):
         self.dlg.pushRunRadianceButton.setEnabled(activate)
         self.dlg.pushRunBlueEmissionButton.setEnabled(activate)

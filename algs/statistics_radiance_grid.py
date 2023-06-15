@@ -32,7 +32,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     
     ALG_NAME = 'StatisticsRadianceGrid'
     
-    RASTER_INPUT = 'ImageJILINradianceRGB'
+    RASTER_INPUT = 'ImageSat'
     RED_BAND_INPUT = 'RedBandInput'
     GREEN_BAND_INPUT = 'GreenBandInput'
     BLUE_BAND_INPUT = 'BlueBandInput'
@@ -53,7 +53,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Satellite Image'),defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
@@ -77,7 +77,8 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         self.inputRaster = self.parameterAsRasterLayer(parameters, self.RASTER_INPUT, context)
         self.inputGrid = qgsTreatments.parameterAsSourceLayer(self, parameters,self.GRID_LAYER_INPUT,context,feedback=feedback)[1] 
         self.outputStat = self.parameterAsOutputLayer(parameters,self.OUTPUT_STAT,context)
-        self.outputRasterRadiance = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER_RADIANCE,context)
+        if self.inputRaster and self.inputRaster.bandCount() >=3:
+            self.outputRasterRadiance = self.parameterAsOutputLayer(parameters,self.OUTPUT_RASTER_RADIANCE,context)
        
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
@@ -154,83 +155,20 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         
         if feedback.isCanceled():
             return {}
-            
-        
-        # ########################################################################## PRETRAITEMENTS A SORTIR ##########################################################################
-        
-        # # Statistiques de zone pour les 3 bandes afin de récupérer les pixels majoritaires
-        # majorityBand1 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
-        # step+=1
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}
-        
-        # majorityBand2 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.GREEN_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
-        # step+=1
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}
-        
-        # majorityBand3 = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs[self.SLICED_RASTER], parameters[self.BLUE_BAND_INPUT],self.MAJORITY_FIELD, context, feedback)
-        # step+=1
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}
 
-        # # Calculatrice Raster masque pour enlever les zones non éclairées
-        # # Si les pixels < majortité+1 alors 0, sinon 1 
-        # # Ici la condition indique l'inverse : pour mettre les pixels à 1, il faut qu'au moins 1 des 3 soit > majorité
-        # # Pour enlver le bruit qui correspond à des couleurs uniques ou seule une bande a une valeur forte, on vérifie qu'au moins 2 bandes aient une valeur > majortité
-        # # #(A > maj1 AND B > maj2) OR (A > maj1 AND C > maj3) OR (B > maj2 AND C > maj3)
-        # # 'FORMULA': '1*logical_or(logical_or(logical_and((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')),logical_and((A>'+str(majorityBand1)+'), (C>'+str(majorityBand3)+'))),logical_and((B>'+str(majorityBand2)+'), (C>'+str(majorityBand3)+')))',
-
-        # formula = '1*logical_or(logical_or((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')), (C >'+str(majorityBand3)+'))'
-        # outputs['CalculRasterMask'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT],QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
-        
-        # step+=1
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}
-        
-        # # Calculatrice Raster B1 avec masque
-        # formula = 'A*B'
-        # outputs['CalculRasterB1'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.RED_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
-        
-        # step+=1
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}
+        if self.inputRaster.bandCount() == 1:
+            outputs['CalculRasterTotalRadiance'] = outputs[self.SLICED_RASTER]
+            step+=4
+        else:
+            # Calculatrice Raster Radiance totale
+            formula = 'A*0.2989+B*0.5870+C*0.1140'
+            outputs['CalculRasterTotalRadiance'] = qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT], self.outputRasterRadiance, formula, out_type=Qgis.UInt16, context=context,feedback=feedback)
+            self.results[self.OUTPUT_RASTER_RADIANCE] = outputs['CalculRasterTotalRadiance']
             
-        # # Calculatrice Raster B2 avec masque
-        # formula = 'A*B'
-        # outputs['CalculRasterB2'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.GREEN_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
-        
-        # step+=1
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}
-            
-        # # Calculatrice Raster B3 avec masque
-        # formula = 'A*B'
-        # outputs['CalculRasterB3'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.BLUE_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
-        
-        # step+=1
-        # feedback.setCurrentStep(step)
-        # if feedback.isCanceled():
-            # return {}    
-        
-        # ##############################################################################################################################################################################################################################
-        
-        
-        # Calculatrice Raster Radiance totale
-        formula = 'A*0.2989+B*0.5870+C*0.1140'
-        outputs['CalculRasterTotalRadiance'] = qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT], self.outputRasterRadiance, formula, out_type=Qgis.UInt16, context=context,feedback=feedback)
-        self.results[self.OUTPUT_RASTER_RADIANCE] = outputs['CalculRasterTotalRadiance']
-        
-        step+=1
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
+            step+=1
+            feedback.setCurrentStep(step)
+            if feedback.isCanceled():
+                return {}
 
         # Calculatrice Raster Segmentation
         # Si rad totale > mediane+1 : 1 sinon 0
@@ -287,39 +225,45 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
-
-        # Statistiques de zone bande rouge
-        zonal_stats_r = QgsProcessingUtils.generateTempFilename('zonal_stats_r.gpkg')
-        qgsTreatments.rasterZonalStats(outputs['ExtractLightGrid'], outputs[self.SLICED_RASTER],zonal_stats_r, prefix='R_', band=parameters[self.RED_BAND_INPUT], context=context,feedback=feedback)
-        outputs['StatisticsRedBand'] = qgsUtils.loadVectorLayer(zonal_stats_r)
-        step+=1               
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
-
-        # Statistiques de zone bande verte
-        zonal_stats_g = QgsProcessingUtils.generateTempFilename('zonal_stats_g.gpkg')
-        qgsTreatments.rasterZonalStats(outputs['StatisticsRedBand'], outputs[self.SLICED_RASTER],zonal_stats_g, prefix='V_', band=parameters[self.GREEN_BAND_INPUT], context=context,feedback=feedback)
-        outputs['StatisticsGreenBand'] = qgsUtils.loadVectorLayer(zonal_stats_g)
         
-        step+=1
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
+        if self.inputRaster.bandCount() >= 3:
+            # Statistiques de zone bande rouge
+            zonal_stats_r = QgsProcessingUtils.generateTempFilename('zonal_stats_r.gpkg')
+            qgsTreatments.rasterZonalStats(outputs['ExtractLightGrid'], outputs[self.SLICED_RASTER],zonal_stats_r, prefix='R_', band=parameters[self.RED_BAND_INPUT], context=context,feedback=feedback)
+            outputs['StatisticsRedBand'] = qgsUtils.loadVectorLayer(zonal_stats_r)
+            step+=1               
+            feedback.setCurrentStep(step)
+            if feedback.isCanceled():
+                return {}
 
-        # Statistiques de zone bande bleu
-        zonal_stats_b = QgsProcessingUtils.generateTempFilename('zonal_stats_b.gpkg')
-        qgsTreatments.rasterZonalStats(outputs['StatisticsGreenBand'], outputs[self.SLICED_RASTER],zonal_stats_b, prefix='B_', band=parameters[self.BLUE_BAND_INPUT], context=context,feedback=feedback)
-        outputs['StatisticsBlueBand'] = qgsUtils.loadVectorLayer(zonal_stats_b)
-        
-        step+=1
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
+            # Statistiques de zone bande verte
+            zonal_stats_g = QgsProcessingUtils.generateTempFilename('zonal_stats_g.gpkg')
+            qgsTreatments.rasterZonalStats(outputs['StatisticsRedBand'], outputs[self.SLICED_RASTER],zonal_stats_g, prefix='V_', band=parameters[self.GREEN_BAND_INPUT], context=context,feedback=feedback)
+            outputs['StatisticsGreenBand'] = qgsUtils.loadVectorLayer(zonal_stats_g)
+            
+            step+=1
+            feedback.setCurrentStep(step)
+            if feedback.isCanceled():
+                return {}
 
+            # Statistiques de zone bande bleu
+            zonal_stats_b = QgsProcessingUtils.generateTempFilename('zonal_stats_b.gpkg')
+            qgsTreatments.rasterZonalStats(outputs['StatisticsGreenBand'], outputs[self.SLICED_RASTER],zonal_stats_b, prefix='B_', band=parameters[self.BLUE_BAND_INPUT], context=context,feedback=feedback)
+            outputs['StatisticsBlueBand'] = qgsUtils.loadVectorLayer(zonal_stats_b)
+            
+            input_layer_stat_radiance = outputs['StatisticsBlueBand']
+            
+            step+=1
+            feedback.setCurrentStep(step)
+            if feedback.isCanceled():
+                return {}
+            
+        else:
+            input_layer_stat_radiance = outputs['ExtractLightGrid']
+            
         # Statistiques de zone radiance totale
         zonal_stats_tot = QgsProcessingUtils.generateTempFilename('zonal_stats_tot.gpkg')
-        qgsTreatments.rasterZonalStats(outputs['StatisticsBlueBand'], outputs['CalculRasterTotalRadiance'],zonal_stats_tot, prefix='tot_', context=context,feedback=feedback)
+        qgsTreatments.rasterZonalStats(input_layer_stat_radiance, outputs['CalculRasterTotalRadiance'],zonal_stats_tot, prefix='tot_', context=context,feedback=feedback)
         outputs['StatisticsZoneTotalRadiance'] = qgsUtils.loadVectorLayer(zonal_stats_tot)
         
         step+=1

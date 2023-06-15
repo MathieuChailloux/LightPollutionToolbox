@@ -31,7 +31,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
     
     ALG_NAME = 'StatisticsBlueEmissionGrid'
 
-    RASTER_INPUT = 'ImageJILINradianceRGB'
+    RASTER_INPUT = 'ImageSat'
     RED_BAND_INPUT = 'RedBandInput'
     GREEN_BAND_INPUT = 'GreenBandInput'
     BLUE_BAND_INPUT = 'BlueBandInput'
@@ -54,7 +54,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
     
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Image JILIN radiance RGB'),defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Satellite Image RGB'),defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID_CALC, self.tr('Grid diameter (min 150 meters) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=150))
         # self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID_RES, self.tr('Diameter grid result (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
