@@ -59,11 +59,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
-        <source>Mask height</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="59"/>
         <source>Grid Layer</source>
         <translation type="unfinished"></translation>
@@ -101,6 +96,11 @@
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="235"/>
         <source>Light Pollution Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
+        <source>Max. observer height</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -723,11 +723,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="936"/>
-        <source>Mask height</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../Interface_dialog_base.py" line="946"/>
         <source>Bounds for last class of symbology</source>
         <translation type="unfinished"></translation>
@@ -915,6 +910,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="950"/>
         <source>3 - Number of visible lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="936"/>
+        <source>Max. observer height</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1225,7 +1225,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="49"/>
-        <source>Satellite Image RGB</source>
+        <source>Satellite Image</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1234,11 +1234,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/radiance_bounds.py" line="44"/>
         <source>Extent zone</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algs/radiance_bounds.py" line="46"/>
-        <source>Satellite Image RGB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1259,6 +1254,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/radiance_bounds.py" line="101"/>
         <source>Utils Light Pollution Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/radiance_bounds.py" line="46"/>
+        <source>Satellite Image</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -54,7 +54,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterRasterLayer(self.VIEWSHED_INPUT, self.tr('Layer resulting from viewshed processing'), defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster bati'), defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.MASK_HEIGHT, self.tr('Mask height'), type=QgsProcessingParameterNumber.Double, defaultValue=1))
+        self.addParameter(QgsProcessingParameterNumber(self.MASK_HEIGHT, self.tr('Max. observer height'), type=QgsProcessingParameterNumber.Double, defaultValue=1))
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
                 

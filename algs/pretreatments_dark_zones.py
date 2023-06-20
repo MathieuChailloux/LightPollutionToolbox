@@ -46,7 +46,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
     
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
 
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Satellite Image RGB'),defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Satellite Image'),defaultValue=None))
 
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER, self.tr('Clean Raster'), defaultValue=None))
         

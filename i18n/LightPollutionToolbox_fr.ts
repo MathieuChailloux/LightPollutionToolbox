@@ -62,7 +62,7 @@
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
         <source>Mask height</source>
-        <translation type="unfinished">Hauteur du masque</translation>
+        <translation type="obsolete">Hauteur du masque</translation>
     </message>
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="59"/>
@@ -113,6 +113,11 @@
         <location filename="../algs/analyse_visibility_light_sources.py" line="235"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
+        <source>Max. observer height</source>
+        <translation type="unfinished">Hateur max. observateur</translation>
     </message>
 </context>
 <context>
@@ -866,7 +871,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="936"/>
         <source>Mask height</source>
-        <translation type="unfinished">Hauteur du masque</translation>
+        <translation type="obsolete">Hauteur du masque</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="946"/>
@@ -1107,6 +1112,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../Interface_dialog_base.py" line="868"/>
         <source>Satellite Image RGB</source>
         <translation type="unfinished">Image Satellite RVB</translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="936"/>
+        <source>Max. observer height</source>
+        <translation type="unfinished">Hauteur max. observateur</translation>
     </message>
 </context>
 <context>
@@ -1457,7 +1467,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="49"/>
         <source>Satellite Image RGB</source>
-        <translation type="unfinished">Image Satellite RVB</translation>
+        <translation type="obsolete">Image Satellite RVB</translation>
+    </message>
+    <message>
+        <location filename="../algs/pretreatments_dark_zones.py" line="49"/>
+        <source>Satellite Image</source>
+        <translation type="unfinished">Image Satellite</translation>
     </message>
 </context>
 <context>
@@ -1466,11 +1481,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../algs/radiance_bounds.py" line="44"/>
         <source>Extent zone</source>
         <translation type="unfinished">Zone d&apos;étude</translation>
-    </message>
-    <message>
-        <location filename="../algs/radiance_bounds.py" line="46"/>
-        <source>Satellite Image RGB</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../algs/radiance_bounds.py" line="48"/>
@@ -1490,6 +1500,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/radiance_bounds.py" line="101"/>
         <source>Utils Light Pollution Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/radiance_bounds.py" line="46"/>
+        <source>Satellite Image</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
