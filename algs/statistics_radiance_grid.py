@@ -43,7 +43,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     OUTPUT_STAT = 'OutputStat'
     OUTPUT_RASTER_RADIANCE = 'OuputRasterRadiance'
     
-    # MAJORITY_FIELD = "_majority"
+    MAJORITY_FIELD = "_majority"
  
     SLICED_RASTER = 'SlicedRaster'
     
@@ -84,7 +84,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(19, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(20, model_feedback)
         
         outputs = {}
         
@@ -170,9 +170,18 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             if feedback.isCanceled():
                 return {}
 
+        
+        # Statistique pour récupérer les pixels majoritaires
+        majorityPixel = qgsTreatments.getMajorityValue(outputs[self.EXTENT_ZONE], outputs['CalculRasterTotalRadiance'], 1,self.MAJORITY_FIELD, context, feedback)
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+        
         # Calculatrice Raster Segmentation
-        # Si rad totale > mediane+1 : 1 sinon 0
-        formula = '1*(logical_or(A>(median(A)+1) , False))'
+        # Si rad totale > majority+1 : 1 sinon 0
+        formula = '1*(logical_or(A>('+str(majorityPixel)+'+1) , False))'
+        # formula = '1*(logical_or(A>(median(A)+1) , False))'
         outputs['CalculRasterSegmentation'] = qgsTreatments.applyRasterCalcABC(outputs['CalculRasterTotalRadiance'], None, None, 1, None, None, QgsProcessing.TEMPORARY_OUTPUT, formula, context=context,feedback=feedback)
          
         step+=1

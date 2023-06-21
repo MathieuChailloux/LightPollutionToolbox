@@ -48,7 +48,7 @@ from .pretreatments_dark_zones import PretreatmentsDarkZones
 from .statistics_radiance_grid import StatisticsRadianceGrid
 from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
 from .calcul_MNS import CalculMNS
-# from .radiance_bounds import RadianceBounds
+from .radiance_bounds import RadianceBounds
 # from .old.light_points_extraction import LightPointsExtraction
 # from .old.viewshed_raster import ViewshedRaster
 from .light_points_viewshed import LightPointsViewshed
@@ -81,7 +81,7 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             StatisticsRadianceGrid(),
             StatisticsBlueEmissionGrid(),
             CalculMNS(),
-            # RadianceBounds(),
+            RadianceBounds(),
             # LightPointsExtraction(),
             # ViewshedRaster(),
             LightPointsViewshed(),
