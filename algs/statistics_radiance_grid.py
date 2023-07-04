@@ -56,7 +56,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Satellite Image'),defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         
-        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter (meter) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
+        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter if no grid layer, meters'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, defaultValue=2))
         
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT, self.tr('Statistics Radiance'), type=QgsProcessing.TypeVectorAnyGeometry))

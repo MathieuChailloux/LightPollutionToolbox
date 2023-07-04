@@ -64,11 +64,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="61"/>
-        <source>Grid diameter (meter) if no grid layer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="62"/>
         <source>Type of grid if no grid layer</source>
         <translation type="unfinished"></translation>
@@ -100,7 +95,12 @@
     </message>
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
-        <source>Max. observer height</source>
+        <source>Max. observer height, meters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="61"/>
+        <source>Grid diameter if no grid layer, meters</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -132,11 +132,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="60"/>
-        <source>Height Vegetation by default if no field</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../algs/calcul_MNS.py" line="55"/>
         <source>Buildings (TOPO DB)</source>
         <translation type="unfinished"></translation>
@@ -164,6 +159,11 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="299"/>
         <source>Light Pollution Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/calcul_MNS.py" line="60"/>
+        <source>Height Vegetation by default if no field, meters</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -633,11 +633,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="940"/>
-        <source>Grid Diameter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../Interface_dialog_base.py" line="941"/>
         <source>Grid Type</source>
         <translation type="unfinished"></translation>
@@ -803,11 +798,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="902"/>
-        <source>Height Vegetation by default if no field [optional]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../Interface_dialog_base.py" line="913"/>
         <source>Source light height field [optional]</source>
         <translation type="unfinished"></translation>
@@ -913,8 +903,18 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../Interface_dialog_base.py" line="940"/>
+        <source>Grid Diameter, meters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="902"/>
+        <source>Height Vegetation by default if no field, meters [optional]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../Interface_dialog_base.py" line="936"/>
-        <source>Max. observer height</source>
+        <source>Max. observer height, meters</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1463,11 +1463,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_blue_emission_grid.py" line="59"/>
-        <source>Grid diameter (min 150 meters) if no grid layer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../algs/statistics_blue_emission_grid.py" line="61"/>
         <source>Type of grid if no grid layer</source>
         <translation type="unfinished"></translation>
@@ -1507,6 +1502,11 @@ p, li { white-space: pre-wrap; }
         <source>Satellite Image RGB</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="59"/>
+        <source>Grid diameter (min 150) if no grid layer, meters</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>StatisticsRadianceGrid</name>
@@ -1518,11 +1518,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/statistics_radiance_grid.py" line="57"/>
         <source>Grid Layer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="59"/>
-        <source>Grid diameter (meter) if no grid layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1556,18 +1551,23 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="346"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="355"/>
         <source>Statistics of radiance per grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="349"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="358"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../algs/statistics_radiance_grid.py" line="56"/>
         <source>Satellite Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/statistics_radiance_grid.py" line="59"/>
+        <source>Grid diameter if no grid layer, meters</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

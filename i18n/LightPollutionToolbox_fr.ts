@@ -72,7 +72,7 @@
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="61"/>
         <source>Grid diameter (meter) if no grid layer</source>
-        <translation type="unfinished">Diamètre de la maille (mètres) si pas d&apos;import</translation>
+        <translation type="obsolete">Diamètre de la maille (mètres) si pas d&apos;import</translation>
     </message>
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="62"/>
@@ -117,7 +117,17 @@
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
         <source>Max. observer height</source>
-        <translation type="unfinished">Hateur max. observateur</translation>
+        <translation type="obsolete">Hateur max. observateur</translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
+        <source>Max. observer height, meters</source>
+        <translation type="unfinished">Hateur max. observateurm, mètres</translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="61"/>
+        <source>Grid diameter if no grid layer, meters</source>
+        <translation type="unfinished">Diamètre de la maille si pas d&apos;import, mètres</translation>
     </message>
 </context>
 <context>
@@ -180,7 +190,7 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="60"/>
         <source>Height Vegetation by default if no field</source>
-        <translation type="unfinished">Hauteur Végétation par défaut si pas de champ</translation>
+        <translation type="obsolete">Hauteur Végétation par défaut si pas de champ</translation>
     </message>
     <message>
         <location filename="../algs/calcul_MNS.py" line="55"/>
@@ -216,6 +226,11 @@
         <location filename="../algs/calcul_MNS.py" line="299"/>
         <source>Light Pollution Indicators</source>
         <translation>Indicateurs de pollution lumineuse</translation>
+    </message>
+    <message>
+        <location filename="../algs/calcul_MNS.py" line="60"/>
+        <source>Height Vegetation by default if no field, meters</source>
+        <translation type="unfinished">Hauteur Végétation par défaut si pas de champ, mètres</translation>
     </message>
 </context>
 <context>
@@ -701,7 +716,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="940"/>
         <source>Grid Diameter</source>
-        <translation>Diamètre de la maille</translation>
+        <translation type="obsolete">Diamètre de la maille</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="941"/>
@@ -986,7 +1001,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="902"/>
         <source>Height Vegetation by default if no field [optional]</source>
-        <translation type="unfinished">Hauteur de la Végétation par défaut si pas de champ [optionnel]</translation>
+        <translation type="obsolete">Hauteur de la Végétation par défaut si pas de champ [optionnel]</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="821"/>
@@ -1116,7 +1131,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="936"/>
         <source>Max. observer height</source>
-        <translation type="unfinished">Hauteur max. observateur</translation>
+        <translation type="obsolete">Hauteur max. observateur</translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="940"/>
+        <source>Grid Diameter, meters</source>
+        <translation type="unfinished">Diamètre de la maille, mètres</translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="902"/>
+        <source>Height Vegetation by default if no field, meters [optional]</source>
+        <translation type="unfinished">Hauteur de la Végétation par défaut si pas de champ, mètres [optionnel]</translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="936"/>
+        <source>Max. observer height, meters</source>
+        <translation type="unfinished">Hauteur max. observateur, mètres</translation>
     </message>
 </context>
 <context>
@@ -1485,27 +1515,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/radiance_bounds.py" line="48"/>
         <source>Raster bounds</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seuils Raster</translation>
     </message>
     <message>
         <location filename="../algs/radiance_bounds.py" line="50"/>
         <source>Radiance classification</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Classification radiance</translation>
     </message>
     <message>
         <location filename="../algs/radiance_bounds.py" line="98"/>
         <source>Radiance Bounds</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seuils Radiance</translation>
     </message>
     <message>
         <location filename="../algs/radiance_bounds.py" line="101"/>
         <source>Utils Light Pollution Indicators</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utils Indicateurs de pollution lumineuse</translation>
     </message>
     <message>
         <location filename="../algs/radiance_bounds.py" line="46"/>
         <source>Satellite Image</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Image Satellite</translation>
     </message>
 </context>
 <context>
@@ -1721,7 +1751,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/statistics_blue_emission_grid.py" line="59"/>
         <source>Grid diameter (min 150 meters) if no grid layer</source>
-        <translation type="unfinished">Diamètre de la maille (min 150m) si pas d&apos;import</translation>
+        <translation type="obsolete">Diamètre de la maille (min 150m) si pas d&apos;import</translation>
     </message>
     <message>
         <location filename="../algs/statistics_blue_emission_grid.py" line="61"/>
@@ -1768,6 +1798,11 @@ p, li { white-space: pre-wrap; }
         <source>Satellite Image RGB</source>
         <translation type="unfinished">Image Satellite RVB</translation>
     </message>
+    <message>
+        <location filename="../algs/statistics_blue_emission_grid.py" line="59"/>
+        <source>Grid diameter (min 150) if no grid layer, meters</source>
+        <translation type="unfinished">Diamètre de la maille (min 150) si pas d&apos;import, mètres</translation>
+    </message>
 </context>
 <context>
     <name>StatisticsRadianceGrid</name>
@@ -1789,7 +1824,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/statistics_radiance_grid.py" line="59"/>
         <source>Grid diameter (meter) if no grid layer</source>
-        <translation type="unfinished">Diamètre de la maille (m) si pas d&apos;import</translation>
+        <translation type="obsolete">Diamètre de la maille (m) si pas d&apos;import</translation>
     </message>
     <message>
         <location filename="../algs/statistics_radiance_grid.py" line="60"/>
@@ -1822,12 +1857,12 @@ p, li { white-space: pre-wrap; }
         <translation>Indice de la bande bleue</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="346"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="355"/>
         <source>Statistics of radiance per grid</source>
         <translation>Statistiques de radiance par maille</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="349"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="358"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
     </message>
@@ -1835,6 +1870,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../algs/statistics_radiance_grid.py" line="56"/>
         <source>Satellite Image</source>
         <translation type="unfinished">Image Satellite</translation>
+    </message>
+    <message>
+        <location filename="../algs/statistics_radiance_grid.py" line="59"/>
+        <source>Grid diameter if no grid layer, meters</source>
+        <translation type="unfinished">Diamètre de la maille si pas d&apos;import, mètres</translation>
     </message>
 </context>
 <context>
@@ -1923,7 +1963,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="37"/>
         <source>Buffer to apply to extent, meters</source>
-        <translation>Tampon à appliquer à la zone d&apos;étude</translation>
+        <translation type="unfinished">Tampon à appliquer à la zone d&apos;étude, mètres</translation>
     </message>
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="38"/>
