@@ -56,7 +56,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Satellite Image RGB'),defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
-        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID_CALC, self.tr('Grid diameter (min 150 meters) if no grid layer'), type=QgsProcessingParameterNumber.Double, defaultValue=150))
+        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID_CALC, self.tr('Grid diameter (min 150) if no grid layer, meters'), type=QgsProcessingParameterNumber.Double, defaultValue=150))
         # self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID_RES, self.tr('Diameter grid result (meter)'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, defaultValue=2))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_STAT_CALC, self.tr('statistics blue emission'), type=QgsProcessing.TypeVectorAnyGeometry))

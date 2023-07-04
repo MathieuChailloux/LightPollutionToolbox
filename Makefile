@@ -160,6 +160,7 @@ archive:
 	echo "\nqgis_lib_mc commit number "  >> $(COMMIT_FILE)
 	echo $(LIB_COMMIT) >> $(COMMIT_FILE)
 	zip -r $(PLUGINNAME).zip $(PLUGINNAME)
+	rm -rf $(PLUGINNAME)
 
 ui:
 	pyuic5 -o Interface_dialog_base.py Interface_dialog_base.ui

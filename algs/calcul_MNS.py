@@ -57,7 +57,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.VEGETATION_INPUT, self.tr('Vegetation (TOPO DB)'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_VEGETATION, self.tr('Height Vegetation field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.VEGETATION_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
-        self.addParameter(QgsProcessingParameterNumber(self.DEFAULT_HEIGHT_VEGETATION, self.tr('Height Vegetation by default if no field'), optional=True, type=QgsProcessingParameterNumber.Double, defaultValue=6))
+        self.addParameter(QgsProcessingParameterNumber(self.DEFAULT_HEIGHT_VEGETATION, self.tr('Height Vegetation by default if no field, meters'), optional=True, type=QgsProcessingParameterNumber.Double, defaultValue=6))
         
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNS, self.tr('DSM Output'), createByDefault=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_BATI, self.tr('Raster buildings vegetation Output'), createByDefault=True, defaultValue=None))
