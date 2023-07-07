@@ -444,7 +444,9 @@ class ControllerConnector():
                     
                 if indicator == self.RADIANCE:
                     if ".tif" not in results[outputkey]:
-                        styles.setCustomClassesInd_Pol_Category(output_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
+                        # styles.setCustomClassesInd_Pol_Category(output_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
+                        bounds = styles.getQuantileBounds(output_layer, 'tot_mean', round_decimal=2)
+                        styles.setCustomClassesInd_Pol_Graduate(output_layer, 'tot_mean', bounds, round_decimal=2)
                 elif indicator == self.BLUE_EMISSION:
                     if ".tif" not in results[outputkey]:
                         styles.setCustomClassesInd_Pol_Category(output_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)

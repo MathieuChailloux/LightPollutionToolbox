@@ -84,7 +84,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         step = 0
-        feedback = QgsProcessingMultiStepFeedback(20, model_feedback)
+        feedback = QgsProcessingMultiStepFeedback(21, model_feedback)
         
         outputs = {}
         
@@ -326,17 +326,31 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
         fieldPrecision = 0
         fieldType = 1 # Entier
         formula = '0'
-        temp_path_radiance_null = QgsProcessingUtils.generateTempFilename('temp_path_radiance_null.gpkg')
-        qgsTreatments.applyFieldCalculator(outputs['ExtractDarkGrid'], self.IND_FIELD_POL, temp_path_radiance_null, formula, fieldLength, fieldPrecision, fieldType, context=context,feedback=feedback)
-        outputs['CalculFieldIndiceRadianceNull'] = qgsUtils.loadVectorLayer(temp_path_radiance_null)
+        temp_path_indice_radiance_null = QgsProcessingUtils.generateTempFilename('temp_path_indice_radiance_null.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['ExtractDarkGrid'], self.IND_FIELD_POL, temp_path_indice_radiance_null, formula, fieldLength, fieldPrecision, fieldType, context=context,feedback=feedback)
+        outputs['CalculFieldIndiceRadianceNull'] = qgsUtils.loadVectorLayer(temp_path_indice_radiance_null)
       
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        
+        # Calculatrice de champ radiance null sur les mailles non éclairées        
+        fieldLength = 6
+        fieldPrecision = 0
+        fieldType = 0 # Float
+        formula = '0'
+        temp_path_radiance_null = QgsProcessingUtils.generateTempFilename('temp_path_radiance_null.gpkg')
+        qgsTreatments.applyFieldCalculator(outputs['CalculFieldIndiceRadianceNull'], 'tot_mean', temp_path_radiance_null, formula, fieldLength, fieldPrecision, fieldType, context=context,feedback=feedback)
+        outputs['CalculFieldRadianceNull'] = qgsUtils.loadVectorLayer(temp_path_radiance_null)
+      
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}    
 
         # Fusionner des couches vecteur (grilles avec radiance et grilles sans radiance)
-        layersToMerge = [outputs['CalculFieldIndiceRadiance'],outputs['CalculFieldIndiceRadianceNull']]
+        layersToMerge = [outputs['CalculFieldIndiceRadiance'],outputs['CalculFieldRadianceNull']]
         self.results[self.OUTPUT_STAT] = qgsTreatments.mergeVectorLayers(layersToMerge,outputs['CalculFieldIndiceRadiance'],self.outputStat, context=context, feedback=feedback)
         
         step+=1
@@ -375,5 +389,9 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
             raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_STAT]))
         
         # Applique la symbologie par défault
-        styles.setCustomClassesInd_Pol_Category(out_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
+        # styles.setCustomClassesInd_Pol_Category(out_layer, self.IND_FIELD_POL, self.CLASS_BOUNDS_IND_POL)
+        
+        bounds = styles.getQuantileBounds(out_layer, 'tot_mean', round_decimal=2)
+        styles.setCustomClassesInd_Pol_Graduate(out_layer, 'tot_mean', bounds, round_decimal=2)
+        
         return self.results
