@@ -37,9 +37,9 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterNumber(self.EXTENT_BUFFER, self.tr('Buffer to apply to extent, meters'), type=QgsProcessingParameterNumber.Double,optional=True, defaultValue=1000))
         self.addParameter(QgsProcessingParameterVectorLayer(self.GRID, self.tr('grids'), defaultValue=None))
         
-        self.addParameter(QgsProcessingParameterFile(self.FOLDER_MNT_FILES, self.tr('folder MNT ASC'), behavior=QgsProcessingParameterFile.Folder, fileFilter='Tous les fichiers (*.*)', defaultValue=None))
+        self.addParameter(QgsProcessingParameterFile(self.FOLDER_MNT_FILES, self.tr('folder DTM ASC'), behavior=QgsProcessingParameterFile.Folder, fileFilter='Tous les fichiers (*.*)', defaultValue=None))
         
-        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNT, 'Raster MNT', createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNT, self.tr('Raster DTM'), createByDefault=True, defaultValue=None))
 
     def parseParams(self, parameters, context, feedback):
         self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1]        
@@ -135,7 +135,7 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
         return 'createMNTfromRGEALTI'
 
     def displayName(self):
-        return self.tr('Create MNT from RGEALTI')
+        return self.tr('Create DTM from RGEALTI')
 
     def group(self):
         return self.tr('Utils Light Pollution Indicators')

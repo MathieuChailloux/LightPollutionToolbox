@@ -887,7 +887,7 @@ class Ui_InterfaceDialogBase(object):
         self.label_14.setText(_translate("InterfaceDialogBase", "Extent zone [opitonal]"))
         self.extentFileMNS.setToolTip(_translate("InterfaceDialogBase", "Browse"))
         self.extentFileMNS.setText(_translate("InterfaceDialogBase", "..."))
-        self.label_15.setText(_translate("InterfaceDialogBase", "DEM (Digital Elevation Model)"))
+        self.label_15.setText(_translate("InterfaceDialogBase", "DTM (Digital Terrain Model)"))
         self.mntFile.setToolTip(_translate("InterfaceDialogBase", "Browse"))
         self.mntFile.setText(_translate("InterfaceDialogBase", "..."))
         self.label_16.setText(_translate("InterfaceDialogBase", "Radius of analysis for visibility (buffer of extent), meters"))

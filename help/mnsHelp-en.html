@@ -6,11 +6,10 @@
 	<p><span style=" font-size:14pt; font-weight:600;">Visibility Light Source</span></p>
 	<p ><span style=" font-size:8pt;">The light source visibility indicator allows to evaluate at each grid, the number of light sources visible by an observatur at a given height.<br/>It requires several data calculated in tab 1 and 2, to then calculate the results in tab 3.</span></p>
 	<p><span style=" font-size:10pt; font-weight:600;">DSM</span></p>
-	<p ><span style=" font-size:8pt;">DSM (Digital Surface Model) is calculate adding to the DEM, buildings with its height and possibly the vegetation (optional).</span></p>
+	<p ><span style=" font-size:8pt;">DSM (Digital Surface Model) is calculate adding to the DTM, buildings with its height and possibly the vegetation (optional).</span></p>
 	<p ><span style=" font-size:10pt; font-weight:600;">Input parameters</span></p>
 	<ul>
-		<li>Extent zone : Extent of the study area used to delimit the treatments.</li><li>DEM : Digital Elevation Model in raster format.</li>
-		<li>Radius for visibility : Buffer distance around extent zone (similar to viewshed visibility radius).</li>
+		<li>Extent zone : Extent of the study area used to delimit the treatments.</li><li>DTM : Digital Terrain Model in raster format.</li><li>Radius for visibility : Buffer distance around extent zone (similar to viewshed visibility radius).</li>
 		<li>Buildings : Vector layer of the building from the Topo DB.</li>
 		<li>Height Buildings field : Field representing the height in the building layer. </li>
 		<li>Vegetation : Vegetation vector layer from the Topo DB (optional). To avoid having vegetation overlapping buildings, a difference is applied between the vegetation and building slayer with a buffer of 5 meters.</li>

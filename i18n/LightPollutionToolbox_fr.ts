@@ -205,7 +205,7 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="52"/>
         <source>DEM</source>
-        <translation type="unfinished">MNT</translation>
+        <translation type="obsolete">MNT</translation>
     </message>
     <message>
         <location filename="../algs/calcul_MNS.py" line="62"/>
@@ -231,6 +231,11 @@
         <location filename="../algs/calcul_MNS.py" line="60"/>
         <source>Height Vegetation by default if no field, meters</source>
         <translation type="unfinished">Hauteur Végétation par défaut si pas de champ, mètres</translation>
+    </message>
+    <message>
+        <location filename="../algs/calcul_MNS.py" line="52"/>
+        <source>DTM</source>
+        <translation type="unfinished">MNT</translation>
     </message>
 </context>
 <context>
@@ -1021,7 +1026,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="890"/>
         <source>DEM (Digital Elevation Model)</source>
-        <translation type="unfinished">MNT (Modèle Numérique de Terrain)</translation>
+        <translation type="obsolete">MNT (Modèle Numérique de Terrain)</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="894"/>
@@ -1147,6 +1152,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../Interface_dialog_base.py" line="936"/>
         <source>Max. observer height, meters</source>
         <translation type="unfinished">Hauteur max. observateur, mètres</translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="890"/>
+        <source>DTM (Digital Terrain Model)</source>
+        <translation type="unfinished">MNT (Modèle Numérique de Terrain)</translation>
     </message>
 </context>
 <context>
@@ -1310,7 +1320,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/light_points_viewshed.py" line="472"/>
         <source>Light Pollution Indicators</source>
-        <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
+        <translation>Indicateurs de pollution lumineuse</translation>
     </message>
 </context>
 <context>
@@ -1492,7 +1502,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="175"/>
         <source>Utils Light Pollution Indicators</source>
-        <translation type="unfinished">Utils Indicateurs de pollution lumineuse</translation>
+        <translation>Utils Indicateurs de pollution lumineuse</translation>
     </message>
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="49"/>
@@ -1530,7 +1540,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/radiance_bounds.py" line="101"/>
         <source>Utils Light Pollution Indicators</source>
-        <translation type="unfinished">Utils Indicateurs de pollution lumineuse</translation>
+        <translation>Utils Indicateurs de pollution lumineuse</translation>
     </message>
     <message>
         <location filename="../algs/radiance_bounds.py" line="46"/>
@@ -1857,12 +1867,12 @@ p, li { white-space: pre-wrap; }
         <translation>Indice de la bande bleue</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="355"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="369"/>
         <source>Statistics of radiance per grid</source>
         <translation>Statistiques de radiance par maille</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="358"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="372"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
     </message>
@@ -1915,7 +1925,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/old/viewshed_raster.py" line="99"/>
         <source>Digital elevation model </source>
-        <translation type="unfinished">Modèle d&apos;élévation numérique</translation>
+        <translation type="unfinished">Modèle numérique de surface</translation>
     </message>
     <message>
         <location filename="../algs/old/viewshed_raster.py" line="104"/>
@@ -1973,12 +1983,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="40"/>
         <source>folder MNT ASC</source>
-        <translation type="unfinished">dossier MNT ASC</translation>
+        <translation type="obsolete">dossier MNT ASC</translation>
     </message>
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="138"/>
         <source>Create MNT from RGEALTI</source>
-        <translation>Créer un MNT depuis RGEALTI</translation>
+        <translation type="obsolete">Créer un MNT depuis RGEALTI</translation>
     </message>
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="129"/>
@@ -1993,7 +2003,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="141"/>
         <source>Utils Light Pollution Indicators</source>
-        <translation type="unfinished">Utils Indicateurs de pollution lumineuse</translation>
+        <translation>Utils Indicateurs de pollution lumineuse</translation>
+    </message>
+    <message>
+        <location filename="../algs/create_MNT_from_RGEALTI.py" line="40"/>
+        <source>folder DTM ASC</source>
+        <translation type="unfinished">dossier MNT ASC</translation>
+    </message>
+    <message>
+        <location filename="../algs/create_MNT_from_RGEALTI.py" line="138"/>
+        <source>Create DTM from RGEALTI</source>
+        <translation type="unfinished">Créer un MNT depuis RGEALTI</translation>
+    </message>
+    <message>
+        <location filename="../algs/create_MNT_from_RGEALTI.py" line="42"/>
+        <source>Raster DTM</source>
+        <translation type="unfinished">Raster MNT</translation>
     </message>
 </context>
 <context>

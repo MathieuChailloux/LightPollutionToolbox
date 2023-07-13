@@ -49,7 +49,7 @@ class CalculMNS(QgsProcessingAlgorithm):
     
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_MNT_INPUT, self.tr('DEM'), defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_MNT_INPUT, self.tr('DTM'), defaultValue=None))
         self.addParameter(QgsProcessingParameterNumber(self.BUFFER_RADIUS, self.tr('Radius of analysis for visibility (buffer of extent), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=500))
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.BATI_INPUT, self.tr('Buildings (TOPO DB)'), types=[QgsProcessing.TypeVectorPolygon], defaultValue=None))

@@ -818,7 +818,7 @@ p, li { white-space: pre-wrap; }
               <item row="1" column="0">
                <widget class="QLabel" name="label_15">
                 <property name="text">
-                 <string>DEM (Digital Elevation Model)</string>
+                 <string>DTM (Digital Terrain Model)</string>
                 </property>
                </widget>
               </item>

@@ -23,8 +23,8 @@ The 3 main indicators are as follows :
   File : ./algs/statistics_radiance_grid.py
 - Emission in the blue part of the spectrum	
   File : ./algs/statistics_blue_emission_grid.py
-- Visibility Light Source : this treatment is divided into 3 sub-treatments : (TODO ADD extraction points lumineux)
-	- 1 : Calcul of DSM (Digital Surface Model) with DEM, buildings and possibly the vegetation (opitonal)
+- Visibility Light Source : this treatment is divided into 3 sub-treatments :
+	- 1 : Calcul of DSM (Digital Surface Model) with DTM (Digital Terrain Model), buildings and possibly the vegetation (opitonal)
 		  File : ./algs/calcul_MNS.py
 	- 2 : Calcul of Viewshed, this processing uses a part of the plugin code in Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
 		  File : ./algs/light_points_viewshed.py

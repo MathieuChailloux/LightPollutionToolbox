@@ -142,11 +142,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/calcul_MNS.py" line="52"/>
-        <source>DEM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../algs/calcul_MNS.py" line="62"/>
         <source>DSM Output</source>
         <translation type="unfinished"></translation>
@@ -164,6 +159,11 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="60"/>
         <source>Height Vegetation by default if no field, meters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/calcul_MNS.py" line="52"/>
+        <source>DTM</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -808,11 +808,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="890"/>
-        <source>DEM (Digital Elevation Model)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../Interface_dialog_base.py" line="894"/>
         <source>Buildings (Topo DB)</source>
         <translation type="unfinished"></translation>
@@ -915,6 +910,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../Interface_dialog_base.py" line="936"/>
         <source>Max. observer height, meters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Interface_dialog_base.py" line="890"/>
+        <source>DTM (Digital Terrain Model)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1551,12 +1551,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="355"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="369"/>
         <source>Statistics of radiance per grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="358"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="372"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1655,16 +1655,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../algs/create_MNT_from_RGEALTI.py" line="40"/>
-        <source>folder MNT ASC</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algs/create_MNT_from_RGEALTI.py" line="138"/>
-        <source>Create MNT from RGEALTI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="38"/>
         <source>grids</source>
         <translation type="unfinished"></translation>
@@ -1672,6 +1662,21 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="141"/>
         <source>Utils Light Pollution Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/create_MNT_from_RGEALTI.py" line="40"/>
+        <source>folder DTM ASC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/create_MNT_from_RGEALTI.py" line="138"/>
+        <source>Create DTM from RGEALTI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/create_MNT_from_RGEALTI.py" line="42"/>
+        <source>Raster DTM</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
