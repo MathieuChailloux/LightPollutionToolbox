@@ -55,7 +55,6 @@ EXTRAS = metadata.txt \
 	lamp.png
 
 EXTRA_DIRS = \
-	docs \
 	sample_data \
 	icons \
 	help

@@ -1,5 +1,5 @@
 
-[[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/ase_dev/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/ase_dev/README_fr.md)]
+[[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README_fr.md)]
 
 # Overview
 
@@ -14,9 +14,10 @@
 Available documentation:
  - [Video tutorials](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
  - [Notice about Light Flux Surfacic density (french only)](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
- - TODO Doc Indicateur POLLUM
+ - [Notice about Light Pollution Indicators](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/en/NoteIndicateursPOLLUM_INRAE_en.pdf)
 
-# Algorithms Indicators Light Pollution
+# Algorithms Light Pollution Indicators
+
 Algorithms are available in the processing toolbox or via the "LightPollutionToolbox" button in the menu.
 The 3 main indicators are as follows :
 - Contribution to the luminous halo (Radiance)
@@ -24,7 +25,7 @@ The 3 main indicators are as follows :
 - Emission in the blue part of the spectrum	
   File : ./algs/statistics_blue_emission_grid.py
 - Visibility Light Source : this treatment is divided into 3 sub-treatments :
-	- 1 : Calcul of DSM (Digital Surface Model) with DTM (Digital Terrain Model), buildings and possibly the vegetation (opitonal)
+	- 1 : Calcul of DSM (Digital Surface Model) with DTM (Digital Terrain Model), buildings and possibly the vegetation (optional)
 		  File : ./algs/calcul_MNS.py
 	- 2 : Calcul of Viewshed, this processing uses a part of the plugin code in Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
 		  File : ./algs/light_points_viewshed.py

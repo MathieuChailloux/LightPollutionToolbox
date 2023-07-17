@@ -1,5 +1,5 @@
 
-[[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/ase_dev/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/ase_dev/README_fr.md)]
+[[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README_fr.md)]
 
 # Aperçu
 
@@ -14,16 +14,17 @@
 Documentation disponible :
  - [Tutoriels vidéo](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
  - [Note méthodologique sur la Densité Surfacique de Flux Lumineux Installée](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
- - TODO Doc Indicateur POLLUM
+ - [Note méthodologique sur le calcul d'indicateurs de pollution lumineuse](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteIndicateursPOLLUM_INRAE_fr.pdf)
 
 # Algorithmes Indicateurs de Pollution Lumineuse
-Les Algorithmes sont disponible dans la boite à outils de traitements ou via le bouton "LightPollutionToolbox" du menu.
+
+Les Algorithmes sont disponibles dans la boite à outils de traitements ou via le bouton "LightPollutionToolbox" du menu.
 Les 3 principaux indicateurs sont les suivants:
 - Contribution au halo lumineux (Radiance)
   Fichier : ./algs/statistics_radiance_grid.py
 - Emission dans le partie bleue du spectre
   Fichier : ./algs/statistics_blue_emission_grid.py
-- Visibilité des sources lumineuses : ce traitement est divisés en 3 sous-traitements : (TODO ADD extraction points lumineux)
+- Visibilité des sources lumineuses : ce traitement est divisés en 3 sous-traitements :
 	- 1 : Calcul du MNS (Modèle Numérique de Surface) avec le MNT, le bati et éventuellement la végétation (opitonnel)
 		  Fichier : ./algs/analyse_visibility_light_sources.py
 	- 2 : Calcul du champ de visibilité (viewshed), une partie du code provient du plugin Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis

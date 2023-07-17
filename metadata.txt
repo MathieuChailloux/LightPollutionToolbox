@@ -7,7 +7,7 @@ name=LightPollutionToolbox
 qgisMinimumVersion=3.16
 description=Light pollution toolbox
 version=2.0.1
-author=Mathieu Chailloux
+author=Mathieu Chailloux & Antoine Sensier
 email=mathieu@chailloux.org
 
 about=Video tutorials (work in progress) : https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7</br></br>LightPollutionToolbox provides several algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ...</br></br>Developped by Mathieu Chailloux & Antoine Sensier (INRAE / UMR TETIS)
