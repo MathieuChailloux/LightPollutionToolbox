@@ -85,7 +85,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
     PRECISION = 'PRECISION'
     ANALYSIS_TYPE = 'ANALYSIS_TYPE'
     OPERATOR = 'OPERATOR'
-    OUTPUT = 'OUTPUT'
+    OUTPUT = 'OutputViewshed'
    
 
     PRECISIONS = ['Coarse','Normal', 'Fine']

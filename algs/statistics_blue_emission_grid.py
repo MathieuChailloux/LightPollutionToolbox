@@ -40,7 +40,7 @@ class StatisticsBlueEmissionGrid(QgsProcessingAlgorithm):
     TYPE_GRID = 'TypeOfGrid'
     EXTENT_ZONE = 'ExtentZone'
     GRID_LAYER_INPUT = 'GridLayerInput'
-    OUTPUT_STAT_CALC = 'OutputStatCalcul'
+    OUTPUT_STAT_CALC = 'OutputStatCalculBlue'
     # OUTPUT_STAT_RES = 'OutputStatResult'
     
     MAJORITY_FIELD = "_majority"

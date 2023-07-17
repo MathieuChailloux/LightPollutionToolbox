@@ -40,7 +40,7 @@ class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     TYPE_GRID = 'TypeOfGrid'
     EXTENT_ZONE = 'ExtentZone'
     GRID_LAYER_INPUT = 'GridLayerInput'
-    OUTPUT_STAT = 'OutputStat'
+    OUTPUT_STAT = 'OutputStatRadiance'
     OUTPUT_RASTER_RADIANCE = 'OuputRasterRadiance'
     
     MAJORITY_FIELD = "_majority"
