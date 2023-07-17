@@ -12,7 +12,8 @@
 # Documentation
 
 Documentation disponible :
- - [Tutoriels vidéo](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
+ - [Tutoriels vidéos sur la Densité Surfacique de Flux Lumineux Installée](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
+ - [Tutoriels vidéos sur les Indicateurs de Pollution Lumineuse](https://www.youtube.com/playlist?list=PLh9oFe6PuPCU_K-qqZBIKJWEuRJFRa4Gc)
  - [Note méthodologique sur la Densité Surfacique de Flux Lumineux Installée](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
  - [Note méthodologique sur le calcul d'indicateurs de pollution lumineuse](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteIndicateursPOLLUM_INRAE_fr.pdf)
 

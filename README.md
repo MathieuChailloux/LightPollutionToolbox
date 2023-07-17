@@ -12,7 +12,8 @@
 # Documentation
 
 Available documentation:
- - [Video tutorials](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
+ - [Video tutorials about Light Flux Surfacic density](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
+ - [Video tutorials about Pollution Indicators](https://www.youtube.com/playlist?list=PLh9oFe6PuPCU_K-qqZBIKJWEuRJFRa4Gc)
  - [Notice about Light Flux Surfacic density (french only)](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
  - [Notice about Light Pollution Indicators](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/en/NoteIndicateursPOLLUM_INRAE_en.pdf)
 
