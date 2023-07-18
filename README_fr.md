@@ -33,7 +33,7 @@ Les 3 principaux indicateurs sont les suivants:
 	- 3 : Nombre moyen de sources lumineuses par maille
 		  Fichier : ./algs/analyse_visibility_light_sources.py
 
-Il existe aussi 2 autres traitements dans le sous-menu Divers de la bôite à outils :
+Il existe aussi 2 autres traitements dans le sous-menu "Utils Indicateurs de pollution lumineuse" de la bôite à outils :
 - create MNT from RGE Alti : permet de créer un MNT à partir d'une zone d'emprise, de la dalles et du dossier MNT ASC de RGE Alti
   Fichier : ./algs/create_MNT_from_RGEALTI.py
 - Pretreatments to remove dark zones : permet de mettre à 0 les pixels inférieurs à la médiane des pixels par bande

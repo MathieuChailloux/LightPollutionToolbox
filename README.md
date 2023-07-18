@@ -33,7 +33,7 @@ The 3 main indicators are as follows :
 	- 3 : Number of light visibility per grid
 		  File : ./algs/analyse_visibility_light_sources.py
 
-There are also 2 other treatments in the Misc sub-menu of the toolbox:
+There are also 2 other treatments in the "Utils Light Pollution Indicators" sub-menu of the toolbox:
 - create MNT from RGE Alti : reate a DTM from an area of ​​influence, the slabs and the DTM ASC folder of RGE Alti
   File : ./algs/create_MNT_from_RGEALTI.py 
 - Pretreatments to remove dark zones : Set to 0 pixels lower than the median of the pixels per band.
