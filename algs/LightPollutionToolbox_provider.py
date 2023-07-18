@@ -35,25 +35,36 @@ import inspect
 from PyQt5.QtGui import QIcon
 
 from qgis.core import QgsProcessingProvider
-from .fluxDensity_algorithm import FluxDensityAlgorithm, DSFLSymbology, DSFLSurface, DSFLRaw
-from .mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
-from .mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
-from .fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
-from .mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
-from .viirs import VIIRS_Untar
-from .fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
-from .classifyLamps import ClassifyLightingAlg
-from .radiance_stats import RadianceStats
+from .DSFLI.fluxDensity_algorithm import DSFLRaw, FluxDensityAlgorithm, DSFLSymbology, DSFLSurface
+from .DSFLI.mkReporting_algs import CreateMeshAlgorithm, RoadsReporting
+from .DSFLI.mergeGeometry_algorithm import MergeGeometryAlgorithm, MergeGeometryDissolveAlgorithm, MergeGeometryNoOverlapAlgorithm
+from .DSFLI.fluxEstimation_algorithm import FluxEstimationAlgorithm, FluxTimeAlgorithm
+from .DSFLI.mkRoadsExtent import RoadsExtent, RoadsExtentBDTOPO, RoadsExtentFromCadastre, AddParcellesAlg
+from .DSFLI.viirs import VIIRS_Untar
+from .DSFLI.fluxDispersal_algorithm import FluxDispAlg, FluxDispTempCoulAlg, LightDispSymbology
+from .DSFLI.classifyLamps import ClassifyLightingAlg
+from .DSFLI.radiance_stats import RadianceStats
+from .pretreatments_dark_zones import PretreatmentsDarkZones
+from .statistics_radiance_grid import StatisticsRadianceGrid
+from .statistics_blue_emission_grid import StatisticsBlueEmissionGrid
+from .calcul_MNS import CalculMNS
+from .radiance_bounds import RadianceBounds
+# from .old.light_points_extraction import LightPointsExtraction
+# from .old.viewshed_raster import ViewshedRaster
+from .light_points_viewshed import LightPointsViewshed
+from .analyse_visibility_light_sources import AnalyseVisibilityLightSources
+from .create_MNT_from_RGEALTI import createMNTfromRGEALTI
 
 class LightPollutionToolboxProvider(QgsProcessingProvider):
-
+    NAME = "LPT"
+    
     def __init__(self):
         """
         Default constructor.
         """
-        self.alglist = [FluxDensityAlgorithm(),
+        self.alglist = [DSFLRaw(),
+            FluxDensityAlgorithm(),
             DSFLSurface(),
-            DSFLRaw(),
             DSFLSymbology(),
             CreateMeshAlgorithm(),
             RoadsReporting(),
@@ -65,7 +76,17 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             RoadsExtentFromCadastre(),
             AddParcellesAlg(),
             RadianceStats(),
-            ClassifyLightingAlg()]
+            ClassifyLightingAlg(),
+            PretreatmentsDarkZones(),
+            StatisticsRadianceGrid(),
+            StatisticsBlueEmissionGrid(),
+            CalculMNS(),
+            RadianceBounds(),
+            # LightPointsExtraction(),
+            # ViewshedRaster(),
+            LightPointsViewshed(),
+            AnalyseVisibilityLightSources(),
+            createMNTfromRGEALTI()]
         self.alglist2 = [
             VIIRS_Untar(),
             FluxDispAlg(),
@@ -74,8 +95,8 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
             FluxTimeAlgorithm(),
             LightDispSymbology()
             ]
-        for a in self.alglist:
-            a.initAlgorithm()
+        # for a in self.alglist:
+            # a.initAlgorithm()
         QgsProcessingProvider.__init__(self)
 
     def unload(self):
@@ -122,3 +143,5 @@ class LightPollutionToolboxProvider(QgsProcessingProvider):
         implementation returns the same string as name().
         """
         return self.name()
+        
+        

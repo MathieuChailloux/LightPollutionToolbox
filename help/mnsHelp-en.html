@@ -1,0 +1,26 @@
+<head>
+	<meta name="qrichtext" content="1" />
+	<style type="text/css">p, li { white-space: pre-wrap; }</style>
+</head>
+<body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+	<p><span style=" font-size:14pt; font-weight:600;">Visibility Light Source</span></p>
+	<p ><span style=" font-size:8pt;">The light source visibility indicator allows to evaluate at each grid, the number of light sources visible by an observatur at a given height.<br/>It requires several data calculated in tab 1 and 2, to then calculate the results in tab 3.</span></p>
+	<p><span style=" font-size:10pt; font-weight:600;">DSM</span></p>
+	<p ><span style=" font-size:8pt;">DSM (Digital Surface Model) is calculate adding to the DTM, buildings with its height and possibly the vegetation (optional).</span></p>
+	<p ><span style=" font-size:10pt; font-weight:600;">Input parameters</span></p>
+	<ul>
+		<li>Extent zone : Extent of the study area used to delimit the treatments.</li><li>DTM : Digital Terrain Model in raster format.</li><li>Radius for visibility : Buffer distance around extent zone (similar to viewshed visibility radius).</li>
+		<li>Buildings : Vector layer of the building from the Topo DB.</li>
+		<li>Height Buildings field : Field representing the height in the building layer. </li>
+		<li>Vegetation : Vegetation vector layer from the Topo DB (optional). To avoid having vegetation overlapping buildings, a difference is applied between the vegetation and building slayer with a buffer of 5 meters.</li>
+		<li>Height Vegetation field : Field representing the height in the vegetation layer (optional), vegetation with null height is not taken into account.</li>
+		<li>Height Vegetation value by default : Height in meters applied to all vegetation if no height field chosen.</li>
+	</ul>
+	<p ><span style=" font-size:10pt; font-weight:600;">Output data</span></p>
+	<ul>
+		<li>DSM Raster : Digital Surface Model raster layer with buildings and vegetation if a layer has been added.</li>
+		
+		<li>Raster buildings vegetation : Raster layer with pixel values ​​the height of buildings and the vegetation if a layer has been added.</li>
+Save to temporary file if not filled.
+	</ul>
+</body>

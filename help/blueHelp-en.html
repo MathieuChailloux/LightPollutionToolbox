@@ -1,0 +1,26 @@
+<head>
+	<meta name="qrichtext" content="1" />
+	<style type="text/css">p, li { white-space: pre-wrap; }</style>
+</head>
+<body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+	<p><span style=" font-size:14pt; font-weight:600;">Emission in the blue part of the spectrum</span></p>
+	<!-- <p><span style=" font-size:10pt; font-weight:600;">This indicator makes it possible to evaluate the illuminated areas emitting the most in the blue part of the spectrum..</span></p> -->
+	<p ><span style=" font-size:8pt;">The purpose of this indicator is to classify light sources according to the "red emissions/blue emissions" ratio, calculated from nighttime satellite images, and to identify which areas and which uses are most affected by blue light.</span></p>
+	<p ><span style=" font-size:10pt; font-weight:600;">Input parameters</span></p>
+	<ul>
+		<li>Extent zone : Extent of the study area used to delimit the calculated indicator.</li>
+		<li>Satellite Image: Night Satellite Image in raster format.</li>
+		
+		<li>Choice of grid: Grid on which the indicator will be calculated, it can be imported or created.
+		<ul>
+			<li>Import a grid: Grid vector layer already created.</li>
+			<li>Create a grid :</li>
+			
+			<ul><li>Diameter : Grid diameter, meters</li><li>Grid type: Type of the grid to create.</li></ul>
+		</ul></li></ul>
+	<p ><span style=" font-size:10pt; font-weight:600;">Output data</span></p>
+	<ul>
+		<li>Statistics Blue Emmission Output : Vector layer representing the indicator calculated by grid with a classification by quantile in 5 classes from the lowest values ​​to the highest, with also a class representing the grids without blue emission.</li>
+Save to temporary file if not filled.	
+	</ul>
+</body>

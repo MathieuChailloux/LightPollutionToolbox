@@ -1,5 +1,5 @@
 
-FILES=$(shell find .. -name *.py)# -not -path "../algs/*")
+FILES=$(shell find .. -name *.py)
 TOOL=LightPollutionToolbox
 
 .PHONY: update release

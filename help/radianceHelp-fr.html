@@ -1,0 +1,26 @@
+<head>
+	<meta name="qrichtext" content="1" />
+	<style type="text/css">p, li { white-space: pre-wrap; }</style>
+</head>
+<body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+	<p><span style=" font-size:14pt; font-weight:600;">Contribution au halo lumineux (Radiance)</span></p>
+	<p ><span style=" font-size:8pt;">L’objectif de cet indicateur est de classer les zones éclairées en fonction de leur contribution au halo lumineux, à partir de leur niveau de radiance. Il ne s’agit pas ici de modéliser directement le halo lumineux mais de classifier les unités géographiques (maille) en fonction des émissions vers le haut, captées par le satellite et contribuant à la formation du halo lumineux.</span></p>
+	<p ><span style=" font-size:10pt; font-weight:600;">Paramètres d'entrés</span></p>
+	<ul>
+		<li>Zone d'étude : Etendue de la zone d'étude permettant de délémiter l'indicateur calculé.</li>
+		<li>Image Satellite : Image Satellite nocturne au format raster (image avec 3 bandes RVB, ou avec une seule bande qui correspond à la radiance totale).</li>
+		
+		<li>Choix de la maille : Maille sur laquelle sera calculé l'indicateur, elle peut être importée ou créée.
+		<ul>
+			<li>Importer une maille : Couche vecteur de maille déjà créée.</li>
+			<li>Créer une maille :</li>
+			<ul><li>Diamètre : Diamètre de la maille en mètres.</li><li>Type : Forme de la maille à créer.</li></ul>
+		</ul></li></ul>
+	<p ><span style=" font-size:10pt; font-weight:600;">Données de sortie</span></p>
+	<ul>
+		<li>Statistiques de radiance : Couche vecteur représentant la radiance moyenne calculée par maille avec une classification par quantile en 5 classes des plus faibles valeurs vers les plus élevées, avec aussi une classe représentant les mailles sans radiance.</li>
+		
+		<li>Sortie Raster de Radiance totale : Couche raster avec la radiance totale par pixel (uniquement si l'image satellite en entrée a au moins 3 bandes spectrales).</li>
+Sauvegarde vers fichier temporaire si non rempli.
+	</ul>
+</body>

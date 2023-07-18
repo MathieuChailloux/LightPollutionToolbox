@@ -4,13 +4,13 @@
 
 [general]
 name=LightPollutionToolbox
-qgisMinimumVersion=3.0
+qgisMinimumVersion=3.16
 description=Light pollution toolbox
-version=1.0.1
+version=2.0.1
 author=Mathieu Chailloux
 email=mathieu@chailloux.org
 
-about=Video tutorials (work in progress) : https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7</br></br>LightPollutionToolbox provides several algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ...</br></br>Developped by Mathieu Chailloux (INRAE / UMR TETIS)
+about=Video tutorials : https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7</br>https://www.youtube.com/playlist?list=PLh9oFe6PuPCU_K-qqZBIKJWEuRJFRa4Gc</br>LightPollutionToolbox provides several algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ...</br></br>Developped by Mathieu Chailloux & Antoine Sensier (INRAE / UMR TETIS)
 
 tracker=https://github.com/MathieuChailloux/LightPollutionToolbox/issues
 repository=https://github.com/MathieuChailloux/LightPollutionToolbox
@@ -21,6 +21,7 @@ repository=https://github.com/MathieuChailloux/LightPollutionToolbox
 hasProcessingProvider=yes
 # Uncomment the following line and add your changelog:
 changelog=LightPollutionToolbox
+	2.0 : Stable version of Light Pollution Indicators
     1.0 : First stable release
     1.0.1 : fix issue #1
 

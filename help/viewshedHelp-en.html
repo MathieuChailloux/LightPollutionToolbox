@@ -1,0 +1,27 @@
+<head>
+	<meta name="qrichtext" content="1" />
+	<style type="text/css">p, li { white-space: pre-wrap; }</style>
+</head>
+<body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+	<p><span style=" font-size:14pt; font-weight:600;">Visibility Light Source</span></p>
+	<p ><span style=" font-size:8pt;">The light source visibility indicator allows to evaluate at each grid, the number of light sources visible by an observatur at a given height.<br/>It requires several data calculated in tab 1 and 2, to then calculate the results in tab 3.</span></p>
+	<p><span style=" font-size:10pt; font-weight:600;">Viewshed</span></p>
+	<p ><span style=" font-size:8pt;">Calcul a visibility map raster which indicates for each pixel the number of visible lights sources according to the relief, the building and possibly the vegetation.</span></p>
+	<p ><span style=" font-size:10pt; font-weight:600;">Input parameters</</span></p>
+	<ul>
+		<li>Extent zone : Extent of the study area used to delimit the treatments.</li>
+		<li>Light points extraction : Vector layer of light points resulting from a processing carried out on the night satellite image.</li>
+		<li>Height light source field : Field representing the height of the light source in the light points layer (optional).</li>
+		<li>Source light height : Height of the source, if no field selected, 6 meters by default.</li><li>Observer height : Height of the observer, 0, 1 or 6 meters.</li>
+		<li>Radius field for visibility : Field indicating the maximum visibility distance in the light points layer (optional).</li>
+		<li>Radius for visibility : Maximum visibility distance, if no field selected, in meters.</li><li>DSM : Digital Surface Model to take into account to calculate the visibility.</li>
+		<li>Raster buildings vegetation : Raster layer of buildings and the vegetation if present.</li>
+	</ul>
+	<p ><span style=" font-size:10pt; font-weight:600;">Output data</span></p>
+	<ul>
+		<li>Raster Viewshed : Raster layer of viewshed which indicates the number of visible sources per pixel.</li>
+Save to temporary file if not filled.
+	</ul>
+<br/>
+This processing uses the plugin code of Visibility Analysis : <br/><a target='_blank' href='https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis'>https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis</a>
+</body>

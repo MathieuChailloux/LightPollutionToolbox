@@ -36,4 +36,4 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .LightPollutionToolbox import LightPollutionToolboxPlugin
-    return LightPollutionToolboxPlugin()
+    return LightPollutionToolboxPlugin(iface)
