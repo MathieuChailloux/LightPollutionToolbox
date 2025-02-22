@@ -103,7 +103,12 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), [QgsProcessing.TypeVectorPoint], defaultValue=None))
         
         self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.LIGHT_SOURCE_HEIGHT, self.tr('Source light height (if no field), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=6))
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.LIGHT_SOURCE_HEIGHT, 
+                self.tr('Source light height (if no field), meters'),
+                type=QgsProcessingParameterNumber.Double,
+                defaultValue=6))
         
         self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, self.tr('Observer height (0, 1, 6, meters)'), type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
 
@@ -138,7 +143,8 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         param = QgsProcessingParameterNumber(
             self.REFRACTION,
             self.tr('Atmoshpheric refraction'),
-            1, 0.13, False, 0.0, 1.0)
+            type=QgsProcessingParameterNumber.Double,
+            defaultValue=0.13, optional=False, minValue=0.0, maxValue=1.0)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
         
