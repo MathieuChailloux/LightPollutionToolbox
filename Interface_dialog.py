@@ -27,7 +27,7 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
-from .qgis_lib_mc import utils, qgsUtils, log, qgsTreatments, feedbacks, styles
+from .qgis_lib import utils, qgsUtils, log, qgsTreatments, feedbacks, styles
 from qgis.core import QgsApplication, QgsProcessingContext, QgsProject, QgsProcessing
 from .algs import LightPollutionToolbox_provider
 from . import controller

@@ -50,7 +50,7 @@ from qgis.core import (QgsProcessing,
                        QgsMessageLog)
 
 from processing.core.ProcessingConfig import ProcessingConfig
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+from ..qgis_lib import utils, qgsUtils, qgsTreatments, styles
 
 
 from .modules import visibility as ws

@@ -45,7 +45,7 @@ from PyQt5.QtWidgets import QAction
 
 from .Interface_dialog import InterfaceDialog
 from .Interface_dialog import LightPollutionAboutDialog
-from .qgis_lib_mc import utils
+from .qgis_lib import utils
 
 
 

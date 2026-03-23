@@ -18,7 +18,7 @@ from qgis.core import QgsProcessingParameterFile
 from qgis.core import QgsProcessingParameterNumber
 from qgis.core import QgsProcessingParameterFeatureSource
 from qgis import processing
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+from ..qgis_lib import utils, qgsUtils, qgsTreatments, styles
 import os
 
 class createMNTfromRGEALTI(QgsProcessingAlgorithm):

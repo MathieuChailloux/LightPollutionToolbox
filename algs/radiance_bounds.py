@@ -23,7 +23,7 @@ from qgis.core import QgsProcessingUtils
 from qgis.core import Qgis
 from qgis.core import QgsProject
 from qgis import processing
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+from ..qgis_lib import utils, qgsUtils, qgsTreatments, styles
 
 class RadianceBounds(QgsProcessingAlgorithm):
     

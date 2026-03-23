@@ -26,7 +26,7 @@ from qgis.core import QgsProcessingParameterRasterDestination
 from qgis.core import QgsProcessingParameterFeatureSource
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis import processing
-from ..qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+from ..qgis_lib import utils, qgsUtils, qgsTreatments, styles
 
 class StatisticsRadianceGrid(QgsProcessingAlgorithm):
     
