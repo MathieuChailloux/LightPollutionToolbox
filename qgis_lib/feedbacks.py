@@ -36,9 +36,9 @@ from qgis.PyQt.QtCore import  QCoreApplication
 from . import utils
 from . import qgsUtils
 
-from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QGuiApplication
-from PyQt5.QtWidgets import QMessageBox
+from qgis.PyQt.QtCore import QObject, pyqtSlot, pyqtSignal
+from qgis.PyQt.QtGui import QGuiApplication
+from qgis.PyQt.QtWidgets import QMessageBox
 
 progressFeedback = None
 

@@ -39,8 +39,8 @@ from qgis.core import (Qgis,
                        QgsExpression,
                        QgsTask,
                        QgsUnitTypes)
-from PyQt5.QtCore import QVariant
-from PyQt5.QtGui import QGuiApplication
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtGui import QGuiApplication
 
 import shutil
 import os.path

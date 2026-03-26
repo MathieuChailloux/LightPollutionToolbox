@@ -1,7 +1,7 @@
 
 import os, csv, re, datetime
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+from qgis.PyQt.QtCore import QCoreApplication, QVariant
 
 from qgis.core import (QgsProcessing,
                        QgsProcessingAlgorithm,

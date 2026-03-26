@@ -5,7 +5,7 @@ Group : POLLUM
 With QGIS : 32215
 """
 
-from PyQt5.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
 from qgis.core import QgsProcessingAlgorithm

@@ -35,8 +35,8 @@ except ImportError:
 import qgis
 from qgis.gui import *
 from qgis.core import *
-from PyQt5.QtCore import QCoreApplication, QVariant, pyqtSignal
-from PyQt5.QtWidgets import QFileDialog
+from qgis.PyQt.QtCore import QCoreApplication, QVariant, pyqtSignal
+from qgis.PyQt.QtWidgets import QFileDialog
 
 from . import utils
 
