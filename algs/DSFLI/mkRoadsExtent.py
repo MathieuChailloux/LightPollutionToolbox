@@ -30,7 +30,7 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
                        QgsProcessingAlgorithm,
                        QgsProcessingUtils,
@@ -96,7 +96,7 @@ class RoadsExtentGrpAlg(FluxDenGrpAlg):
             QgsProcessingParameterFeatureSource(
                 self.ROADS,
                 self.tr('Roads layer'),
-                [QgsProcessing.TypeVectorLine]))
+                [QgsProcessing.SourceType.TypeVectorLine]))
         self.addParameter(
             QgsProcessingParameterExpression(
                 self.SELECT_EXPR,
@@ -122,17 +122,17 @@ class RoadsExtentGrpAlg(FluxDenGrpAlg):
             QgsProcessingParameterFeatureSource(
                 self.EXTENT_LAYER,
                 self.tr('Extent layer'),
-                [QgsProcessing.TypeVectorPolygon]))
+                [QgsProcessing.SourceType.TypeVectorPolygon]))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.CADASTRE,
                 self.tr('Cadastre layer'),
-                [QgsProcessing.TypeVectorPolygon]))
+                [QgsProcessing.SourceType.TypeVectorPolygon]))
         self.addParameter(
             QgsProcessingParameterMultipleLayers(
                 self.DIFF_LAYERS,
                 self.tr('Exclude layers (surface remove from cadastre result)'),
-                layerType=QgsProcessing.TypeVectorPolygon,
+                layerType=QgsProcessing.SourceType.TypeVectorPolygon,
                 optional=True))
         # self.addParameter(
             # QgsProcessingParameterBoolean(
@@ -248,7 +248,7 @@ class RoadsExtent(RoadsExtentGrpAlg):
             QgsProcessingParameterMultipleLayers(
                 self.INCLUDE_LAYERS,
                 self.tr('Include layers (surface added to result)'),
-                layerType=QgsProcessing.TypeVectorPolygon,
+                layerType=QgsProcessing.SourceType.TypeVectorPolygon,
                 optional=True))
         self.addParameter(
             QgsProcessingParameterBoolean(
@@ -336,12 +336,12 @@ class AddParcellesAlg(RoadsExtentGrpAlg):
             QgsProcessingParameterVectorLayer(
                 self.INPUT,
                 self.tr('Input parcelle layer'),
-                [QgsProcessing.TypeVectorPolygon]))
+                [QgsProcessing.SourceType.TypeVectorPolygon]))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.PARCELLES,
                 self.tr('Parcelle entities to add'),
-                [QgsProcessing.TypeVectorPolygon]))
+                [QgsProcessing.SourceType.TypeVectorPolygon]))
         #self.initOutput()
 
     def processAlgorithm(self, parameters, context, feedback):

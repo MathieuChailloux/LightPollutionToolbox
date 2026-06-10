@@ -95,7 +95,7 @@ class RadianceStats(qgsUtils.BaseProcessingAlgorithm):
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
                 self.tr('Source layer'),
-                [QgsProcessing.TypeVectorPolygon]))
+                [QgsProcessing.SourceType.TypeVectorPolygon]))
         self.addParameter(QgsProcessingParameterEnum(
             self.MODE,
             self.tr('Radiance statistics'),
@@ -124,7 +124,7 @@ class RadianceStats(qgsUtils.BaseProcessingAlgorithm):
                 # parentLayerParameterName=self.INPUT)
         advancedParams = [paramPopField]#, paramSurfField]
         for param in advancedParams:
-            param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
             self.addParameter(param)
         # self.addParameter(
             # QgsProcessingParameterVectorDestination(
@@ -173,8 +173,8 @@ class RadianceStats(qgsUtils.BaseProcessingAlgorithm):
             raise QgsProcessingException("No population field '" + str(pop_field) + "' in input layer")
         # if surf_field_mode and surf_field not in stats_fieldnames:
             # raise QgsProcessingException("No area field '" + str(surf_field) + "' in input layer")
-        rad_pop_field = QgsField(self.RAD_POP_FIELDNAME, QVariant.Double)
-        rad_surf_field = QgsField(self.RAD_SURF_FIELDNAME, QVariant.Double)
+        rad_pop_field = QgsField(self.RAD_POP_FIELDNAME, QMetaType.Type.Double)
+        rad_surf_field = QgsField(self.RAD_SURF_FIELDNAME, QMetaType.Type.Double)
         out_fields = QgsFields(stats_fields)
         out_fields.append(rad_pop_field)
         out_fields.append(rad_surf_field)
@@ -194,7 +194,7 @@ class RadianceStats(qgsUtils.BaseProcessingAlgorithm):
                 new_feat[self.RAD_POP_FIELDNAME] = (rad_sum / feat[pop_field]) * 1000
             if surf_mode:
                 new_feat[self.RAD_SURF_FIELDNAME] = (rad_mean / pixel_size) * 1000000
-            sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
+            sink.addFeature(new_feat, QgsFeatureSink.Flag.FastInsert)
             self.pop_mode, self.surf_mode = pop_mode, surf_mode
             multi_feedback.setCurrentStep(current + nb_feats)
             

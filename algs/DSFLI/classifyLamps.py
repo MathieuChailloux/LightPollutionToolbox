@@ -30,7 +30,7 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
                        QgsFeatureSink,
                        QgsFeatureRequest,
@@ -82,13 +82,13 @@ class ClassifyLightingAlg(qgsUtils.BaseProcessingAlgorithm):
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
                 self.tr('Lighting layer'),
-                [QgsProcessing.TypeVectorPoint]))
+                [QgsProcessing.SourceType.TypeVectorPoint]))
         self.addParameter(
             QgsProcessingParameterField(
                 self.FIELD,
                 description=self.tr('Field to classify'),
                 defaultValue='flux',
-                type=QgsProcessingParameterField.Numeric,
+                type=QgsProcessingParameterField.DataType.Numeric,
                 parentLayerParameterName=self.INPUT))
         self.addParameter(
             QgsProcessingParameterEnum(
@@ -132,7 +132,7 @@ class ClassifyLightingAlg(qgsUtils.BaseProcessingAlgorithm):
         
     def classifyFlux(self):
         color_ramp = styles.mkColorRamp('Plasma')
-        classif_method = QgsGraduatedSymbolRenderer.Quantile
+        classif_method = QgsGraduatedSymbolRenderer.Mode.Quantile
         #classif_method = QgsGraduatedSymbolRenderer.Jenks
         renderer = styles.mkGraduatedRenderer(self.clone,self.field,color_ramp,
             nb_classes=5,classif_method=classif_method)

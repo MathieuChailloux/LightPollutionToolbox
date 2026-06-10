@@ -4,7 +4,7 @@ Name : create MNT from RGEALTI
 Group : 
 With QGIS : 32215
 """
-from PyQt5.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
 from qgis.core import QgsProcessingUtils
@@ -33,11 +33,11 @@ class createMNTfromRGEALTI(QgsProcessingAlgorithm):
     results = {}
     
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon]))
-        self.addParameter(QgsProcessingParameterNumber(self.EXTENT_BUFFER, self.tr('Buffer to apply to extent, meters'), type=QgsProcessingParameterNumber.Double,optional=True, defaultValue=1000))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon]))
+        self.addParameter(QgsProcessingParameterNumber(self.EXTENT_BUFFER, self.tr('Buffer to apply to extent, meters'), type=QgsProcessingParameterNumber.Type.Double,optional=True, defaultValue=1000))
         self.addParameter(QgsProcessingParameterVectorLayer(self.GRID, self.tr('grids'), defaultValue=None))
         
-        self.addParameter(QgsProcessingParameterFile(self.FOLDER_MNT_FILES, self.tr('folder DTM ASC'), behavior=QgsProcessingParameterFile.Folder, fileFilter='Tous les fichiers (*.*)', defaultValue=None))
+        self.addParameter(QgsProcessingParameterFile(self.FOLDER_MNT_FILES, self.tr('folder DTM ASC'), behavior=QgsProcessingParameterFile.Behavior.Folder, fileFilter='Tous les fichiers (*.*)', defaultValue=None))
         
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNT, self.tr('Raster DTM'), createByDefault=True, defaultValue=None))
 

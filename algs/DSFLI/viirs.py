@@ -79,7 +79,7 @@ class VIIRS_Untar(qgsUtils.BaseProcessingAlgorithm):
             QgsProcessingParameterFile(
                 self.VIIRS_DIR,
                 self.tr('VIIRS directory'),
-                behavior = QgsProcessingParameterFile.Folder,
+                behavior = QgsProcessingParameterFile.Behavior.Folder,
                 defaultValue = self.DEFAULT_DIR
             )
         )

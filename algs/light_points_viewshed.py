@@ -21,7 +21,7 @@ email : /
 
 from os import path
 
-from PyQt5.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 
 from plugins.processing.gui import MessageBarProgress
 
@@ -99,21 +99,21 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         
-        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
-        self.addParameter(QgsProcessingParameterFeatureSource(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), [QgsProcessing.TypeVectorPoint], defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), [QgsProcessing.SourceType.TypeVectorPoint], defaultValue=None))
         
-        self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
+        self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.DataType.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.LIGHT_SOURCE_HEIGHT, 
                 self.tr('Source light height (if no field), meters'),
-                type=QgsProcessingParameterNumber.Double,
+                type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=6))
         
-        self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, self.tr('Observer height (0, 1, 6, meters)'), type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=1))
+        self.addParameter(QgsProcessingParameterNumber(self.OBSERVER_HEIGHT, self.tr('Observer height (0, 1, 6, meters)'), type=QgsProcessingParameterNumber.Type.Double, minValue=0, defaultValue=1))
 
-        self.addParameter(QgsProcessingParameterField(self.RADIUS_ANALYSIS_FIELD, self.tr('Radius of analysis field for visibility'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, self.tr('Radius of analysis for visibility (if no field), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=500))
+        self.addParameter(QgsProcessingParameterField(self.RADIUS_ANALYSIS_FIELD, self.tr('Radius of analysis field for visibility'), optional=True, type=QgsProcessingParameterField.DataType.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
+        self.addParameter(QgsProcessingParameterNumber(self.RADIUS_ANALYSIS, self.tr('Radius of analysis for visibility (if no field), meters'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=500))
 
         # self.addParameter(
             # QgsProcessingParameterFeatureSource(
@@ -137,15 +137,15 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
             self.ANALYSIS_TYPE,
             self.tr('Analysis type'),
             self.TYPES, defaultValue=0)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)     
         
         param = QgsProcessingParameterNumber(
             self.REFRACTION,
             self.tr('Atmoshpheric refraction'),
-            type=QgsProcessingParameterNumber.Double,
+            type=QgsProcessingParameterNumber.Type.Double,
             defaultValue=0.13, optional=False, minValue=0.0, maxValue=1.0)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         
 ##        self.addParameter(QgsProcessingParameterEnum (
@@ -159,7 +159,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
             self.tr('Combining multiple outputs'),
             self.OPERATORS,
             defaultValue=0)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         
         self.addParameter(

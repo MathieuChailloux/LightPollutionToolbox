@@ -5,6 +5,7 @@
 [general]
 name=LightPollutionToolbox
 qgisMinimumVersion=3.16
+qgisMaximumVersion=4.99
 description=Light pollution toolbox
 version=2.0.2
 author=Mathieu Chailloux

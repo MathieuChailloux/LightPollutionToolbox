@@ -26,27 +26,29 @@ import os
 
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
-from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtCore import QTranslator, qVersion, QCoreApplication
 from .qgis_lib_mc import utils, qgsUtils, log, qgsTreatments, feedbacks, styles
 from qgis.core import QgsApplication, QgsProcessingContext, QgsProject, QgsProcessing
 from .algs import LightPollutionToolbox_provider
 from . import controller
 from . import tabs
 
+from .Interface_dialog_base import Ui_InterfaceDialogBase
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'Interface_dialog_base.ui'))
+# FORM_CLASS, _ = uic.loadUiType(os.path.join(
+#     os.path.dirname(__file__), 'Interface_dialog_base.ui'))
 
-ABOUT_DLG_CLASS, _ = uic.loadUiType(os.path.join(
- os.path.dirname(__file__), 'LightPollutionAbout_dialog_base.ui'))
+from .LightPollutionAbout_dialog_base import Ui_LightPollutionAbout
+# ABOUT_DLG_CLASS, _ = uic.loadUiType(os.path.join(
+#  os.path.dirname(__file__), 'LightPollutionAbout_dialog_base.ui'))
  
-class LightPollutionAboutDialog(QtWidgets.QDialog,ABOUT_DLG_CLASS):
+class LightPollutionAboutDialog(QtWidgets.QDialog,Ui_LightPollutionAbout):
     def __init__(self,parent=None):
         #super(ABOUT_DLG_CLASS).__init__(parent)
         super(LightPollutionAboutDialog, self).__init__(parent)
         self.setupUi(self)
 
-class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
+class InterfaceDialog(QtWidgets.QDialog, Ui_InterfaceDialogBase):
 
     def __init__(self, parent=None):
         """Constructor."""
@@ -112,7 +114,7 @@ class InterfaceDialog(QtWidgets.QDialog, FORM_CLASS):
             else:
                 return
         else:
-            raise QgsProcessingException("No translation file : " + str(en_path))
+            raise QgsProcessingException("No translation file : " + str(lang_path))
         self.retranslateUi(self)
         utils.curr_language = lang
         self.tabConnector.loadHelpFile()

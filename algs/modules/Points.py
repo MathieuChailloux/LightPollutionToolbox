@@ -101,10 +101,10 @@ class Points:
             name, length, decimals = FIELDS[f]
             if name in ["ID", "file"]: 
                 #windows has 250 character limit for filenames...
-                qfields.append ( QgsField(name, QVariant.String, 'string',255))
+                qfields.append ( QgsField(name, QMetaType.Type.QString, 'string',255))
             else:
                 
-                qfields.append (QgsField(name, QVariant.Double,
+                qfields.append (QgsField(name, QMetaType.Type.Double,
                                         'double', length,decimals))
 
         return qfields

@@ -5,7 +5,7 @@ Group : Visibility Light Sources
 With QGIS : 32215
 """
 
-from PyQt5.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
 from qgis.core import QgsUnitTypes
@@ -48,16 +48,16 @@ class CalculMNS(QgsProcessingAlgorithm):
     results = {}
     
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_MNT_INPUT, self.tr('DTM'), defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.BUFFER_RADIUS, self.tr('Radius of analysis for visibility (buffer of extent), meters'), type=QgsProcessingParameterNumber.Double, defaultValue=500))
+        self.addParameter(QgsProcessingParameterNumber(self.BUFFER_RADIUS, self.tr('Radius of analysis for visibility (buffer of extent), meters'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=500))
         
-        self.addParameter(QgsProcessingParameterFeatureSource(self.BATI_INPUT, self.tr('Buildings (TOPO DB)'), types=[QgsProcessing.TypeVectorPolygon], defaultValue=None))
-        self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_BATI, self.tr('Height Buildings field'), type=QgsProcessingParameterField.Any, parentLayerParameterName=self.BATI_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.BATI_INPUT, self.tr('Buildings (TOPO DB)'), types=[QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None))
+        self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_BATI, self.tr('Height Buildings field'), type=QgsProcessingParameterField.DataType.Any, parentLayerParameterName=self.BATI_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
         
-        self.addParameter(QgsProcessingParameterFeatureSource(self.VEGETATION_INPUT, self.tr('Vegetation (TOPO DB)'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
-        self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_VEGETATION, self.tr('Height Vegetation field'), optional=True, type=QgsProcessingParameterField.Any, parentLayerParameterName=self.VEGETATION_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
-        self.addParameter(QgsProcessingParameterNumber(self.DEFAULT_HEIGHT_VEGETATION, self.tr('Height Vegetation by default if no field, meters'), optional=True, type=QgsProcessingParameterNumber.Double, defaultValue=6))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.VEGETATION_INPUT, self.tr('Vegetation (TOPO DB)'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
+        self.addParameter(QgsProcessingParameterField(self.HEIGHT_FIELD_VEGETATION, self.tr('Height Vegetation field'), optional=True, type=QgsProcessingParameterField.DataType.Any, parentLayerParameterName=self.VEGETATION_INPUT, allowMultiple=False, defaultValue='HAUTEUR'))
+        self.addParameter(QgsProcessingParameterNumber(self.DEFAULT_HEIGHT_VEGETATION, self.tr('Height Vegetation by default if no field, meters'), optional=True, type=QgsProcessingParameterNumber.Type.Double, defaultValue=6))
         
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_MNS, self.tr('DSM Output'), createByDefault=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER_BATI, self.tr('Raster buildings vegetation Output'), createByDefault=True, defaultValue=None))
@@ -96,7 +96,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         # Si emprise non présente, on prend celle du MNS
         if self.inputExtent is None or self.inputExtent == NULL:
             # Mise à 1 à tous les pixels
-            outputs['RasterMonoValue'] = qgsTreatments.applyRasterCalcAB(self.inputRasterMNT, None, QgsProcessing.TEMPORARY_OUTPUT,'1', nodata_val=None,out_type=Qgis.Int16, context=context,feedback=feedback)
+            outputs['RasterMonoValue'] = qgsTreatments.applyRasterCalcAB(self.inputRasterMNT, None, QgsProcessing.TEMPORARY_OUTPUT,'1', nodata_val=None,out_type=Qgis.DataType.Int16, context=context,feedback=feedback)
             # Raster vers vecteur pour avoir l'emprise présise
             outputs[self.EXTENT_ZONE] = qgsTreatments.applyPolygonize(outputs['RasterMonoValue'], 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
             # extent_zone = QgsProcessingUtils.generateTempFilename('extent_zone.gpkg')
@@ -278,7 +278,7 @@ class CalculMNS(QgsProcessingAlgorithm):
         resolution = self.inputRasterMNT.rasterUnitsPerPixelX()
         print(resolution)
         self.results[self.OUTPUT_RASTER_BATI] = qgsTreatments.applyRasterization(outputs['VectorToRasterize'], self.outputRasterBati, outputs['RasterExtent'], resolution,
-                                                                                        field=parameters[self.HEIGHT_FIELD_BATI],burn_val=0,out_type=Qgis.Int16,nodata_val=0, 
+                                                                                        field=parameters[self.HEIGHT_FIELD_BATI],burn_val=0,out_type=Qgis.DataType.Int16,nodata_val=0, 
                                                                                         options='COMPRESS=DEFLATE',context=context,feedback=feedback)  
         step+=1
         feedback.setCurrentStep(step)

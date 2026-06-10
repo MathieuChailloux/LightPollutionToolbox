@@ -19,7 +19,7 @@ email : /
 ***************************************************************************/
 """
 
-from PyQt5.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import *
 try:
     from osgeo import gdal

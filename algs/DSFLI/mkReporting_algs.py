@@ -30,7 +30,7 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
                        QgsProcessingAlgorithm,
                        QgsProcessingUtils,
@@ -84,7 +84,7 @@ class RoadsReporting(RoadsExtentGrpAlg):
             QgsProcessingParameterFeatureSource(
                 self.ROADS,
                 self.tr('Roads layer'),
-                [QgsProcessing.TypeVectorLine]))
+                [QgsProcessing.SourceType.TypeVectorLine]))
         self.addParameter(
             QgsProcessingParameterExpression(
                 self.SELECT_EXPR,
@@ -125,7 +125,7 @@ class RoadsReporting(RoadsExtentGrpAlg):
                 parentLayerParameterName=self.ROADS)
         paramsJoin = [paramNameField,paramJoinExpr]
         for param in paramsJoin:
-            param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
             self.addParameter(param)
         # self.addParameter(
             # QgsProcessingParameterMultipleLayers(
@@ -259,7 +259,7 @@ class CreateMeshAlgorithm(qgsUtils.BaseProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.SIZE,
                 self.tr("Mesh size (in georeferenced units, meters by default)"),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=1000))
         self.addParameter(
             QgsProcessingParameterCrs(

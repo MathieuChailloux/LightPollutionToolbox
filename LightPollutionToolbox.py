@@ -39,9 +39,9 @@ from .resources import *
 
 from qgis.core import QgsProcessingAlgorithm, QgsApplication, QgsProcessingException
 from .algs.LightPollutionToolbox_provider import LightPollutionToolboxProvider
-from PyQt5.QtCore import QTranslator, qVersion, QCoreApplication
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction
+from qgis.PyQt.QtCore import QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction
 
 from .Interface_dialog import InterfaceDialog
 from .Interface_dialog import LightPollutionAboutDialog
@@ -236,7 +236,7 @@ class LightPollutionToolboxPlugin(object):
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        result = self.dlg.exec_()
+        result = self.dlg.exec()
         # See if OK was pressed
         if result:
             # Do something useful here - delete the line containing pass and

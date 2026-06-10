@@ -4,7 +4,7 @@ Group : POLLUM
 With QGIS : 32215
 """
 
-from PyQt5.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import QgsProcessing
 from qgis.core import NULL
 from qgis.core import QgsProcessingAlgorithm
@@ -41,13 +41,13 @@ class RadianceBounds(QgsProcessingAlgorithm):
     
     def initAlgorithm(self, config=None):
     
-        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
 
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Satellite Image'),defaultValue=None))
 
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER, self.tr('Raster bounds'), defaultValue=None))
         
-        self.addParameter(QgsProcessingParameterNumber(self.BOUNDS, self.tr('Radiance classification'), type=QgsProcessingParameterNumber.Double, defaultValue=25))
+        self.addParameter(QgsProcessingParameterNumber(self.BOUNDS, self.tr('Radiance classification'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=25))
 
 
     def parseParams(self, parameters, context, feedback):
@@ -80,7 +80,7 @@ class RadianceBounds(QgsProcessingAlgorithm):
             
         #Si radiance > seuil  : 1 Sinon 0
         formula = '1*(logical_and(A>= '+str(parameters[self.BOUNDS])+', True))'
-        outputs['CalculRasterMask'] =  qgsTreatments.applyRasterCalc(outputs[self.SLICED_RASTER], self.outputRaster, formula, out_type=Qgis.UInt16, context=context,feedback=feedback)
+        outputs['CalculRasterMask'] =  qgsTreatments.applyRasterCalc(outputs[self.SLICED_RASTER], self.outputRaster, formula, out_type=Qgis.DataType.UInt16, context=context,feedback=feedback)
         self.results['Raster'] = outputs['CalculRasterMask']
         
         step+=1

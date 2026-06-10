@@ -164,7 +164,7 @@ class FluxDispBaseAlg(qgsUtils.BaseProcessingAlgorithm,LampType):
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
                 self.tr('Lighting layer'),
-                [QgsProcessing.TypeVectorPoint]))
+                [QgsProcessing.SourceType.TypeVectorPoint]))
         self.addParameter(
             QgsProcessingParameterField(
                 self.FLUX_FIELD,
@@ -181,14 +181,14 @@ class FluxDispBaseAlg(qgsUtils.BaseProcessingAlgorithm,LampType):
             QgsProcessingParameterNumber(
                 self.RADIUS_COEFF,
                 self.tr('Radius coeff'),
-                type=QgsProcessingParameterNumber.Double,
+                type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=1,
                 optional=True))
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.RESOLUTION,
                 self.tr('Resolution'),
-                type=QgsProcessingParameterNumber.Double,
+                type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=self.DEFAULT_RES))
                 
     def initOutput(self):
