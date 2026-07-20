@@ -127,7 +127,7 @@ class VIIRS_Untar(qgsUtils.BaseProcessingAlgorithm):
                     try:
                         mf.pushInfo("Extracting " + str(file))
                         tar = tarfile.open(file, "r:gz")
-                        tar.extractall(path=fileDir)
+                        tar.extractall(path=fileDir,filter="data")
                         tar.close()
                     except Exception as e:
                         mf.reportErrror(str(e))
