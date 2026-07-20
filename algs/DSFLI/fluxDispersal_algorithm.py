@@ -32,26 +32,14 @@ __revision__ = '$Format:%H$'
 
 import os
 import os.path
-import tarfile
-import processing
-import glob
 import math
 import csv
 
-from pathlib import Path
-
-from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
-                       QgsFeatureSink,
-                       QgsField,
                        QgsProcessingException,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingMultiStepFeedback,
                        QgsProcessingParameterField,
                        QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterNumber,
-                       QgsProcessingParameterRange,
                        QgsProcessingParameterEnum,
                        QgsProcessingParameterFile,
                        QgsProcessingParameterRasterLayer,

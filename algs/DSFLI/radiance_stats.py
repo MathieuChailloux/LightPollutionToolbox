@@ -30,15 +30,6 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-import os
-import os.path
-import tarfile
-import processing
-import glob
-
-from pathlib import Path
-
-from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
                        QgsFeatureSink,
                        QgsFeature,
@@ -46,18 +37,16 @@ from qgis.core import (QgsProcessing,
                        QgsField,
                        QgsProcessingUtils,
                        QgsProcessingException,
-                       QgsProcessingAlgorithm,
                        QgsProcessingMultiStepFeedback,
                        QgsProcessingParameterBand,
                        QgsProcessingParameterDefinition,
                        QgsProcessingParameterEnum,
                        QgsProcessingParameterField,
-                       QgsProcessingParameterFile,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterRasterLayer)
-from qgis import processing
-from ...qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+
+from ...qgis_lib_mc import qgsUtils, qgsTreatments, styles
 
 
 class RadianceStats(qgsUtils.BaseProcessingAlgorithm):
@@ -210,5 +199,5 @@ class RadianceStats(qgsUtils.BaseProcessingAlgorithm):
         elif self.surf_mode:
             styles.setGraduatedStyle(out_layer,self.RAD_SURF_FIELDNAME,'Plasma')
         else:
-            assert(False)
+            raise AssertionError
         return { self.OUTPUT: self.dest_id }

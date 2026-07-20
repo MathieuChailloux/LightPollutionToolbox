@@ -30,18 +30,14 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
                        QgsFeatureSink,
                        QgsFeatureRequest,
                        QgsFeature,
-                       QgsProject,
                        QgsProcessingUtils,
                        QgsProcessingContext,
                        QgsProcessingMultiStepFeedback,
                        QgsProcessingException,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingFeatureSourceDefinition,
                        QgsProcessingParameterDefinition,
                        QgsProcessingParameterBoolean,
                        QgsProcessingParameterField,
@@ -50,12 +46,11 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterNumber,
                        QgsProcessingParameterEnum,
                        QgsProcessingParameterExpression,
-                       QgsProcessingParameterMultipleLayers,
                        QgsProcessingParameterVectorDestination,
                        QgsFields,
                        QgsField)
 
-from ...qgis_lib_mc import utils, qgsUtils, qgsTreatments, styles
+from ...qgis_lib_mc import qgsUtils, qgsTreatments, styles
 from .mkRoadsExtent import FluxDenGrpAlg, RoadsExtent as RE
 from .mkReporting_algs import RoadsReporting as RR
 

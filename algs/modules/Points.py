@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
-#from PyQt5.QtCore import QCoreApplication
-from qgis.PyQt.QtCore import *
-
-import processing
-
-from qgis.core import *
+from qgis.core import (
+    QgsField,
+    QgsFields,
+    QgsProject,
+    QgsMessageLog,
+    QgsRectangle,
+    QgsSpatialIndex,
+    QgsFeatureRequest,
+    QgsGeometry,
+    QgsFeature,
+    QgsCoordinateTransform
+)
 
 from os import path
-
-try:
-    from osgeo import gdal
-except ImportError:
-    import gdal 
 
 import numpy as np
 
@@ -144,8 +145,8 @@ class Points:
             t = geom.asPoint()
 
             if self.project_crs:
-                try: t = transf.transform(t)
-                except: continue #in case of wrong coords etc.. 
+                t = transf.transform(t)
+                # except: continue #in case of wrong coords etc.. 
                 
             x_geog, y_geog= t
 
@@ -467,25 +468,25 @@ class Points:
           
             
             try: self.pt[ id1 ]["z_targ"]  = feat["observ_hgt"]
-            except : pass
+            except ValueError : pass
 
             try: self.pt[ id1 ]["radius_in"]  = feat["radius_in"]/ pix_size
-            except : pass
+            except ValueError: pass
             
             try: self.pt[ id1 ]["file"] = feat["file"]
-            except: pass
+            except ValueError: pass
 
             try:
                 self.pt[ id1 ]["azim_1"] =  feat["azim_1"]
                 self.pt[ id1 ]["azim_2"] =  feat["azim_2"]
 
-            except: pass
+            except ValueError: pass
             
             try:
                 self.pt[ id1 ]["angle_down"] =  feat["angle_down"]
                 self.pt[ id1 ]["angle_up"] =  feat["angle_up"]
 
-            except: pass
+            except ValueError: pass
                 
 
         
@@ -520,7 +521,7 @@ class Points:
                   
             for f in data:
                 try: feat[FIELDS[f][0]] =data[f]
-                except: pass
+                except ValueError: pass
 ##
 ##            feat['ID'] = r
 ##            feat ['source_hgt']=self.pt[r]["z"]

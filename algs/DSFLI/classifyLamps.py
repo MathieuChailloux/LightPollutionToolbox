@@ -30,32 +30,14 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
-                       QgsFeatureSink,
-                       QgsFeatureRequest,
-                       QgsFeature,
                        QgsProject,
                        QgsVectorLayer,
                        QgsGraduatedSymbolRenderer,
-                       QgsProcessingUtils,
-                       QgsProcessingContext,
-                       QgsProcessingMultiStepFeedback,
                        QgsProcessingException,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingFeatureSourceDefinition,
-                       QgsProcessingParameterDefinition,
-                       QgsProcessingParameterBoolean,
                        QgsProcessingParameterField,
                        QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink,
-                       QgsProcessingParameterNumber,
-                       QgsProcessingParameterEnum,
-                       QgsProcessingParameterExpression,
-                       QgsProcessingParameterMultipleLayers,
-                       QgsProcessingParameterVectorDestination,
-                       QgsFields,
-                       QgsField)
+                       QgsProcessingParameterEnum)
 
 from ...qgis_lib_mc import qgsUtils, styles                       
 
@@ -126,7 +108,7 @@ class ClassifyLightingAlg(qgsUtils.BaseProcessingAlgorithm):
         elif self.mode == 2:
             self.classifyULR()
         else:
-            assert(False)
+            raise AssertionError
         QgsProject.instance().addMapLayer(self.clone, addToLegend=True)
         return { self.OUTPUT : self.clone }
         
