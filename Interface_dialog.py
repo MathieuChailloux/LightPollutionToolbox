@@ -24,23 +24,15 @@
 
 import os
 
-from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtCore import QTranslator, qVersion, QCoreApplication
-from .qgis_lib_mc import utils, qgsUtils, log, qgsTreatments, feedbacks, styles
-from qgis.core import QgsApplication, QgsProcessingContext, QgsProject, QgsProcessing
-from .algs import LightPollutionToolbox_provider
+from .qgis_lib_mc import utils, log, feedbacks
+from qgis.core import QgsApplication, QgsProcessingContext
 from . import controller
 from . import tabs
 
 from .Interface_dialog_base import Ui_InterfaceDialogBase
-# This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
-# FORM_CLASS, _ = uic.loadUiType(os.path.join(
-#     os.path.dirname(__file__), 'Interface_dialog_base.ui'))
-
 from .LightPollutionAbout_dialog_base import Ui_LightPollutionAbout
-# ABOUT_DLG_CLASS, _ = uic.loadUiType(os.path.join(
-#  os.path.dirname(__file__), 'LightPollutionAbout_dialog_base.ui'))
  
 class LightPollutionAboutDialog(QtWidgets.QDialog,Ui_LightPollutionAbout):
     def __init__(self,parent=None):

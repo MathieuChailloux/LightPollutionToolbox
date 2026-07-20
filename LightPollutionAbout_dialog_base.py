@@ -9,13 +9,20 @@
 
 
 from qgis.PyQt import QtCore, QtGui, QtWidgets
-
+from .qgis_lib_mc.qt_compatibility import (
+    SIZEPOLICY_PREFERRED,
+    SIZEPOLICY_EXPANDING,
+    SIZEPOLICY_FIXED,
+    SIZEPOLICY_MINIMUM_EXPANDING,
+    FRAME_NO_FRAME,
+    FRAME_RAISED
+)
 
 class Ui_LightPollutionAbout(object):
     def setupUi(self, LightPollutionAbout):
         LightPollutionAbout.setObjectName("LightPollutionAbout")
         LightPollutionAbout.resize(888, 391)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(SIZEPOLICY_PREFERRED, SIZEPOLICY_PREFERRED)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(LightPollutionAbout.sizePolicy().hasHeightForWidth())
@@ -23,18 +30,18 @@ class Ui_LightPollutionAbout(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(LightPollutionAbout)
         self.verticalLayout.setObjectName("verticalLayout")
         self.frame = QtWidgets.QFrame(LightPollutionAbout)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(SIZEPOLICY_EXPANDING, SIZEPOLICY_FIXED)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(80)
         sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
         self.frame.setSizePolicy(sizePolicy)
         self.frame.setMinimumSize(QtCore.QSize(0, 90))
-        self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setFrameShape(FRAME_NO_FRAME)
+        self.frame.setFrameShadow(FRAME_RAISED)
         self.frame.setObjectName("frame")
         self.label_2 = QtWidgets.QLabel(self.frame)
         self.label_2.setGeometry(QtCore.QRect(80, 30, 102, 25))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(SIZEPOLICY_FIXED, SIZEPOLICY_FIXED)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
@@ -46,7 +53,7 @@ class Ui_LightPollutionAbout(object):
         self.label_2.setObjectName("label_2")
         self.label_3 = QtWidgets.QLabel(self.frame)
         self.label_3.setGeometry(QtCore.QRect(320, 10, 136, 68))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(SIZEPOLICY_FIXED, SIZEPOLICY_FIXED)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
@@ -64,7 +71,7 @@ class Ui_LightPollutionAbout(object):
         self.label_4.setObjectName("label_4")
         self.label_5 = QtWidgets.QLabel(self.frame)
         self.label_5.setGeometry(QtCore.QRect(550, 10, 53, 68))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(SIZEPOLICY_FIXED, SIZEPOLICY_FIXED)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_5.sizePolicy().hasHeightForWidth())
@@ -76,7 +83,7 @@ class Ui_LightPollutionAbout(object):
         self.label_5.setObjectName("label_5")
         self.verticalLayout.addWidget(self.frame)
         self.label = QtWidgets.QLabel(LightPollutionAbout)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(SIZEPOLICY_MINIMUM_EXPANDING, SIZEPOLICY_MINIMUM_EXPANDING)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
