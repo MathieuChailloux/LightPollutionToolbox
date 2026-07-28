@@ -6,24 +6,22 @@ With QGIS : 32215
 """
 
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import QgsProcessing
-from qgis.core import NULL
-from qgis.core import Qgis
-from qgis.core import QgsProcessingAlgorithm
-from qgis.core import QgsProcessingUtils
-from qgis.core import QgsProcessingMultiStepFeedback
-from qgis.core import QgsProcessingParameterVectorLayer
-from qgis.core import QgsProcessingParameterFile
-from qgis.core import QgsProcessingParameterEnum
-from qgis.core import QgsProcessingParameterNumber
-from qgis.core import QgsProcessingParameterRasterLayer
-from qgis.core import QgsProcessingParameterDefinition
-from qgis.core import QgsProcessingParameterVectorDestination
-from qgis.core import QgsProcessingParameterRasterDestination
-from qgis.core import QgsProcessingParameterFeatureSource
-from qgis.core import QgsProcessingException
-from qgis import processing
-from ..qgis_lib import utils, qgsUtils, qgsTreatments, styles
+from qgis.core import (
+    QgsProcessing,
+    NULL,
+    Qgis,
+    QgsProcessingAlgorithm,
+    QgsProcessingUtils,
+    QgsProcessingMultiStepFeedback,
+    QgsProcessingParameterEnum,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterRasterLayer,
+    QgsProcessingParameterVectorDestination,
+    QgsProcessingParameterRasterDestination,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingException
+)
+from ..qgis_lib import qgsUtils, qgsTreatments, styles
 
 
 class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
@@ -33,7 +31,6 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     VIEWSHED_INPUT = 'ViewshedInput'
     EXTENT_ZONE = 'ExtentZone'
     MASK_HEIGHT = 'MaskHeight'
-    BUILDINGS_MASK = 'BuildingsMask'
     DIM_GRID = 'GridDiameter'
     TYPE_GRID = 'TypeOfGrid'
     RASTER_BATI_INPUT = 'RasterBatiInput'
@@ -41,30 +38,29 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     LAST_BOUNDS = 'LastBounds'
     SLICED_RASTER_VIEWSHED = 'SlicedRasterViewshed'
     SLICED_RASTER_BATI = 'SlicedRasterBati'
-    OUTPUT_BUILDINGS_MASK = 'OutputBuildingsMask'
     OUTPUT_NB_SRC_RASTER = 'OutputNbSrcRaster'
     OUTPUT_NB_SRC_VIS = 'OutputNbSrcVis'
     
     FIELD_STYLE = '_mean'
-    CLASS_BOUNDS_NB_SRC = [0,0,5,10,20,50] # on double la valeur 0 pour avoir un premier pas avec uniquement ces valeurs
+    # CLASS_BOUNDS_NB_SRC = [0,0,5,10,20,50] # on double la valeur 0 pour avoir un premier pas avec uniquement ces valeurs
     LAST_BOUNDS_VALUE = 50
     results = {}
     
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterRasterLayer(self.VIEWSHED_INPUT, self.tr('Layer resulting from viewshed processing'), defaultValue=None))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster bati'), defaultValue=None))
-        self.addParameter(QgsProcessingParameterNumber(self.MASK_HEIGHT, self.tr('Max. observer height, meters'), type=QgsProcessingParameterNumber.Double, defaultValue=1))
+        self.addParameter(QgsProcessingParameterNumber(self.MASK_HEIGHT, self.tr('Max. observer height, meters'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=1))
         
-        self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
                 
-        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter if no grid layer, meters'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
+        self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter if no grid layer, meters'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, defaultValue=2))
         
-        self.addParameter(QgsProcessingParameterNumber(self.LAST_BOUNDS, self.tr('Bounds for the last class of symbology'), type=QgsProcessingParameterNumber.Double, defaultValue=50))
+        self.addParameter(QgsProcessingParameterNumber(self.LAST_BOUNDS, self.tr('Bounds for the last class of symbology'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=50))
 
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_NB_SRC_RASTER, self.tr('Output Raster Number of visible lights'), createByDefault=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NB_SRC_VIS, self.tr('Output Number of visible lights per grid'), type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NB_SRC_VIS, self.tr('Output Number of visible lights per grid'), type=QgsProcessing.SourceType.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
     
     def parseParams(self, parameters, context, feedback):
         self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1] 
@@ -199,7 +195,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
             return {}
 
         # Mise à zéro du pixel sur bati supérieur à une certaine hauteur
-        outputs['BatiWithHeightMask'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_VIEWSHED], outputs['FillCellsWithoutData'], self.outputbSrcRaster, 'A*B',nodata_val=None, out_type=Qgis.Int16, context=context,feedback=feedback)
+        outputs['BatiWithHeightMask'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_VIEWSHED], outputs['FillCellsWithoutData'], self.outputbSrcRaster, 'A*B',nodata_val=None, out_type=Qgis.DataType.Int16, context=context,feedback=feedback)
         self.results[self.OUTPUT_NB_SRC_RASTER] = outputs['BatiWithHeightMask']
         
         step+=1

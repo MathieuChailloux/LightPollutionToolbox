@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugins>
+  <pyqgis_plugin name="LightPollutionToolbox">
+    <version>3.0.0</version>
+    <description>Light pollution toolbox</description>
+    <qgis_minimum_version>3.16</qgis_minimum_version>
+    <icon>icons/icon.png</icon>
+    <author_name>Mathieu Chailloux</author_name>
+    <homepage>https://github.com/MathieuChailloux/MitiConnect</homepage>
+    <download_url>https://github.com/MathieuChailloux/MitiConnect/releases/download/v3.0.0/LightPollutionToolbox.zip</download_url>
+  </pyqgis_plugin>
+</plugins>

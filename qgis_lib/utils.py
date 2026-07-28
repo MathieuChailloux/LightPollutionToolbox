@@ -31,34 +31,19 @@ import os.path
 import pathlib
 import sys
 import subprocess
-import time
-import html
 import platform
-import glob
-import csv
-import re
 
 file_dir = os.path.dirname(__file__)
 if file_dir not in sys.path:
     sys.path.append(file_dir)
 
-# STRING UTILITIES
-
-def isValidTag(tag):
-    valid = re.match('^[\w_-]+$', tag) is not None
-    return valid
-
 # LOG UTILITIES
 
 def printLine(msg):
     print(msg + "\n")
-    
-def doNothing(msg):
-    pass
 
 debug_flag=True
 print_func = printLine
-#print_func = doNothing
 curr_language = "fr"
 dialog_base_dir = None
 
@@ -101,35 +86,13 @@ def error_msg(msg,prefix=""):
     
 def user_error(msg):
     raise UserError(msg)
-    # error_msg(msg,"user error")
-    # raise CustomException(msg)
     
 def internal_error(msg):
     raise InternalError(msg)
-    # error_msg(msg,"internal error")
-    # raise CustomException(msg)
     
-def todo_error(msg):
-    raise TodoError(msg)
-    # error_msg(msg,"Feature not yet implemented")
-    # raise CustomException(msg)
+# def todo_error(msg):
+#     raise TodoError(msg)
 
-class Section:
-
-    def __init__(self,title,prefix=">>>>"):
-        self.title = title
-        self.prefix = prefix
-            
-    def start_section(self):
-        self.start_time = time.time()
-        info(self.prefix + " Start " + self.title)
-    
-    def end_section(self):
-        info(self.prefix + " End " + self.title)
-        self.end_time = time.time()
-        diff_time = self.end_time - self.start_time
-        info(self.title + " finished in " + str(diff_time) + " seconds")
-    
     
 # FILE UTILITIES
 
@@ -158,7 +121,7 @@ def pathEquals(p1,p2):
     if p1 and p2:
         p1_parts = pathlib.Path(p1).parts
         p2_parts = pathlib.Path(p2).parts
-        return (p1 == p2)
+        return (p1_parts == p2_parts)
     else:
         return False
      
@@ -191,126 +154,15 @@ def removeFile(path):
 def writeFile(fname,str):
     with open(fname,"w",encoding="utf-8") as f:
         f.write(str)
-        
-def parseAssocFileCSV(fname,fieldnames):
-    res = {}
-    if os.path.isfile(fname):
-        with open(fname,newline='') as csvfile:
-            reader = csv.DictReader(csvfile,fieldnames=fieldnames,delimiter=';')
-            for row in reader:
-                try:
-                    model, eff = row['Modele'], float(row['Eff'])
-                    if model:
-                        res[model] = eff
-                except ValueError:
-                    user_error("Could not parse " + str(row))
-                except TypeError:
-                    user_error("Could not parse " + str(row))
-    else:
-        raise Exception("File " + str(fname) + " does not exist")
-    return res
-        
+
 # PATH UTILITIES
 
 def mkTmpPath(path,suffix="_tmp"):
     bn,extension = os.path.splitext(path)
     return (bn + suffix + extension)
     
-def fromTmpPath(tmp_path):
-    bn, extension = os.path.splitext(path)
-    return (bn[:-4] + extension)
-    
-def findFilesFromDir(dir,fname):
-    regexp = dir + "/**/" + fname
-    glob_res = glob.glob(regexp,recursive=True)
-    return glob_res
-def findFileFromDir(dir,fname):
-    #if dir.endsWith('/'):
-    if False:
-        regexp = dir + "**/" + fname
-    else:
-        regexp = dir + "/**/" + fname
-    glob_res = glob.glob(regexp,recursive=True)
-    nb_res = len(glob_res)
-    if nb_res == 0:
-        user_error("No file '" + fname + "' found in directory '" + dir + "'")
-    else:
-        res = glob_res[0]
-        debug("Found " + str(nb_res) + " files named '" + fname + "' in directory '" + dir + "'")
-        return res
-    
-
-# TYPE UTILITIES
-    
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-    
-def is_integer(s):
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
-       
-def castVal(v):
-    if v is None or v == "None":
-        newVal = None
-    elif v in ["True","False"]:
-        newVal = eval(v)
-    elif v.isnumeric():
-        newVal = int(v)
-    else:
-        try:
-            newVal = float(v)
-        except ValueError:
-            newVal = v
-    return newVal
-def castDict(d):
-    res = {}
-    for k,v in d.items():
-        newVal = castVal(v)
-        res[k] = newVal
-    return res
         
-# Validity checkers
-        
-def checkFields(ref_fields,fields):
-    if ref_fields != fields:
-        for rf in ref_fields:
-            if rf not in fields:
-                user_error("Missing field '" + rf + "' in " + str(fields))
-             
-def checkDictField(item,fieldname,prefix=None):
-    if prefix == None:
-        prefix = item.__class__.name
-    if not item.dict[fieldname]:
-        user_error(prefix + " with empty name '" + str(item.dict[fieldname]) + "'")
-        
-def checkName(item,prefix=None):
-    checkDictField(item,"name",prefix)
-    
-def checkDescr(item,prefix=None):
-    if prefix == None:
-        prefix = item.__class__.name
-    if not item.dict["descr"]:
-        if "name" in item.dict:
-            name = " " + str(item.dict["name"])
-        else:
-            name = " "
-        warn(prefix + name + " with empty description")
-        
-
 # Subprocess utils
-        
-def checkCmd(cmd):
-    try:
-        subprocess.call([cmd])
-    except FileNotFoundError:
-        raise UserError("Command " + str(cmd) + " does not exist")
         
 def executeCmd(cmd_args):
     debug("command = " + str(cmd_args))
@@ -326,44 +178,3 @@ def executeCmd(cmd_args):
             warn(str(err))
         else:
             user_error(str(err))
-        
-def executeCmdAsScript(cmd_args):
-    debug("executeCmdAsScript")
-    new_args = [sys.executable] + cmd_args
-    debug(str(new_args))
-    ret = subprocess.call(new_args)
-    debug("return code = " + str(ret))
-   
-   
-# Misc
-def getIntValues(nb_values,start=1,exclude_values=[]):
-    cpt = 0
-    currVal = start
-    res = []
-    while cpt < nb_values:
-        if currVal not in exclude_values:
-            res.append(currVal)
-            cpt += 1
-        currVal += 1
-    return res
-    
-    
-# Import checks
-
-def scipyIsInstalled():
-    try:
-        import scipy
-        # from scipy import ndimage
-        import_scipy_ok = True
-    except ImportError as e:
-        import_scipy_ok = False
-    return import_scipy_ok
-    
-def numpyIsInstalled():
-    try:
-        import numpy
-        # from scipy import ndimage
-        import_numpy_ok = True
-    except ImportError as e:
-        import_numpy_ok = False
-    return import_numpy_ok

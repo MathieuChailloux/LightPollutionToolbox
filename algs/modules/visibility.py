@@ -23,7 +23,6 @@ from __future__ import division
 
 
 import os
-#from osgeo import osr, gdal, ogr
 
 import time
 
@@ -176,7 +175,7 @@ def viewshed_raster (option, point, dem, interpolate = True):
     try :
         if point["z_targ"] >0:
             target_matrix = (data + point["z_targ"]) / distance_matrix
-    except: pass
+    except (ValueError, ZeroDivisionError): pass
                             
 
     data /= distance_matrix #all one line = (data -z - mxcurv) /mx_dist
@@ -284,7 +283,7 @@ def viewshed_raster (option, point, dem, interpolate = True):
         a1 = np.tan(np.radians(point["angle_up"])) * dem.pix   
         a2 = np.tan(np.radians(point["angle_down"])) * dem.pix
         mx_vis[np.logical_or(data > a1, data < a2)] = 0 
-    except : pass
+    except ValueError : pass
     
 
     if option == DEPTH:
@@ -671,12 +670,11 @@ def visibility_index (raster, obs_height,
         try:
             feedback.setProgressText(info)
             feedback.setProgress(cnt/sample * 100)
-        except: pass    
+        except ZeroDivisionError: pass    
 
-    try: 
-        QgsMessageLog.logMessage(" Finished: " + str( round( (time.clock() - start) / 60, 2)) +
-                                 " minutes."  ,   "Viewshed info 2")
-    except: pass
+    QgsMessageLog.logMessage(" Finished: "
+        + str( round( (time.clock() - start) / 60, 2))
+        + " minutes."  ,   "Viewshed info 2")
 
     out /= mx_norm
 

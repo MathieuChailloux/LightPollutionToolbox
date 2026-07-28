@@ -103,7 +103,7 @@ class MergeGeometryAlgorithm(MergeGeomAlg):
         
         out_fields = QgsFields()
         (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
-                context, out_fields, QgsWkbTypes.MultiPolygon, dest_crs)
+                context, out_fields, QgsWkbTypes.Type.MultiPolygon, dest_crs)
                 
         nb_feats = 0
         for layer in layers:
@@ -127,7 +127,7 @@ class MergeGeometryAlgorithm(MergeGeomAlg):
                     feat_geom.transform(transformator)
                 new_feat = QgsFeature(out_fields)
                 new_feat.setGeometry(feat_geom)
-                sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
+                sink.addFeature(new_feat, QgsFeatureSink.Flag.FastInsert)
                 curr += 1
                 feedback.setProgress(int(curr * total))
                 
@@ -204,7 +204,7 @@ class MergeGeometryNoOverlapAlgorithm(MergeGeomAlg):
         out_fields = QgsFields()
         out_crs = layer_a.sourceCrs()
         (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
-                context, out_fields, QgsWkbTypes.MultiPolygon, out_crs)
+                context, out_fields, QgsWkbTypes.Type.MultiPolygon, out_crs)
                 
         feedback = QgsProcessingMultiStepFeedback(2,feedback)
                

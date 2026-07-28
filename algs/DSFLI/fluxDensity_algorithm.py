@@ -30,32 +30,29 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-from qgis.PyQt.QtCore import QCoreApplication, QVariant
-from qgis.core import (QgsProcessing,
-                       QgsFeatureSink,
-                       QgsFeatureRequest,
-                       QgsFeature,
-                       QgsProject,
-                       QgsProcessingUtils,
-                       QgsProcessingContext,
-                       QgsProcessingMultiStepFeedback,
-                       QgsProcessingException,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingFeatureSourceDefinition,
-                       QgsProcessingParameterDefinition,
-                       QgsProcessingParameterBoolean,
-                       QgsProcessingParameterField,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink,
-                       QgsProcessingParameterNumber,
-                       QgsProcessingParameterEnum,
-                       QgsProcessingParameterExpression,
-                       QgsProcessingParameterMultipleLayers,
-                       QgsProcessingParameterVectorDestination,
-                       QgsFields,
-                       QgsField)
+from qgis.core import (
+    QgsProcessing,
+    QgsFeatureSink,
+    QgsFeatureRequest,
+    QgsFeature,
+    QgsProcessingUtils,
+    QgsProcessingContext,
+    QgsProcessingMultiStepFeedback,
+    QgsProcessingException,
+    QgsProcessingParameterDefinition,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterField,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterFeatureSink,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterEnum,
+    QgsProcessingParameterExpression,
+    QgsProcessingParameterVectorDestination,
+    QgsFields,
+    QgsField
+)
 
-from ...qgis_lib import utils, qgsUtils, qgsTreatments, styles
+from ...qgis_lib import qgsUtils, qgsTreatments, styles
 from .mkRoadsExtent import FluxDenGrpAlg, RoadsExtent as RE
 from .mkReporting_algs import RoadsReporting as RR
 
@@ -98,20 +95,20 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             QgsProcessingParameterFeatureSource(
                 self.LIGHTING,
                 self.tr('Lighting layer'),
-                [QgsProcessing.TypeVectorPoint]))
+                [QgsProcessing.SourceType.TypeVectorPoint]))
         self.addParameter(
             QgsProcessingParameterField(
                 self.FLUX_FIELD,
                 description=self.tr('Light flux field'),
                 defaultValue='flux',
-                type=QgsProcessingParameterField.Numeric,
+                type=QgsProcessingParameterField.DataType.Numeric,
                 parentLayerParameterName=self.LIGHTING))
     
     def initReportingAdvancedParams(self):
         self.paramClip = QgsProcessingParameterNumber(
                 self.CLIP_DISTANCE,
                 self.tr("Maximal distance to lighting layer (reporting layer clip)"),
-                type=QgsProcessingParameterNumber.Double,
+                type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=30,
                 optional=True)
         self.paramKeepFields = QgsProcessingParameterField(
@@ -131,19 +128,19 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         self.paramMinArea = QgsProcessingParameterNumber(
                 self.MIN_AREA,
                 self.tr("Features minimal area (smaller features are skipped)"),
-                type=QgsProcessingParameterNumber.Double,
+                type=QgsProcessingParameterNumber.Type.Double,
                 optional=True)
         self.paramMinLamps = QgsProcessingParameterNumber(
                 self.MIN_NB_LAMPS,
                 self.tr("Minimal number of lamps (features with less lamps are skipped)"),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 optional=True)
         self.advancedParams = [ self.paramClip, self.paramKeepFields, self.paramDissolve,
             self.paramSkip, self.paramMinArea, self.paramMinLamps ]
                 
     def initAdvancedParams(self,advancedParams):
         for param in advancedParams:
-            param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
             self.addParameter(param)
             
     def initOutput(self,out_sink=False,out_surf=False):
@@ -176,12 +173,12 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
             QgsProcessingParameterFeatureSource(
                 self.REPORTING,
                 self.tr('Reporting layer'),
-                [QgsProcessing.TypeVectorPolygon]))
+                [QgsProcessing.SourceType.TypeVectorPolygon]))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.SURFACE,
                 self.tr('Surface to be illuminated'),
-                [QgsProcessing.TypeVectorPolygon],
+                [QgsProcessing.SourceType.TypeVectorPolygon],
                 optional=True))
         # Advanced params
         self.initReportingAdvancedParams()
@@ -245,10 +242,10 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 qgsTreatments.createSpatialIndex(surface_layer,context=context,feedback=feedback)
                 
         # Output fields initialization
-        nb_lamps_field = QgsField(self.NB_LAMPS, QVariant.Int)
-        flux_sum_field = QgsField(self.FLUX_SUM, QVariant.Double)
-        surface_field = QgsField(self.SURFACE_AREA, QVariant.Double)
-        flux_den_field = QgsField(self.FLUX_DEN, QVariant.Double)
+        nb_lamps_field = QgsField(self.NB_LAMPS, QMetaType.Type.Int)
+        flux_sum_field = QgsField(self.FLUX_SUM, QMetaType.Type.Double)
+        surface_field = QgsField(self.SURFACE_AREA, QMetaType.Type.Double)
+        flux_den_field = QgsField(self.FLUX_DEN, QMetaType.Type.Double)
         out_fields = QgsFields()
         for f in reporting_layer.fields():
             if f.name() in reporting_fields:
@@ -316,7 +313,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
         # Set context and feedback
         if not context:
             context = QgsProcessingContext()
-        context = context.setInvalidGeometryCheck(QgsFeatureRequest.GeometryNoCheck)
+        context = context.setInvalidGeometryCheck(QgsFeatureRequest.InvalidGeometryCheck.GeometryNoCheck)
         multi_feedback = QgsProcessingMultiStepFeedback(nb_feats,feedback)
         
         # Iteration on each reporting unit
@@ -381,7 +378,7 @@ class FluxDensityAlgorithm(FluxDenGrpAlg):
                 new_feat[self.FLUX_SUM] = flux_sum
                 new_feat[self.SURFACE_AREA] = surface_area
                 new_feat[self.FLUX_DEN] = flux_sum / surface_area if surface_area > 0 else None
-                sink.addFeature(new_feat, QgsFeatureSink.FastInsert)
+                sink.addFeature(new_feat, QgsFeatureSink.Flag.FastInsert)
             except Exception as e:
                 feedback.reportError('Unexpected error : ' + str(e))
                 raise e
@@ -481,13 +478,13 @@ class DSFLSurface(FluxDensityAlgorithm):
             QgsProcessingParameterFeatureSource(
                 self.SURFACE,
                 self.tr('Surface to be illuminated'),
-                [QgsProcessing.TypeVectorPolygon],
+                [QgsProcessing.SourceType.TypeVectorPolygon],
                 optional=True))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 RE.ROADS,
                 self.tr('Roads layer'),
-                [QgsProcessing.TypeVectorLine],
+                [QgsProcessing.SourceType.TypeVectorLine],
                 optional=True))
         # self.addParameter(
             # QgsProcessingParameterFeatureSource(
@@ -604,22 +601,22 @@ class DSFLRaw(DSFLSurface):
             QgsProcessingParameterFeatureSource(
                 RE.ROADS,
                 self.tr('Roads layer'),
-                [QgsProcessing.TypeVectorLine]))
+                [QgsProcessing.SourceType.TypeVectorLine]))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 RE.EXTENT_LAYER,
                 self.tr('Extent layer'),
-                [QgsProcessing.TypeVectorPolygon]))
+                [QgsProcessing.SourceType.TypeVectorPolygon]))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 RE.CADASTRE,
                 self.tr('Cadastre layer'),
-                [QgsProcessing.TypeVectorPolygon]))
+                [QgsProcessing.SourceType.TypeVectorPolygon]))
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.SURFACE_HYDRO,
                 self.tr('Hydrographic surface layer'),
-                [QgsProcessing.TypeVectorPolygon],
+                [QgsProcessing.SourceType.TypeVectorPolygon],
                 optional=True))
         # Advanced parameters
         self.initReportingAdvancedParams()

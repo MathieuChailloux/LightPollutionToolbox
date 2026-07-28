@@ -84,7 +84,7 @@ class RoadsReporting(RoadsExtentGrpAlg):
             QgsProcessingParameterFeatureSource(
                 self.ROADS,
                 self.tr('Roads layer'),
-                [QgsProcessing.TypeVectorLine]))
+                [QgsProcessing.SourceType.TypeVectorLine]))
         self.addParameter(
             QgsProcessingParameterExpression(
                 self.SELECT_EXPR,
@@ -125,7 +125,7 @@ class RoadsReporting(RoadsExtentGrpAlg):
                 parentLayerParameterName=self.ROADS)
         paramsJoin = [paramNameField,paramJoinExpr]
         for param in paramsJoin:
-            param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
             self.addParameter(param)
         # self.addParameter(
             # QgsProcessingParameterMultipleLayers(
@@ -259,7 +259,7 @@ class CreateMeshAlgorithm(qgsUtils.BaseProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.SIZE,
                 self.tr("Mesh size (in georeferenced units, meters by default)"),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=1000))
         self.addParameter(
             QgsProcessingParameterCrs(

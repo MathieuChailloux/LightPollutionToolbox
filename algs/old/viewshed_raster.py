@@ -19,32 +19,19 @@ email : /
 ***************************************************************************/
 """
 
-from os import path
-
 from qgis.PyQt.QtCore import QCoreApplication
 
-from plugins.processing.gui import MessageBarProgress
-
-from qgis.core import (QgsProcessing,
-                       
-                       QgsProcessingAlgorithm,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterRasterLayer,
-                       QgsProcessingParameterRasterDestination,
-
-                       #individual files
-                       QgsProcessingOutputRasterLayer,
-
-                       
-                      QgsProcessingParameterBoolean,
-                      QgsProcessingParameterNumber,
-                      QgsProcessingParameterField,
-                       QgsProcessingParameterEnum ,
-                      QgsProcessingParameterFile,
-
-                      QgsProcessingException,
-
-                       QgsMessageLog)
+from qgis.core import (
+    QgsProcessing,           
+    QgsProcessingAlgorithm,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterRasterLayer,
+    QgsProcessingParameterRasterDestination,                       
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterEnum ,
+    QgsProcessingException,
+    QgsMessageLog)
 
 from processing.core.ProcessingConfig import ProcessingConfig
 
@@ -52,7 +39,6 @@ from ..modules import visibility as ws
 from ..modules import Points as pts
 from ..modules import Raster as rst
 
-import numpy as np
 import time
 
 class ViewshedRaster(QgsProcessingAlgorithm):

@@ -24,10 +24,10 @@
 """
 
 import time
-import sys
 import datetime
 
-from qgis.core import (QgsProcessingFeedback,
+from qgis.core import (
+    QgsProcessingFeedback,
     QgsProcessingMultiStepFeedback,
     QgsMessageLog,
     Qgis)
@@ -36,7 +36,6 @@ from qgis.PyQt.QtCore import  QCoreApplication
 from . import utils
 from . import qgsUtils
 
-from qgis.PyQt.QtCore import QObject, pyqtSlot, pyqtSignal
 from qgis.PyQt.QtGui import QGuiApplication
 from qgis.PyQt.QtWidgets import QMessageBox
 
@@ -89,14 +88,6 @@ def launchQuestionDialog(origin,title,msg):
     reply = QMessageBox.question(origin,title,msg,QMessageBox.Yes,QMessageBox.No)
     return reply
     
-def paramNameError(name,parent=None):
-    m = tr("Name '")
-    m += str(name)
-    m += tr("' is not alphanumeric")
-    paramError(m,parent=parent)
-    # QMessageBox.information(None,
-        # self.translate('osraster_raster', "ERROR : Raster encoding value"),
-        # self.translate('osraster_raster', "A code value set isn't valid."))
 
 class ProgressFeedback(QgsProcessingFeedback):
     
@@ -130,20 +121,10 @@ class ProgressFeedback(QgsProcessingFeedback):
         if self.fileFeedback:
             with open(self.fileFeedback,"a+") as f:
                 f.write(msg + "\n")
-            
 
     def printDate(self,msg):
         date_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.print_func ("[" + date_str + "] " + msg)
-        
-    def pushCommandInfo(self,msg):
-        self.pushDebugInfo(msg)
-        
-    def pushConsoleInfo(self,msg):
-        if msg.startswith(self.GDAL_ERROR_PREFIX):
-            self.reportError(msg)
-        else:
-            self.pushDebugInfo(msg)
         
     def pushDebugInfo(self,msg):
         if self.debug_flag:
@@ -270,71 +251,3 @@ class ProgressFeedback(QgsProcessingFeedback):
     def myClearLog(self):
         self.dlg.txtLog.clear()
         
-        
-class ProgressMultiStepFeedback(QgsProcessingMultiStepFeedback):
- 
-    def __init__(self,nb_steps,feedback):
-        if nb_steps == 0:
-            raise utils.CustomException("No steps in ProgressMultiStepFeedback initialization (empty model ?)")
-        self.nb_steps = nb_steps
-        self.step_range = 100 / nb_steps
-        self.feedback = feedback
-        super().__init__(nb_steps,feedback)
-        
-    def reportError(self,error,fatalError=False):
-        super().reportError(error,fatalError)
-        
-    def user_error(self,msg):
-        self.feedback.user_error(msg)
-        
-
-class FileFeedback(QgsProcessingFeedback):
-    
-    def __init__(self,fname):
-        self.fname = fname
-        super().__init__()
-        self.sectionText = ""
-        self.sectionHeader = "********"
-        
-    def printFunc(self,msg):
-        with open(self.fname,"a") as f:
-            #f.write(str(msg.encode('utf-8')) + "\n")
-            f.write(str("[" + str(datetime.datetime.now()) + "] " + msg + "\n"))
-        
-    def pushCommandInfo(self,msg):
-        self.printFunc(msg)
-        
-    def pushConsoleInfo(self,msg):
-        #self.printFunc(msg)
-        if msg.startswith(ProgressFeedback.GDAL_ERROR_PREFIX):
-            self.reportError(msg)
-        
-    def pushDebugInfo(self,msg):
-        self.printFunc(msg)
-        
-    def pushInfo(self,msg):
-        self.printFunc(msg)
-        
-    def reportError(self,error,fatalError=False):
-        #print("reportError : " + str(error))
-        self.printFunc("reportError : " + str(error.encode('utf-8')))
-        self.printFunc("reportError : " + str(error))
-        
-    def beginSection(self,txt):
-        self.sectionText = txt
-        self.start_time = time.time()
-        self.pushInfo(self.sectionHeader + " BEGIN : " + txt)
-        
-    def endSection(self):
-        self.end_time = time.time()
-        diff_time = self.end_time - self.start_time
-        self.pushInfo(self.sectionHeader + " END : " + self.sectionText + " in " + str(diff_time) + " seconds")
-        self.sectionText = ""
-        
-    def setProgressText(self,text):
-        pass
-        
-    def setProgress(self,value):
-        pass
-
-    

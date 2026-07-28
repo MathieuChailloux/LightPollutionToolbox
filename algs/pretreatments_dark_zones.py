@@ -44,20 +44,20 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
     
     def initAlgorithm(self, config=None):
     
-        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.TypeVectorPolygon], defaultValue=None, optional=True))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
 
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_INPUT,self.tr('Satellite Image'),defaultValue=None))
 
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RASTER, self.tr('Clean Raster'), defaultValue=None))
         
-        param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=1)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param = QgsProcessingParameterNumber(self.RED_BAND_INPUT, self.tr('Index of the red band'), type=QgsProcessingParameterNumber.Type.Integer, minValue=1, maxValue=4, defaultValue=1)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
-        param = QgsProcessingParameterNumber(self.GREEN_BAND_INPUT, self.tr('Index of the green band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=2)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param = QgsProcessingParameterNumber(self.GREEN_BAND_INPUT, self.tr('Index of the green band'), type=QgsProcessingParameterNumber.Type.Integer, minValue=1, maxValue=4, defaultValue=2)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
-        param = QgsProcessingParameterNumber(self.BLUE_BAND_INPUT, self.tr('Index of the blue band'), type=QgsProcessingParameterNumber.Integer, minValue=1, maxValue=4, defaultValue=3)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param = QgsProcessingParameterNumber(self.BLUE_BAND_INPUT, self.tr('Index of the blue band'), type=QgsProcessingParameterNumber.Type.Integer, minValue=1, maxValue=4, defaultValue=3)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
 
     def parseParams(self, parameters, context, feedback):
@@ -119,7 +119,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         # 'FORMULA': '1*logical_or(logical_or(logical_and((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')),logical_and((A>'+str(majorityBand1)+'), (C>'+str(majorityBand3)+'))),logical_and((B>'+str(majorityBand2)+'), (C>'+str(majorityBand3)+')))',
 
         formula = '1*logical_or(logical_or((A>'+str(majorityBand1)+'), (B>'+str(majorityBand2)+')), (C >'+str(majorityBand3)+'))'
-        outputs['CalculRasterMask'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT],QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
+        outputs['CalculRasterMask'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], outputs[self.SLICED_RASTER], parameters[self.RED_BAND_INPUT],parameters[self.GREEN_BAND_INPUT], parameters[self.BLUE_BAND_INPUT],QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.DataType.UInt16, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -128,7 +128,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
         
         # Calculatrice Raster B1 avec masque
         formula = 'A*B'
-        outputs['CalculRasterB1'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.RED_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
+        outputs['CalculRasterB1'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.RED_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.DataType.UInt16, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -137,7 +137,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
             
         # Calculatrice Raster B2 avec masque
         formula = 'A*B'
-        outputs['CalculRasterB2'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.GREEN_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
+        outputs['CalculRasterB2'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.GREEN_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.DataType.UInt16, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -146,7 +146,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
             
         # Calculatrice Raster B3 avec masque
         formula = 'A*B'
-        outputs['CalculRasterB3'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.BLUE_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.UInt16, context=context,feedback=feedback)
+        outputs['CalculRasterB3'] =  qgsTreatments.applyRasterCalcABC(outputs[self.SLICED_RASTER], outputs['CalculRasterMask'], None, parameters[self.BLUE_BAND_INPUT],1, None, QgsProcessing.TEMPORARY_OUTPUT, formula,out_type=Qgis.DataType.UInt16, context=context,feedback=feedback)
         
         step+=1
         feedback.setCurrentStep(step)
@@ -154,7 +154,7 @@ class PretreatmentsDarkZones(QgsProcessingAlgorithm):
             return {}        
         
         # Fusion
-        outputs['Merge'] = qgsTreatments.applyMergeRaster([outputs['CalculRasterB1'],outputs['CalculRasterB2'],outputs['CalculRasterB3']],self.outputRaster,out_type=Qgis.UInt16,pct=False,separate=True, context=context,feedback=feedback)
+        outputs['Merge'] = qgsTreatments.applyMergeRaster([outputs['CalculRasterB1'],outputs['CalculRasterB2'],outputs['CalculRasterB3']],self.outputRaster,out_type=Qgis.DataType.UInt16,pct=False,separate=True, context=context,feedback=feedback)
         self.results['Raster'] = outputs['Merge']
         
         step+=1

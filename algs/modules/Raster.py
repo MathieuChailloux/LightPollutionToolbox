@@ -19,16 +19,12 @@ email : /
 ***************************************************************************/
 """
 
-from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import *
 try:
     from osgeo import gdal
 except ImportError:
     import gdal
 
 import numpy as np
-
-from os import path
 
 from . import visibility as ws
 
@@ -391,8 +387,9 @@ class Raster:
     """
     def add_to_buffer(self, in_array, report = False):
 
-        try: in_array[self.mask] = self.fill
-        except: pass #an array may be unmasked 
+        if self.mask in in_array:
+             in_array[self.mask] = self.fill
+        # except: pass #an array may be unmasked 
 
         y_in = slice(*self.inside_window_slice[0])
         x_in = slice(*self.inside_window_slice[1])
@@ -478,7 +475,7 @@ class Raster:
         try:
             ds.GetRasterBand(1).WriteArray(self.result )
             ds = None
-        except: pass
+        except: ds = None
     
 
        

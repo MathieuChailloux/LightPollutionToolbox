@@ -6,23 +6,18 @@ With QGIS : 32215
 """
 
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import QgsProcessing
-from qgis.core import NULL
-from qgis.core import QgsProcessingAlgorithm
-from qgis.core import QgsProcessingUtils
-from qgis.core import QgsProcessingMultiStepFeedback
-from qgis.core import QgsProcessingParameterVectorLayer
-from qgis.core import QgsProcessingParameterFile
-from qgis.core import QgsProcessingParameterEnum
-from qgis.core import QgsProcessingParameterNumber
-from qgis.core import QgsProcessingParameterFeatureSink
-from qgis.core import QgsProcessingParameterDefinition
-from qgis.core import QgsProcessingParameterVectorDestination
-from qgis.core import QgsProcessingParameterFeatureSource
-from qgis.core import QgsProcessingParameterField
-from qgis.core import QgsProcessingParameterRasterLayer
-from qgis import processing
-from ...qgis_lib import utils, qgsUtils, qgsTreatments, styles
+from qgis.core import (
+    QgsProcessing,
+    NULL,
+    QgsProcessingAlgorithm,
+    QgsProcessingUtils,
+    QgsProcessingMultiStepFeedback,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterVectorDestination,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterField,
+    QgsProcessingParameterRasterLayer)
+from ...qgis_lib import qgsUtils, qgsTreatments
 
 
 class LightPointsExtraction(QgsProcessingAlgorithm):

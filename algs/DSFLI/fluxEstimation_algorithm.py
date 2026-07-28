@@ -12,7 +12,6 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFile,
                        QgsProcessingParameterField,
                        QgsProcessingParameterNumber,
-                       #QgsProcessingParameterDateTime,
                        QgsProcessingException,
                        QgsField)
                        
@@ -188,12 +187,12 @@ class FluxEstimationAlgorithm(FluxEstimAlg):
             feedback.pushInfo("No file given for LED light efficacy")
         
         flux_eff_name = 'flux_eff'
-        flux_eff_field = QgsField(flux_eff_name, QVariant.Double)
+        flux_eff_field = QgsField(flux_eff_name, QMetaType.Type.Double)
         new_fields = [flux_eff_field]
         
         field_exists = fieldname in lighting.fields().names()
         if not field_exists:
-            flux_field = QgsField(fieldname, QVariant.Double)
+            flux_field = QgsField(fieldname, QMetaType.Type.Double)
             new_fields.append(flux_field)
         elif overwrite:
             pass
@@ -321,18 +320,18 @@ class FluxTimeAlgorithm(FluxEstimAlg):
             QgsProcessingParameterNumber(
                 self.HOUR,
                 self.tr('Time for computation'),
-                type=QgsProcessingParameterNumber.Integer))
+                type=QgsProcessingParameterNumber.Type.Integer))
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SUNSET,
                 self.tr('Sunset hour'),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=self.DEFAULT_SUNSET))
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SUNRISE,
                 self.tr('Sunrise hour'),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=self.DEFAULT_SUNRISE))
         self.addParameter(
             QgsProcessingParameterString(
@@ -368,7 +367,7 @@ class FluxTimeAlgorithm(FluxEstimAlg):
         # Creates new field        
         field_exists = out_fieldname in lighting.fields().names()
         if not field_exists:
-            new_field = QgsField(out_fieldname, QVariant.Int)
+            new_field = QgsField(out_fieldname, QMetaType.Type.Int)
             lighting.dataProvider().addAttributes([new_field])
             lighting.updateFields()
         elif not overwrite_flag:
