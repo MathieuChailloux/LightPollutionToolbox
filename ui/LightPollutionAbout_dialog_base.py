@@ -23,7 +23,7 @@ from qgis.PyQt.QtWidgets import (
     QSizePolicy,
     QVBoxLayout
 )
-from .qgis_lib.qt_compatibility import (
+from ..qgis_lib.qt_compatibility import (
     SIZEPOLICY_PREFERRED,
     SIZEPOLICY_EXPANDING,
     SIZEPOLICY_FIXED,

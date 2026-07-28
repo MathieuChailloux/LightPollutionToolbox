@@ -1,6 +1,5 @@
 from pathlib import Path
 import shutil
-import subprocess
 import zipfile
 
 ROOT_DIR = Path(__file__).resolve().parent
@@ -15,7 +14,8 @@ TO_COPY_DIRS = [
     "help",
     "i18n",
     "icons",
-    "qgis_lib"
+    "qgis_lib",
+    "ui"
 ]
 
 def remove(path):
@@ -43,6 +43,7 @@ for f in ARCHIVE_DIR.rglob("__pycache__"):
     
 # Suppression fichiers inutiles
 remove(ARCHIVE_DIR / "help" / "make.bat")
+remove(ARCHIVE_DIR / "ui" / "old_ui_files")
 
 # Copie des fichiers racine
 for f in Path(ROOT_DIR).glob("*.py"):

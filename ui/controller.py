@@ -19,16 +19,26 @@
  *                                                                         *
  ***************************************************************************/
 """
-import os
-
-from qgis.PyQt import uic
-from qgis.PyQt import QtWidgets
-from .qgis_lib import utils, qgsUtils, log, qgsTreatments, feedbacks, styles
-from qgis.core import QgsApplication, QgsProcessingContext, QgsProject, QgsProcessing, QgsProcessingAlgRunnerTask, QgsVectorFileWriter, QgsMapLayerProxyModel
-from .algs import LightPollutionToolbox_provider
 from functools import partial
-import processing
-import time
+
+from qgis.PyQt.QtWidgets import QFileDialog
+from qgis.core import (
+    QgsApplication,
+    QgsProject,
+    QgsProcessing,
+    QgsProcessingAlgRunnerTask,
+    QgsVectorFileWriter,
+    QgsMapLayerProxyModel
+)
+
+from ..qgis_lib import utils, qgsUtils, styles
+from ..algs.LightPollutionToolbox_provider import (
+    StatisticsRadianceGrid,
+    StatisticsBlueEmissionGrid,
+    CalculMNS,
+    LightPointsViewshed,
+    AnalyseVisibilityLightSources
+)
 
 class ControllerConnector():
 
@@ -160,16 +170,16 @@ class ControllerConnector():
         self.testRemoveLayer(out_path_vector)
         self.testRemoveLayer(out_path_raster)
         self.taskRun = True
-        parameters = { LightPollutionToolbox_provider.StatisticsRadianceGrid.EXTENT_ZONE : in_extent_zone,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RASTER_INPUT : in_raster,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.GRID_LAYER_INPUT : in_grid,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.DIM_GRID: grid_size,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.TYPE_GRID: type_grid,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.RED_BAND_INPUT:red_band,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.GREEN_BAND_INPUT:green_band,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.BLUE_BAND_INPUT:blue_band,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_STAT : out_path_vector,
-                       LightPollutionToolbox_provider.StatisticsRadianceGrid.OUTPUT_RASTER_RADIANCE : out_path_raster}
+        parameters = { StatisticsRadianceGrid.EXTENT_ZONE : in_extent_zone,
+                       StatisticsRadianceGrid.RASTER_INPUT : in_raster,
+                       StatisticsRadianceGrid.GRID_LAYER_INPUT : in_grid,
+                       StatisticsRadianceGrid.DIM_GRID: grid_size,
+                       StatisticsRadianceGrid.TYPE_GRID: type_grid,
+                       StatisticsRadianceGrid.RED_BAND_INPUT:red_band,
+                       StatisticsRadianceGrid.GREEN_BAND_INPUT:green_band,
+                       StatisticsRadianceGrid.BLUE_BAND_INPUT:blue_band,
+                       StatisticsRadianceGrid.OUTPUT_STAT : out_path_vector,
+                       StatisticsRadianceGrid.OUTPUT_RASTER_RADIANCE : out_path_raster}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:StatisticsRadianceGrid")
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
@@ -203,15 +213,15 @@ class ControllerConnector():
         
         self.testRemoveLayer(out_path_vector)
         self.taskRun = True
-        parameters = { LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.EXTENT_ZONE : in_extent_zone,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.RASTER_INPUT : in_raster,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.GRID_LAYER_INPUT : in_grid,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.DIM_GRID_CALC: grid_size,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.TYPE_GRID: type_grid,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.RED_BAND_INPUT:red_band,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.GREEN_BAND_INPUT:green_band,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.BLUE_BAND_INPUT:blue_band,
-                       LightPollutionToolbox_provider.StatisticsBlueEmissionGrid.OUTPUT_STAT_CALC : out_path_vector}
+        parameters = { StatisticsBlueEmissionGrid.EXTENT_ZONE : in_extent_zone,
+                       StatisticsBlueEmissionGrid.RASTER_INPUT : in_raster,
+                       StatisticsBlueEmissionGrid.GRID_LAYER_INPUT : in_grid,
+                       StatisticsBlueEmissionGrid.DIM_GRID_CALC: grid_size,
+                       StatisticsBlueEmissionGrid.TYPE_GRID: type_grid,
+                       StatisticsBlueEmissionGrid.RED_BAND_INPUT:red_band,
+                       StatisticsBlueEmissionGrid.GREEN_BAND_INPUT:green_band,
+                       StatisticsBlueEmissionGrid.BLUE_BAND_INPUT:blue_band,
+                       StatisticsBlueEmissionGrid.OUTPUT_STAT_CALC : out_path_vector}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:StatisticsBlueEmissionGrid")
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
@@ -243,16 +253,16 @@ class ControllerConnector():
         self.testRemoveLayer(out_path_raster_MNS)
         self.testRemoveLayer(out_path_raster_bati_vege)
         self.taskRun = True
-        parameters = { LightPollutionToolbox_provider.CalculMNS.EXTENT_ZONE : in_extent_zone,
-                       LightPollutionToolbox_provider.CalculMNS.RASTER_MNT_INPUT : in_raster_mnt,
-                       LightPollutionToolbox_provider.CalculMNS.BATI_INPUT : in_buildings,
-                       LightPollutionToolbox_provider.CalculMNS.BUFFER_RADIUS : buffer_radius,
-                       LightPollutionToolbox_provider.CalculMNS.HEIGHT_FIELD_BATI : heigt_builings_field,
-                       LightPollutionToolbox_provider.CalculMNS.VEGETATION_INPUT : in_vegetation,
-                       LightPollutionToolbox_provider.CalculMNS.HEIGHT_FIELD_VEGETATION : heigt_vegetation_field,
-                       LightPollutionToolbox_provider.CalculMNS.DEFAULT_HEIGHT_VEGETATION : default_height_vegetation,
-                       LightPollutionToolbox_provider.CalculMNS.OUTPUT_RASTER_MNS : out_path_raster_MNS,
-                       LightPollutionToolbox_provider.CalculMNS.OUTPUT_RASTER_BATI : out_path_raster_bati_vege}
+        parameters = { CalculMNS.EXTENT_ZONE : in_extent_zone,
+                       CalculMNS.RASTER_MNT_INPUT : in_raster_mnt,
+                       CalculMNS.BATI_INPUT : in_buildings,
+                       CalculMNS.BUFFER_RADIUS : buffer_radius,
+                       CalculMNS.HEIGHT_FIELD_BATI : heigt_builings_field,
+                       CalculMNS.VEGETATION_INPUT : in_vegetation,
+                       CalculMNS.HEIGHT_FIELD_VEGETATION : heigt_vegetation_field,
+                       CalculMNS.DEFAULT_HEIGHT_VEGETATION : default_height_vegetation,
+                       CalculMNS.OUTPUT_RASTER_MNS : out_path_raster_MNS,
+                       CalculMNS.OUTPUT_RASTER_BATI : out_path_raster_bati_vege}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:CalculMNS")
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
@@ -282,20 +292,20 @@ class ControllerConnector():
         self.testRemoveLayer(out_path_raster_viewshed)
         
         self.taskRun = True
-        parameters = { LightPollutionToolbox_provider.LightPointsViewshed.EXTENT_ZONE : in_extent_zone,
-                       LightPollutionToolbox_provider.LightPointsViewshed.LIGHT_PTS_INPUT : in_light_points,
-                       LightPollutionToolbox_provider.LightPointsViewshed.OBSERVER_HEIGHT : height_observer_value,
-                       LightPollutionToolbox_provider.LightPointsViewshed.LIGHT_SOURCE_HEIGHT_FIELD : height_light_source_field,
-                       LightPollutionToolbox_provider.LightPointsViewshed.LIGHT_SOURCE_HEIGHT : height_light_source_value,
-                       LightPollutionToolbox_provider.LightPointsViewshed.RADIUS_ANALYSIS_FIELD : height_radius_field,
-                       LightPollutionToolbox_provider.LightPointsViewshed.RADIUS_ANALYSIS : height_radius_value,
-                       LightPollutionToolbox_provider.LightPointsViewshed.RASTER_BATI_INPUT : in_raster_bati_vege,
-                       LightPollutionToolbox_provider.LightPointsViewshed.DEM : in_raster_mns,
-                       LightPollutionToolbox_provider.LightPointsViewshed.USE_CURVATURE : False,
-                       LightPollutionToolbox_provider.LightPointsViewshed.ANALYSIS_TYPE : 0,
-                       LightPollutionToolbox_provider.LightPointsViewshed.REFRACTION : 0.13,
-                       LightPollutionToolbox_provider.LightPointsViewshed.OPERATOR :0,
-                       LightPollutionToolbox_provider.LightPointsViewshed.OUTPUT : out_path_raster_viewshed}
+        parameters = { LightPointsViewshed.EXTENT_ZONE : in_extent_zone,
+                       LightPointsViewshed.LIGHT_PTS_INPUT : in_light_points,
+                       LightPointsViewshed.OBSERVER_HEIGHT : height_observer_value,
+                       LightPointsViewshed.LIGHT_SOURCE_HEIGHT_FIELD : height_light_source_field,
+                       LightPointsViewshed.LIGHT_SOURCE_HEIGHT : height_light_source_value,
+                       LightPointsViewshed.RADIUS_ANALYSIS_FIELD : height_radius_field,
+                       LightPointsViewshed.RADIUS_ANALYSIS : height_radius_value,
+                       LightPointsViewshed.RASTER_BATI_INPUT : in_raster_bati_vege,
+                       LightPointsViewshed.DEM : in_raster_mns,
+                       LightPointsViewshed.USE_CURVATURE : False,
+                       LightPointsViewshed.ANALYSIS_TYPE : 0,
+                       LightPointsViewshed.REFRACTION : 0.13,
+                       LightPointsViewshed.OPERATOR :0,
+                       LightPointsViewshed.OUTPUT : out_path_raster_viewshed}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:LightPointsViewshed")
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
@@ -329,16 +339,16 @@ class ControllerConnector():
         
         self.testRemoveLayer(out_path_vector)
         self.taskRun = True
-        parameters = { LightPollutionToolbox_provider.AnalyseVisibilityLightSources.EXTENT_ZONE : in_extent_zone,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.VIEWSHED_INPUT : in_raster_viewshed,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.RASTER_BATI_INPUT : in_raster_bati_vege,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.GRID_LAYER_INPUT : in_grid,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.DIM_GRID: grid_size,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.TYPE_GRID: type_grid,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.MASK_HEIGHT: mask_height,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.LAST_BOUNDS: self.LAST_BOUNDS_VALUE,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.OUTPUT_NB_SRC_RASTER: out_path_raster,
-                       LightPollutionToolbox_provider.AnalyseVisibilityLightSources.OUTPUT_NB_SRC_VIS: out_path_vector}
+        parameters = { AnalyseVisibilityLightSources.EXTENT_ZONE : in_extent_zone,
+                       AnalyseVisibilityLightSources.VIEWSHED_INPUT : in_raster_viewshed,
+                       AnalyseVisibilityLightSources.RASTER_BATI_INPUT : in_raster_bati_vege,
+                       AnalyseVisibilityLightSources.GRID_LAYER_INPUT : in_grid,
+                       AnalyseVisibilityLightSources.DIM_GRID: grid_size,
+                       AnalyseVisibilityLightSources.TYPE_GRID: type_grid,
+                       AnalyseVisibilityLightSources.MASK_HEIGHT: mask_height,
+                       AnalyseVisibilityLightSources.LAST_BOUNDS: self.LAST_BOUNDS_VALUE,
+                       AnalyseVisibilityLightSources.OUTPUT_NB_SRC_RASTER: out_path_raster,
+                       AnalyseVisibilityLightSources.OUTPUT_NB_SRC_VIS: out_path_vector}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:AnalyseVisibilityLightSources")
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
@@ -375,14 +385,14 @@ class ControllerConnector():
             
             
     def select_file(self, fileType, mapLayerComboBox):
-        qfd = QtWidgets.QFileDialog()
+        qfd = QFileDialog()
         if fileType == "raster":
             filt = self.dlg.tr("Raster files(*.tif)")
         elif fileType == "vector":
             filt = self.dlg.tr("(*.shp);;(*.gpkg)")
             
         title = self.dlg.tr("Select a "+fileType+" file")
-        f, _ = QtWidgets.QFileDialog.getOpenFileName(qfd, title, ".", filt)
+        f, _ = QFileDialog.getOpenFileName(qfd, title, ".", filt)
         if f != "" and f is not None:
             if fileType == "raster":
                 layer = qgsUtils.loadRasterLayer(f)

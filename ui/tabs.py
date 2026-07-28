@@ -24,7 +24,7 @@
 
 import os
 
-from .qgis_lib import utils
+from ..qgis_lib import utils
 
 class TabItem:
 
@@ -38,7 +38,8 @@ class TabItem:
         self.descr = descr
 
     def getHelpFile(self):
-        plugin_dir = os.path.dirname(__file__)
+        ui_dir = os.path.dirname(__file__)
+        plugin_dir = os.path.dirname(ui_dir)
         help_dir = os.path.join(plugin_dir,"help")
         helpFile = os.path.join(help_dir,self.helpFile + "-" + utils.curr_language + ".html")
         return helpFile

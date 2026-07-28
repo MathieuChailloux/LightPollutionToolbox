@@ -26,17 +26,17 @@ import os
 
 from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtCore import QTranslator, qVersion, QCoreApplication
-from .qgis_lib import utils, log, feedbacks
 from qgis.core import (
     QgsApplication,
     QgsProcessingContext,
     QgsProcessingException
 )
+
 from . import controller
 from . import tabs
-
 from .Interface_dialog_base import Ui_InterfaceDialogBase
 from .LightPollutionAbout_dialog_base import Ui_LightPollutionAbout
+from ..qgis_lib import utils, log, feedbacks
  
 class LightPollutionAboutDialog(QtWidgets.QDialog,Ui_LightPollutionAbout):
     def __init__(self,parent=None):
@@ -97,8 +97,8 @@ class InterfaceDialog(QtWidgets.QDialog, Ui_InterfaceDialogBase):
         self.langFr.setChecked(True)
           
     def switchLang(self,lang):
-        #assert(False)
-        plugin_dir = os.path.dirname(__file__)
+        ui_dir = os.path.dirname(__file__)
+        plugin_dir = os.path.dirname(ui_dir)
         lang_path = os.path.join(plugin_dir,'i18n','LightPollutionToolbox_' + lang + '.qm')
         if os.path.exists(lang_path):
             self.translator = QTranslator()

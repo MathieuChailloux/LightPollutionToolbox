@@ -43,8 +43,8 @@ from qgis.PyQt.QtCore import QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
-from .Interface_dialog import InterfaceDialog
-from .Interface_dialog import LightPollutionAboutDialog
+from .ui.Interface_dialog import InterfaceDialog
+from .ui.Interface_dialog import LightPollutionAboutDialog
 from .qgis_lib import utils
 
 

@@ -38,7 +38,7 @@ from qgis.gui import (
     QgsMapLayerComboBox
 )
 
-from .qgis_lib.qt_compatibility import (
+from ..qgis_lib.qt_compatibility import (
     SIZEPOLICY_EXPANDING,
     SIZEPOLICY_MINIMUM,
     FRAME_NO_FRAME,
