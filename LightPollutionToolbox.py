@@ -33,19 +33,19 @@ __revision__ = '$Format:%H$'
 import os
 import sys
 import inspect
+import traceback
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 
-from qgis.core import QgsProcessingAlgorithm, QgsApplication, QgsProcessingException
+from qgis.core import  QgsApplication, QgsProcessingException
 from .algs.LightPollutionToolbox_provider import LightPollutionToolboxProvider
 from qgis.PyQt.QtCore import QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
 from .ui.Interface_dialog import InterfaceDialog
-from .ui.Interface_dialog import LightPollutionAboutDialog
-from .qgis_lib import utils
+from .qgis_lib import utils,feedbacks
 
 
 
@@ -236,9 +236,10 @@ class LightPollutionToolboxPlugin(object):
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        result = self.dlg.exec()
-        # See if OK was pressed
-        if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+        self.dlg.exec()
+        # try:
+        # except (utils.UserError,
+        #         utils.InternalError,
+        #         utils.CustomException) as e:
+        #     utils.debug(traceback.format_exc())
+        #     feedbacks.launchDialog(self.dlg,self.tr("User error"),str(e))

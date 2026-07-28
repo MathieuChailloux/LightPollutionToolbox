@@ -30,7 +30,6 @@ import datetime
 import os.path
 import pathlib
 import sys
-import subprocess
 import platform
 
 file_dir = os.path.dirname(__file__)
@@ -48,7 +47,7 @@ curr_language = "fr"
 dialog_base_dir = None
 
 platform_sys = platform.system()
-    
+
 
 class CustomException(Exception):
     def __init__(self, message):
@@ -67,33 +66,33 @@ class TodoError(Exception):
 def printDate(msg):
     date_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print_func ("[" + date_str + "] " + msg)
-    
+
 def debug(msg):
     if debug_flag:
         printDate("<font color=\"gray\">[debug] " + msg + "</font>")
-    
+
 def info(msg):
     printDate("<font color=\"black\">[info] " + msg + "</font>")
-    
+
 def warn(msg):
     printDate("<font color=\"orange\">[warn] " + msg + "</font>")
-    
+
 def mkBoldRed(msg):
     return "<b><font color=\"red\">" + msg + "</font></b>"
-    
+
 def error_msg(msg,prefix=""):
     printDate(mkBoldRed("[" + prefix + "] " + msg))
-    
+
 def user_error(msg):
     raise UserError(msg)
-    
+
 def internal_error(msg):
     raise InternalError(msg)
-    
+
 # def todo_error(msg):
 #     raise TodoError(msg)
 
-    
+
 # FILE UTILITIES
 
 def normPath(fname):
@@ -101,22 +100,22 @@ def normPath(fname):
     pp = p.as_posix()
     return pp
     #return fname.replace('\\','/')
-    
+
 def joinPath(p1,p2):
     pp1 = pathlib.Path(p1)
     res = pp1.joinpath(p2)
     return res.as_posix()
-    
+
 def mkDir(dirname):
     if not os.path.isdir(dirname):
         info("Creating directory '" + dirname + "'")
         os.makedirs(dirname)
     return dirname
-    
+
 def createSubdir(par_dir,name):
     path = joinPath(par_dir,name)
     return mkDir(path)
-    
+
 def pathEquals(p1,p2):
     if p1 and p2:
         p1_parts = pathlib.Path(p1).parts
@@ -150,7 +149,7 @@ def removeFile(path):
     if os.path.isfile(path):
         debug("Deleting existing file '" + path + "'")
         os.remove(path)
-    
+
 def writeFile(fname,str):
     with open(fname,"w",encoding="utf-8") as f:
         f.write(str)
@@ -160,21 +159,5 @@ def writeFile(fname,str):
 def mkTmpPath(path,suffix="_tmp"):
     bn,extension = os.path.splitext(path)
     return (bn + suffix + extension)
-    
+
         
-# Subprocess utils
-        
-def executeCmd(cmd_args):
-    debug("command = " + str(cmd_args))
-    p = subprocess.Popen(cmd_args,
-                         stderr=subprocess.PIPE,
-                         stdout=subprocess.PIPE)
-    out,err = p.communicate()
-    debug(str(p.args))
-    if out:
-        info(str(out))
-    if err:
-        if "invalid value encountered in less" in str(err):
-            warn(str(err))
-        else:
-            user_error(str(err))

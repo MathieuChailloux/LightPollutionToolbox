@@ -27,7 +27,6 @@ import os
 from pathlib import Path
 
 from qgis.core import (
-    Qgis,
     QgsCoordinateTransform,
     QgsFeatureRequest,
     QgsField,
@@ -39,9 +38,9 @@ from qgis.core import (
     QgsProject,
     QgsRasterBandStats,
     QgsRasterLayer,
-    QgsVectorFileWriter,
     QgsVectorLayer,
-    QgsWkbTypes
+    QgsWkbTypes,
+    QgsUnitTypes
 )
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.PyQt.QtWidgets import QFileDialog
@@ -236,7 +235,12 @@ def getRasterMinMedMax(layer):
 def checkProjectionUnit(layer):
     if layer is not None:
         if layer.crs().mapUnits() != 0: # QgsUnitTypes.encodeUnit(0) == "meters"
-            utils.internal_error("The layer "+layer.name()+" has a projection in "+layer.crs().authid()+", with "+QgsUnitTypes.encodeUnit(layer.crs().mapUnits())+" unit, it must be in meter unit (like EPSG:2154).")
+            utils.internal_error("The layer "
+                +layer.name()+" has a projection in "
+                +layer.crs().authid()
+                +", with "
+                +QgsUnitTypes.encodeUnit(layer.crs().mapUnits())
+                +" unit, it must be in meter unit (like EPSG:2154).")
 
 
 """ UI utilities """    
