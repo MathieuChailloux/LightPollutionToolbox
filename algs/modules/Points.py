@@ -468,25 +468,25 @@ class Points:
           
             
             try: self.pt[ id1 ]["z_targ"]  = feat["observ_hgt"]
-            except ValueError : pass
+            except KeyError : pass
 
             try: self.pt[ id1 ]["radius_in"]  = feat["radius_in"]/ pix_size
-            except ValueError: pass
+            except KeyError: pass
             
             try: self.pt[ id1 ]["file"] = feat["file"]
-            except ValueError: pass
+            except KeyError: pass
 
             try:
                 self.pt[ id1 ]["azim_1"] =  feat["azim_1"]
                 self.pt[ id1 ]["azim_2"] =  feat["azim_2"]
 
-            except ValueError: pass
+            except KeyError: pass
             
             try:
                 self.pt[ id1 ]["angle_down"] =  feat["angle_down"]
                 self.pt[ id1 ]["angle_up"] =  feat["angle_up"]
 
-            except ValueError: pass
+            except KeyError: pass
                 
 
         
@@ -521,7 +521,7 @@ class Points:
                   
             for f in data:
                 try: feat[FIELDS[f][0]] =data[f]
-                except ValueError: pass
+                except KeyError: pass
 ##
 ##            feat['ID'] = r
 ##            feat ['source_hgt']=self.pt[r]["z"]

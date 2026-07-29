@@ -24,7 +24,7 @@
     See BioDispersal and FragScape for use cases.
 """
 
-from . import utils, qgsUtils
+from ..qgis_lib import utils, qgsUtils
 
 class LogConnector:
     

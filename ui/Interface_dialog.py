@@ -32,11 +32,10 @@ from qgis.core import (
     QgsProcessingException
 )
 
-from . import controller
-from . import tabs
+from . import (controller, log, tabs)
 from .Interface_dialog_base import Ui_InterfaceDialogBase
 from .LightPollutionAbout_dialog_base import Ui_LightPollutionAbout
-from ..qgis_lib import utils, log, feedbacks
+from ..qgis_lib import utils, feedbacks
  
 class LightPollutionAboutDialog(QtWidgets.QDialog,Ui_LightPollutionAbout):
     def __init__(self,parent=None):
@@ -64,7 +63,8 @@ class InterfaceDialog(QtWidgets.QDialog, Ui_InterfaceDialogBase):
         self.feedback.connectComponents()
         
         self.context = QgsProcessingContext()
-        utils.print_func = self.txtLog.append
+        # utils.print_func = self.txtLog.append
+        utils.print_func = feedbacks.info
         
         self.controllerConnector = controller.ControllerConnector(self)
         self.tabConnector = tabs.TabConnector(self)

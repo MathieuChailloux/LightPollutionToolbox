@@ -175,7 +175,7 @@ def viewshed_raster (option, point, dem, interpolate = True):
     try :
         if point["z_targ"] >0:
             target_matrix = (data + point["z_targ"]) / distance_matrix
-    except (ValueError, ZeroDivisionError): pass
+    except (KeyError, ZeroDivisionError): pass
                             
 
     data /= distance_matrix #all one line = (data -z - mxcurv) /mx_dist
@@ -283,7 +283,7 @@ def viewshed_raster (option, point, dem, interpolate = True):
         a1 = np.tan(np.radians(point["angle_up"])) * dem.pix   
         a2 = np.tan(np.radians(point["angle_down"])) * dem.pix
         mx_vis[np.logical_or(data > a1, data < a2)] = 0 
-    except ValueError : pass
+    except KeyError : pass
     
 
     if option == DEPTH:
