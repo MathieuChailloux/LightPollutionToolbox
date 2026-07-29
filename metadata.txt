@@ -7,7 +7,7 @@ name=LightPollutionToolbox
 qgisMinimumVersion=3.16
 qgisMaximumVersion=4.99
 description=Light pollution toolbox
-version=3.0.0
+version=3.0.1
 author=Mathieu Chailloux
 email=mathieu@chailloux.org
 
@@ -27,6 +27,7 @@ changelog=LightPollutionToolbox
     2.0.1 : fix issue #1
     2.0.2 : fix issue #7
     3.0.0 : Migration to QGIS4
+    3.0.1 : Code refactoring + bufigxes exception / print
 
 # Tags are comma separated with spaces allowed
 tags=light, pollution, density, surfacic, radiance, flux
