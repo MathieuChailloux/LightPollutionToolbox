@@ -1,13 +1,22 @@
 
 [[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README_fr.md)]
 
-# Aperçu
+# Description
 
-*LightPollutionToolbox* est un plugin QGIS 3.
+*LightPollutionToolbox* est un plugin QGIS qui regroupe divers géotraitements pour caractériser et cartographier la pollution lumineuse.
 
-*LightPollutionToolbox* regroupe divers géotraitements pour caractériser et cartographier la pollution lumineuse. Développé initialement pour vérifier la conformité à la réglementation depuis des couches d'éclairage public, cet outil a vocation à évoluer et d'être augmenté de tout géotraitement pertinent sur la thématique pollution lumineuse et Trame noire.
+Une interface graphique dédiée permet de calculer des **indicateurs de pollution lumineuse** à partir d'images satellites : 
+ - contribution au halo lumineux
+ - émission de lumière bleue
+ - visibilité des sources
 
-*LightPollutionToolbox* a été développé par Mathieu Chailloux et Antoine Sensier ([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) pour le [*Centre de ressources Trame verte et bleue*](http://www.trameverteetbleue.fr/).
+![Indic](./docs/images/visi1.png)
+
+Une chaîne de traitement a été développée pour le caclul de l'indicateur de **Densité Surfacique de Flux Lumineux Installé**.
+
+![DSFLI](./docs/images/dsfliReg.png)
+
+Cet outil a vocation à évoluer et être augmenté de tout géotraitement pertinent sur la thématique pollution lumineuse et Trame noire.
 
 # Documentation
 
@@ -60,32 +69,42 @@ Le groupe *Light Flux Surfacic Density* regrouper les traitements intermédiaire
 
 La description détaillée des paramètres est disponible dans chaque algorithme.
 
-# Contact
+# Crédits
 
-*Développement* : Mathieu Chailloux (mathieu.chailloux@inrae.fr) & Antoine Sensier (antoine.sensier@inrae.fr)
+*LightPollutionToolbox* a été développé par Mathieu Chailloux et Antoine Sensier ([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) pour le [*Centre de ressources Trame verte et bleue*](http://www.trameverteetbleue.fr/).
 
-*Coordination* : Jennifer Amsallem (jennifer.amsallem@inrae.fr)
+*Développement* : Mathieu Chailloux (mathieu@chailloux.org) & Antoine Sensier 
 
-# Citation
+*Coordination* : Jennifer Amsallem 
 
 > Chailloux, M. & Amsallem, J. (2021) LightPollutionToolbox : a QGIS plugin to characterize light pollution
 
 
 # Installation
 
-Pour installer *LightPollutionToolbox* dans *QGIS*, aller dans le menu *Extensions->Installer/Gérer les extensions->Installer depuis un zip* et sélectionner l'archive *LightPollutionToolbox.zip*.
+Pour installer *LightPollutionToolbox* dans *QGIS*, aller dans le menu *Extensions->Installer/Gérer les extensions->Toutes*, rechercher *LightPollutionToolbox* et appuyer sur *Installer*.
 
-Les algorithmes apparaissent alors dans la boîte à outils de traitement.
+Doit alors apparaître une icône d'ampoule dans la barre d'outils ainsi que les algorithmes apparaissent alors dans la boîte à outils de traitement.
 
 # Développeurs
 
-*LightPollutionToolbox* dépend du sous-module [*qgis_lib_mc*](https://github.com/MathieuChailloux/qgis_lib_mc)
+Le code est organisé par sous-dossiers sauf pour quelques fichiers racine :
+ - LightPollutionToolbox.py est l'entrée principale de l'extension
+ - build.py permet d'empaqueter une nouvelle version
+ - metadata.txt contient les métadonnées QGIS de l'extension
+
+Les sous-dossiers sont organisés comme suit :
+ - **algs** contient les fichiers python des traitements qui sont exposés dans la boîte à outils avec comme sous-dossier
+   - *DSFLI* pour les traitements relatifs à la densité surfacique de flux lumineux installé
+   - *modules* pour les traitements utilisés dans le calcul d'indicateurs issus d'images satellite
+ - **assets** pour certains fichiers de configuration qui doivent être embarqués
+ - **docs** pour les guides d'utilisation
+ - **help** pour les textes d'aide dans l'outil
+ - **i18n** pour les fichiers de traduction
+ - **qgis_lib** contient des fichiers python qui regroupent les interactions avec QGIS (bibliothèques PyQGIS / PyQt notamment)
+ - **sample_data** contient des données d'exemple
+ - **ui** contient les fichiers python qui gèrent l'interface graphique du module qui permet le calcul d'indicateurs de pollution lumineuse 
+
 
 Pour installer le git :  
 > git clone https://github.com/MathieuChailloux/LightPollutionToolbox.git
->
-> cd LightPollutionToolbox
->
-> git clone https://github.com/MathieuChailloux/qgis_lib_mc.git
-
-Sous Windows, le répertoire des plugins *QGIS* est *C:/Users/user/AppData/Romaing/QGIS/QGIS3/profiles/default/python/plugins*.
