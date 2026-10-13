@@ -1,6 +1,15 @@
 
 [[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README_fr.md)]
 
+# Table des matières
+- [Description](#description)
+- [Documentation](#documentation)
+- [Indicateurs de Pollution Lumineuse](#indicateurs-de-pollution-lumineuse)
+- [Densité Surfacique de Flux Lumineux Installé](#densité-surfacique-de-flux-lumineux-installé)
+- [Crédits](#crédits)
+- [Installation](#installation)
+- [Développeurs](#développeurs)
+
 # Description
 
 *LightPollutionToolbox* est un plugin QGIS qui regroupe divers géotraitements pour caractériser et cartographier la pollution lumineuse.
@@ -26,30 +35,23 @@ Documentation disponible :
  - [Note méthodologique sur la Densité Surfacique de Flux Lumineux Installée](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
  - [Note méthodologique sur le calcul d'indicateurs de pollution lumineuse](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteIndicateursPOLLUM_INRAE_fr.pdf)
 
-# Algorithmes Indicateurs de Pollution Lumineuse
+# Indicateurs de Pollution Lumineuse
 
-Les Algorithmes sont disponibles dans la boite à outils de traitements ou via le bouton "LightPollutionToolbox" du menu.
+Les algorithmes sont disponibles dans la boîte à outils de traitements ou via le bouton *LightPollutionToolbox* du menu.
 Les 3 principaux indicateurs sont les suivants:
-- Contribution au halo lumineux (Radiance)
-  Fichier : ./algs/statistics_radiance_grid.py
-- Emission dans le partie bleue du spectre
-  Fichier : ./algs/statistics_blue_emission_grid.py
-- Visibilité des sources lumineuses : ce traitement est divisés en 3 sous-traitements :
-	- 1 : Calcul du MNS (Modèle Numérique de Surface) avec le MNT, le bati et éventuellement la végétation (opitonnel)
-		  Fichier : ./algs/analyse_visibility_light_sources.py
-	- 2 : Calcul du champ de visibilité (viewshed), une partie du code provient du plugin Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
-		  Fichier : ./algs/analyse_visibility_light_sources.py
-	- 3 : Nombre moyen de sources lumineuses par maille
-		  Fichier : ./algs/analyse_visibility_light_sources.py
+- *Contribution au halo lumineux (Radiance)*
+- *Emission dans le partie bleue du spectre*
+- *Visibilité des sources lumineuses* : ce traitement est divisés en 3 sous-traitements :
+	- 1 : *Calcul du MNS* (Modèle Numérique de Surface) avec le MNT, le bati et éventuellement la végétation (opitonnel)
+	- 2 : *Calcul du champ de visibilité* (viewshed), une partie du code provient du plugin Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
+	- 3 : *Nombre moyen de sources lumineuses par maille*
 
-Il existe aussi 2 autres traitements dans le sous-menu "Utils Indicateurs de pollution lumineuse" de la bôite à outils :
-- create MNT from RGE Alti : permet de créer un MNT à partir d'une zone d'emprise, de la dalles et du dossier MNT ASC de RGE Alti
-  Fichier : ./algs/create_MNT_from_RGEALTI.py
-- Pretreatments to remove dark zones : permet de mettre à 0 les pixels inférieurs à la médiane des pixels par bande
-  Fichier : ./algs/pretreatments_dark_zones.py 
+Il existe aussi 2 autres traitements dans le sous-menu *Utils Indicateurs de pollution lumineuse* de la bôite à outils :
+- *create MNT from RGE Alti* : permet de créer un MNT à partir d'une zone d'emprise, de la dalles et du dossier MNT ASC de RGE Alti
+- *Pretreatments to remove dark zones* : permet de mettre à 0 les pixels inférieurs à la médiane des pixels par bande
  
  
-# Algorithmes DSFLI
+# Densité Surfacique de Flux Lumineux Installé
 
 Les 2 algorithmes principaux sont :
  - *Classify lighting layer* : vérifie la conformité d'une couche d'éclairage public à certains indicateurs de la réglementation (ULR, flux lumineux, température de couleur)
