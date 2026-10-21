@@ -92,19 +92,19 @@ A light bulb icon should then appear in the toolbar, and the algorithms will app
 The code is organized into subfolders, except for a few root files:
  - LightPollutionToolbox.py is the main entry point of the plugin
  - build.py is used to package a new version
- - metadata.txt contains the plugin's QGIS metadata
+ - metadata.txt contains plugin QGIS metadata
 
 The subfolders are organized as follows:
- - **algs** contains the Python files of the processing tools exposed in the toolbox, with the following subfolders
-   - *DSFLI* for the processing tools related to light flux surface density
-   - *modules* for the processing tools used in the computation of indicators derived from satellite images
+ - **algs** contains processing tools used by LightPollutionToolbox
+   - *DSFLI* contains python files processing light flux surface density
+   - *modules* contains python files processing light pollution indicators 
  - **assets** for some configuration files that must be embedded
- - **docs** for user guides
- - **help** for the help texts within the tool
- - **i18n** for translation files
- - **qgis_lib** contains Python files that group the interactions with QGIS (PyQGIS / PyQt libraries in particular)
+ - **docs** contains user guides
+ - **help** for help texts within the tool
+ - **i18n** contains translation files
+ - **qgis_lib** gathers Python files defining the interactions with QGIS (PyQGIS / PyQt libraries in particular)
  - **sample_data** contains sample data
- - **ui** contains the Python files that manage the graphical interface of the module used to compute light pollution indicators
+ - **ui**  Python files managing GUI (Graphical User Interface)
 
 
 To clone the git repository:
