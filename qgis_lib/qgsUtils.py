@@ -51,7 +51,7 @@ from . import utils
 if os.environ.get("GTIFF_COPT") is not None:
     GTIFF_COPT = os.environ["GTIFF_COPT"].split()
 else:
-    GTIFF_COPT = ["BIGTIFF=IF_SAFER", "COMPRESS=LZW", "NUM_THREADS=ALL_CPUS"]
+    GTIFF_COPT = ["BIGTIFF=IF_SAFER", "COMPRESS=LZW"]
 
 # Delete raster file and associated xml file
 def removeRaster(path):
