@@ -84,6 +84,10 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
     REFRACTION = 'REFRACTION'
     PRECISION = 'PRECISION'
     ANALYSIS_TYPE = 'ANALYSIS_TYPE'
+    INPUT_TYPE = 'INPUT_TYPE'
+    INPUT_TYPES = ['High resolution (light sources)', 'Low resolution (radiance pixels)']
+    # Output style per input type, indexed like INPUT_TYPES
+    INPUT_TYPE_QML = ['viewshed_sources.qml', 'viewshed_pixels.qml']
     OPERATOR = 'OPERATOR'
     OUTPUT = 'OutputViewshed'
    
@@ -101,6 +105,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterFeatureSource(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), [QgsProcessing.SourceType.TypeVectorPoint], defaultValue=None))
+        self.addParameter(QgsProcessingParameterEnum(self.INPUT_TYPE, self.tr('Input type'), [self.tr(t) for t in self.INPUT_TYPES], defaultValue=0))
         
         self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.DataType.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(
@@ -218,6 +223,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.refraction = self.parameterAsDouble(parameters,self.REFRACTION,context)
         self.precision = 1#self.parameterAsInt(parameters,self.PRECISION,context)
         self.analysis_type = self.parameterAsInt(parameters,self.ANALYSIS_TYPE, context)
+        self.input_type = self.parameterAsEnum(parameters, self.INPUT_TYPE, context)
         self.operator = self.parameterAsInt(parameters,self.OPERATOR,context) +1       
 
         self.output_path = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
@@ -472,7 +478,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         if not out_layer:
             raise QgsProcessingException(f"No layer found for {results[self.OUTPUT]}")
 
-        qml_path = path.join(path.dirname(path.dirname(__file__)), 'assets', 'viewshed.qml')
+        qml_path = path.join(path.dirname(path.dirname(__file__)), 'assets', self.INPUT_TYPE_QML[self.input_type])
         msg, ok = out_layer.loadNamedStyle(qml_path)
         if not ok:
             feedback.reportError(f"Could not apply style {qml_path}: {msg}")

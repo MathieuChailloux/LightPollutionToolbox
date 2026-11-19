@@ -24,6 +24,7 @@ from qgis.core import (
     QgsProcessingException
 )
 from ..qgis_lib import qgsUtils, qgsTreatments
+from .light_points_viewshed import LightPointsViewshed
 
 
 class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
@@ -42,12 +43,16 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     SLICED_RASTER_BATI = 'SlicedRasterBati'
     OUTPUT_NB_SRC_RASTER = 'OutputNbSrcRaster'
     OUTPUT_NB_SRC_VIS = 'OutputNbSrcVis'
+    INPUT_TYPE = 'INPUT_TYPE'
+    # Output style per input type, indexed like LightPointsViewshed.INPUT_TYPES
+    INPUT_TYPE_QML = ['viewshed_grid_sources.qml', 'viewshed_grid_pixels.qml']
     
     results = {}
     
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterRasterLayer(self.VIEWSHED_INPUT, self.tr('Layer resulting from viewshed processing'), defaultValue=None))
+        self.addParameter(QgsProcessingParameterEnum(self.INPUT_TYPE, self.tr('Input type of the viewshed'), [self.tr(t) for t in LightPointsViewshed.INPUT_TYPES], optional=True, defaultValue=0))
         self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster bati'), defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterNumber(self.MASK_HEIGHT, self.tr('Max. observer height, meters'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=1))
         
@@ -64,6 +69,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     def parseParams(self, parameters, context, feedback):
         self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1] 
         self.inputViewshed = self.parameterAsRasterLayer(parameters, self.VIEWSHED_INPUT, context)
+        self.input_type = self.parameterAsEnum(parameters, self.INPUT_TYPE, context)
         self.inputRasterBati = self.parameterAsRasterLayer(parameters, self.RASTER_BATI_INPUT, context)
         self.inputGrid = qgsTreatments.parameterAsSourceLayer(self, parameters,self.GRID_LAYER_INPUT,context,feedback=feedback)[1] 
         self.outputbSrcRaster = self.parameterAsOutputLayer(parameters,self.OUTPUT_NB_SRC_RASTER, context)
@@ -244,7 +250,7 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         if not out_layer:
             raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_NB_SRC_VIS]))
 
-        qml_path = path.join(path.dirname(path.dirname(__file__)), 'assets', 'viewshed_grid.qml')
+        qml_path = path.join(path.dirname(path.dirname(__file__)), 'assets', self.INPUT_TYPE_QML[self.input_type])
         msg, ok = out_layer.loadNamedStyle(qml_path)
         if not ok:
             feedback.reportError(f"Could not apply style {qml_path}: {msg}")
