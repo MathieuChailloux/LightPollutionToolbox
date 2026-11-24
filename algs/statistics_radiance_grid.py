@@ -25,6 +25,7 @@ from qgis.core import QgsProcessingParameterVectorDestination
 from qgis.core import QgsProcessingParameterRasterDestination
 from qgis.core import QgsProcessingParameterFeatureSource
 from qgis.core import QgsCoordinateReferenceSystem
+from qgis.core import QgsProcessingException
 from qgis import processing
 from ..qgis_lib import utils, qgsUtils, qgsTreatments, styles
 
