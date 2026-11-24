@@ -5,6 +5,8 @@ Group : Visibility Light Sources
 With QGIS : 32215
 """
 
+from os import path
+
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (
     QgsProcessing,
@@ -21,7 +23,8 @@ from qgis.core import (
     QgsProcessingParameterFeatureSource,
     QgsProcessingException
 )
-from ..qgis_lib import qgsUtils, qgsTreatments, styles
+from ..qgis_lib import qgsUtils, qgsTreatments
+from .light_points_viewshed import LightPointsViewshed
 
 
 class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
@@ -35,21 +38,22 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
     TYPE_GRID = 'TypeOfGrid'
     RASTER_BATI_INPUT = 'RasterBatiInput'
     GRID_LAYER_INPUT = 'GridLayerInput'
-    LAST_BOUNDS = 'LastBounds'
+    #LAST_BOUNDS = 'LastBounds'
     SLICED_RASTER_VIEWSHED = 'SlicedRasterViewshed'
     SLICED_RASTER_BATI = 'SlicedRasterBati'
     OUTPUT_NB_SRC_RASTER = 'OutputNbSrcRaster'
     OUTPUT_NB_SRC_VIS = 'OutputNbSrcVis'
+    INPUT_TYPE = 'INPUT_TYPE'
+    # Output style per input type, indexed like LightPointsViewshed.INPUT_TYPES
+    INPUT_TYPE_QML = ['viewshed_grid_sources.qml', 'viewshed_grid_pixels.qml']
     
-    FIELD_STYLE = '_mean'
-    # CLASS_BOUNDS_NB_SRC = [0,0,5,10,20,50] # on double la valeur 0 pour avoir un premier pas avec uniquement ces valeurs
-    LAST_BOUNDS_VALUE = 50
     results = {}
     
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterRasterLayer(self.VIEWSHED_INPUT, self.tr('Layer resulting from viewshed processing'), defaultValue=None))
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster bati'), defaultValue=None))
+        self.addParameter(QgsProcessingParameterEnum(self.INPUT_TYPE, self.tr('Input type of the viewshed'), [self.tr(t) for t in LightPointsViewshed.INPUT_TYPES], optional=True, defaultValue=0))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster bati'), defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterNumber(self.MASK_HEIGHT, self.tr('Max. observer height, meters'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=1))
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.GRID_LAYER_INPUT, self.tr('Grid Layer'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
@@ -57,14 +61,15 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterNumber(self.DIM_GRID, self.tr('Grid diameter if no grid layer, meters'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=50))
         self.addParameter(QgsProcessingParameterEnum(self.TYPE_GRID, self.tr('Type of grid if no grid layer'), options=['Rectangle','Diamond','Hexagon'], allowMultiple=False, defaultValue=2))
         
-        self.addParameter(QgsProcessingParameterNumber(self.LAST_BOUNDS, self.tr('Bounds for the last class of symbology'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=50))
+        #self.addParameter(QgsProcessingParameterNumber(self.LAST_BOUNDS, self.tr('Bounds for the last class of symbology'), type=QgsProcessingParameterNumber.Type.Double, defaultValue=50))
 
-        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_NB_SRC_RASTER, self.tr('Output Raster Number of visible lights'), createByDefault=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_NB_SRC_RASTER, self.tr('Output Raster Number of visible lights'), optional=True, createByDefault=False, defaultValue=None))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NB_SRC_VIS, self.tr('Output Number of visible lights per grid'), type=QgsProcessing.SourceType.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
     
     def parseParams(self, parameters, context, feedback):
         self.inputExtent = qgsTreatments.parameterAsSourceLayer(self, parameters,self.EXTENT_ZONE,context,feedback=feedback)[1] 
         self.inputViewshed = self.parameterAsRasterLayer(parameters, self.VIEWSHED_INPUT, context)
+        self.input_type = self.parameterAsEnum(parameters, self.INPUT_TYPE, context)
         self.inputRasterBati = self.parameterAsRasterLayer(parameters, self.RASTER_BATI_INPUT, context)
         self.inputGrid = qgsTreatments.parameterAsSourceLayer(self, parameters,self.GRID_LAYER_INPUT,context,feedback=feedback)[1] 
         self.outputbSrcRaster = self.parameterAsOutputLayer(parameters,self.OUTPUT_NB_SRC_RASTER, context)
@@ -97,8 +102,9 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                 outputs[self.SLICED_RASTER_VIEWSHED] = self.inputViewshed # le raster n'est pas découpé
                
                # le raster bati est découpé pour avoir la même taille que le viewshed
-                outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, outputs[self.EXTENT_ZONE], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
-                
+                if self.inputRasterBati is not None:
+                    outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, outputs[self.EXTENT_ZONE], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+
                 step+=2
                 feedback.setCurrentStep(step)
                 if feedback.isCanceled():
@@ -116,7 +122,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                     return {}
                 
                 # Découper le raster Bati selon une emprise (celle de la grille)
-                outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, self.inputGrid, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+                if self.inputRasterBati is not None:
+                    outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, self.inputGrid, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
                 
                 step+=1
                 feedback.setCurrentStep(step)
@@ -133,7 +140,8 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
                 return {}
                 
             # Découper le raster Bati selon une emprise
-            outputs[self.SLICED_RASTER_BATI] =  qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, self.inputExtent, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+            if self.inputRasterBati is not None:
+                outputs[self.SLICED_RASTER_BATI] =  qgsTreatments.applyClipRasterByExtent(self.inputRasterBati, self.inputExtent, QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
             
             step+=1
             feedback.setCurrentStep(step)
@@ -173,48 +181,49 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
-        
+
+        rasterNbSrc = None
+        if self.inputRasterBati is None:
+            rasterNbSrc = outputs[self.SLICED_RASTER_VIEWSHED]
+        else:
+            # Calculatrice Raster enleve bati haut
+            # Masque bati
+            #Si hauteur > h_remplie  : 0 Sinon 1
+            formula = '1*(logical_and(A<= '+str(parameters[self.MASK_HEIGHT])+', True))' #'1*(logical_and(A<= B, True))'
+            outputs['RasterBatiFilterHeight'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_BATI], None, QgsProcessing.TEMPORARY_OUTPUT, formula, nodata_val=None, context=context,feedback=feedback)
             
-        # Calculatrice Raster enleve bati haut
-        # Masque bati
-        #Si hauteur > h_remplie  : 0 Sinon 1
-        formula = '1*(logical_and(A<= '+str(parameters[self.MASK_HEIGHT])+', True))' #'1*(logical_and(A<= B, True))'
-        outputs['RasterBatiFilterHeight'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_BATI], None, QgsProcessing.TEMPORARY_OUTPUT, formula, nodata_val=None, context=context,feedback=feedback)
-        
-        step+=1
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
+            step+=1
+            feedback.setCurrentStep(step)
+            if feedback.isCanceled():
+                return {}
 
-        # Remplir les cellules sans données
-        outputs['FillCellsWithoutData'] = qgsTreatments.applyFillNoData(outputs['RasterBatiFilterHeight'], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
-        
-        step+=1
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
+            # Remplir les cellules sans données
+            outputs['FillCellsWithoutData'] = qgsTreatments.applyFillNoData(outputs['RasterBatiFilterHeight'], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
 
-        # Mise à zéro du pixel sur bati supérieur à une certaine hauteur
-        outputs['BatiWithHeightMask'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_VIEWSHED], outputs['FillCellsWithoutData'], self.outputbSrcRaster, 'A*B',nodata_val=None, out_type=Qgis.DataType.Int16, context=context,feedback=feedback)
-        self.results[self.OUTPUT_NB_SRC_RASTER] = outputs['BatiWithHeightMask']
-        
-        step+=1
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
+            step+=1
+            feedback.setCurrentStep(step)
+            if feedback.isCanceled():
+                return {}
+
+            # Mise à zéro du pixel sur bati supérieur à une certaine hauteur
+            outputs['BatiWithHeightMask'] = qgsTreatments.applyRasterCalcAB(outputs[self.SLICED_RASTER_VIEWSHED], outputs['FillCellsWithoutData'], self.outputbSrcRaster, 'A*B',nodata_val=None, out_type=Qgis.DataType.Int16, context=context,feedback=feedback)
+            rasterNbSrc = self.results[self.OUTPUT_NB_SRC_RASTER] = outputs['BatiWithHeightMask']
+
+            step+=1
+            feedback.setCurrentStep(step)
+            if feedback.isCanceled():
+                return {}
 
         # Statistiques de zone (moyenne)
         stats = [2,4] # Moyenne,Ecart-type
-        self.results[self.OUTPUT_NB_SRC_VIS] = qgsTreatments.rasterZonalStats(outputs['GridTempExtract'], outputs['BatiWithHeightMask'], self.outputNbSrcVis, prefix='_',stats=stats, context=context,feedback=feedback)
-        
+        self.results[self.OUTPUT_NB_SRC_VIS] = qgsTreatments.rasterZonalStats(outputs['GridTempExtract'], rasterNbSrc, self.outputNbSrcVis, prefix='_', stats=stats, context=context,feedback=feedback)
+
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
-
-        print(step)
         
-        self.LAST_BOUNDS_VALUE = parameters[self.LAST_BOUNDS]
+        #self.LAST_BOUNDS_VALUE = parameters[self.LAST_BOUNDS]
         
         return self.results
 
@@ -235,17 +244,17 @@ class AnalyseVisibilityLightSources(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return AnalyseVisibilityLightSources()
-        
+
     def postProcessAlgorithm(self,context,feedback):
         out_layer = QgsProcessingUtils.mapLayerFromString(self.results[self.OUTPUT_NB_SRC_VIS],context)
         if not out_layer:
             raise QgsProcessingException("No layer found for " + str(self.results[self.OUTPUT_NB_SRC_VIS]))
-        
-        # Applique la symbologie par défault
-        # styles.setCustomClassesInd_Pol_Graduate(out_layer, self.FIELD_STYLE, self.CLASS_BOUNDS_NB_SRC) # affecte une couleur par valeur
-        # styles.setRdYlGnGraduatedStyle2(out_layer, self.FIELD_STYLE)
-        
-        bounds = styles.getQuantileBounds(out_layer, self.FIELD_STYLE, lastBounds=self.LAST_BOUNDS_VALUE)
-        styles.setCustomClassesInd_Pol_Graduate(out_layer, self.FIELD_STYLE, bounds)
-        
+
+        qml_path = path.join(path.dirname(path.dirname(__file__)), 'assets', self.INPUT_TYPE_QML[self.input_type])
+        msg, ok = out_layer.loadNamedStyle(qml_path)
+        if not ok:
+            feedback.reportError(f"Could not apply style {qml_path}: {msg}")
+        out_layer.triggerRepaint()
+        out_layer.emitStyleChanged()  # refresh the legend in the layer tree
+
         return self.results

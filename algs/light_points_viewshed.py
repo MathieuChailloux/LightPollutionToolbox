@@ -84,6 +84,10 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
     REFRACTION = 'REFRACTION'
     PRECISION = 'PRECISION'
     ANALYSIS_TYPE = 'ANALYSIS_TYPE'
+    INPUT_TYPE = 'INPUT_TYPE'
+    INPUT_TYPES = ['High resolution (light sources)', 'Low resolution (radiance pixels)']
+    # Output style per input type, indexed like INPUT_TYPES
+    INPUT_TYPE_QML = ['viewshed_sources.qml', 'viewshed_pixels.qml']
     OPERATOR = 'OPERATOR'
     OUTPUT = 'OutputViewshed'
    
@@ -101,6 +105,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterFeatureSource(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), [QgsProcessing.SourceType.TypeVectorPoint], defaultValue=None))
+        self.addParameter(QgsProcessingParameterEnum(self.INPUT_TYPE, self.tr('Input type'), [self.tr(t) for t in self.INPUT_TYPES], defaultValue=0))
         
         self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.DataType.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(
@@ -126,7 +131,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
                           (self.DEM,
             self.tr('DSM (Digital surface model)')))
             
-        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster buildings vegetation'),defaultValue=None))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.RASTER_BATI_INPUT, self.tr('Raster buildings vegetation'),defaultValue=None,optional=True))
         
         self.addParameter(QgsProcessingParameterBoolean(
             self.USE_CURVATURE,
@@ -218,6 +223,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.refraction = self.parameterAsDouble(parameters,self.REFRACTION,context)
         self.precision = 1#self.parameterAsInt(parameters,self.PRECISION,context)
         self.analysis_type = self.parameterAsInt(parameters,self.ANALYSIS_TYPE, context)
+        self.input_type = self.parameterAsEnum(parameters, self.INPUT_TYPE, context)
         self.operator = self.parameterAsInt(parameters,self.OPERATOR,context) +1       
 
         self.output_path = self.parameterAsOutputLayer(parameters,self.OUTPUT,context)
@@ -237,7 +243,8 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
             qgsUtils.checkProjectionUnit(self.inputExtent)
         qgsUtils.checkProjectionUnit(self.inputLightPoints)
         qgsUtils.checkProjectionUnit(self.raster)
-        qgsUtils.checkProjectionUnit(self.inputRasterBatiVege)
+        if self.inputRasterBatiVege is not None:
+            qgsUtils.checkProjectionUnit(self.inputRasterBatiVege)
         
         
 # --------------- get observers (light points) ------------------       
@@ -264,7 +271,10 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
             
         
         # Découper le raster Bati selon une emprise
-        outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBatiVege, outputs[self.EXTENT_ZONE], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+        if self.inputRasterBatiVege is not None:
+            outputs[self.SLICED_RASTER_BATI] = qgsTreatments.applyClipRasterByExtent(self.inputRasterBatiVege, outputs[self.EXTENT_ZONE], QgsProcessing.TEMPORARY_OUTPUT, context=context,feedback=feedback)
+        else:
+            self.SLICED_RASTER_BATI = None
         
         # Extraire par localisation
         temp_path_pts = QgsProcessingUtils.generateTempFilename('temp_path_pts.gpkg')
@@ -298,23 +308,28 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
         # Mise à 0 nécessaire de la hauteur de la source si interescte le bati ou la végétation
         feedback.setCurrentStep(1)
-        # Raster vers vecteur du raster bati vegetation
-        outputs['PolygoniseBatiVege'] = qgsTreatments.applyPolygonize(outputs[self.SLICED_RASTER_BATI], 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
-        
-        # Jointure par localisation entre les points et bati-végétation
-        temp_path_join_pts_bati = QgsProcessingUtils.generateTempFilename('temp_path_join_pts_bati.gpkg')
-        qgsTreatments.joinByLoc(outputs['CalculFieldRadius'],outputs['PolygoniseBatiVege'],predicates=[0],out_path=temp_path_join_pts_bati,discard=False,method=1,context=context,feedback=feedback)
-        outputs['JoinPointsBatiVege'] = qgsUtils.loadVectorLayer(temp_path_join_pts_bati)
-        
         # Calculatrice de champ hauteur source lumière (si intersection : DN non NULL, on met la hauteur à 0
         if parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] != "" and parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] is not None and parameters[self.LIGHT_SOURCE_HEIGHT_FIELD] != NULL:
             formula = 'CASE WHEN  "DN" IS NULL THEN "'+str(parameters[self.LIGHT_SOURCE_HEIGHT_FIELD])+'" ELSE 0 END'
         else:
             formula = 'CASE WHEN  "DN" IS NULL THEN '+str(parameters[self.LIGHT_SOURCE_HEIGHT])+' ELSE 0 END'
-        
+
+        # Raster vers vecteur du raster bati vegetation
+        if self.SLICED_RASTER_BATI is not None:
+            outputs['PolygoniseBatiVege'] = qgsTreatments.applyPolygonize(outputs[self.SLICED_RASTER_BATI], 'DN', QgsProcessing.TEMPORARY_OUTPUT, context=context, feedback=feedback)
+            
+            # Jointure par localisation entre les points et bati-végétation
+            temp_path_join_pts_bati = QgsProcessingUtils.generateTempFilename('temp_path_join_pts_bati.gpkg')
+            qgsTreatments.joinByLoc(outputs['CalculFieldRadius'],outputs['PolygoniseBatiVege'],predicates=[0],out_path=temp_path_join_pts_bati,discard=False,method=1,context=context,feedback=feedback)
+            outputs['JoinPointsBatiVege'] = qgsUtils.loadVectorLayer(temp_path_join_pts_bati)
+            points = outputs['JoinPointsBatiVege']
+        else:
+            points = outputs['CalculFieldRadius']
+
         temp_path_lum_pts = QgsProcessingUtils.generateTempFilename('temp_path_lum_pts.gpkg')
-        qgsTreatments.applyFieldCalculator(outputs['JoinPointsBatiVege'],self.SOURCE_FIELD, temp_path_lum_pts, formula, 10, 4, 0, context=context,feedback=feedback)
+        qgsTreatments.applyFieldCalculator(points,self.SOURCE_FIELD, temp_path_lum_pts, formula, 10, 4, 0, context=context,feedback=feedback)
         outputs['LightPoints'] = qgsUtils.loadVectorLayer(temp_path_lum_pts)
+
 
 # --------------- verification of inputs ------------------
         # ajout pour découper si MNS + grand que emprise
@@ -440,7 +455,8 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         # self.output_path = qgsUtils.loadRasterLayer(temp_decoup_raster)
         
         results[self.OUTPUT] = self.output_path
-            
+        self.results = results
+
             
         # for output in self.outputDefinitions():
             # outputName = output.name()
@@ -452,6 +468,25 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         return results
 
     
+    def postProcessAlgorithm(self, context, feedback):
+        # Results are missing when the algorithm was canceled
+        results = getattr(self, 'results', {})
+        if self.OUTPUT not in results:
+            return results
+
+        out_layer = QgsProcessingUtils.mapLayerFromString(results[self.OUTPUT], context)
+        if not out_layer:
+            raise QgsProcessingException(f"No layer found for {results[self.OUTPUT]}")
+
+        qml_path = path.join(path.dirname(path.dirname(__file__)), 'assets', self.INPUT_TYPE_QML[self.input_type])
+        msg, ok = out_layer.loadNamedStyle(qml_path)
+        if not ok:
+            feedback.reportError(f"Could not apply style {qml_path}: {msg}")
+        out_layer.triggerRepaint()
+        out_layer.emitStyleChanged()  # refresh the legend in the layer tree
+
+        return results
+
     def name(self):
         """
         Returns the algorithm name, used for identifying the algorithm. This

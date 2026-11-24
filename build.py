@@ -11,6 +11,7 @@ ARCHIVE_PATH = ROOT_DIR / ARCHIVE_NAME
 
 TO_COPY_DIRS = [
     "algs",
+    "assets",
     "help",
     "i18n",
     "icons",
