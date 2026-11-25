@@ -310,6 +310,7 @@ class ControllerConnector():
         self.taskRun = True
         parameters = { LightPointsViewshed.EXTENT_ZONE : in_extent_zone,
                        LightPointsViewshed.LIGHT_PTS_INPUT : in_light_points,
+                       LightPointsViewshed.INPUT_TYPE : 1 if (suffix == self.SUFFIX_MR) else 0,
                        LightPointsViewshed.OBSERVER_HEIGHT : height_observer_value,
                        LightPointsViewshed.LIGHT_SOURCE_HEIGHT_FIELD : height_light_source_field,
                        LightPointsViewshed.LIGHT_SOURCE_HEIGHT : height_light_source_value,

@@ -113,7 +113,7 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         self.INPUT_TYPES = [
             self.tr('High resolution (light sources)'),
             self.tr('Low resolution (radiance pixels)')]
-        self.addParameter(QgsProcessingParameterEnum(self.INPUT_TYPE, self.tr('Input type'), [self.tr(t) for t in self.INPUT_TYPES], defaultValue=0))
+        self.addParameter(QgsProcessingParameterEnum(self.INPUT_TYPE, self.tr('Input type'), self.INPUT_TYPES, defaultValue=0))
         
         self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.DataType.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(
