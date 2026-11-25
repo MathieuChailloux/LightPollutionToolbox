@@ -1,89 +1,111 @@
-
 [[English](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README.md) | [Français](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/README_fr.md)]
 
-# Overview
+# Table of contents
+- [Description](#description)
+- [Documentation](#documentation)
+- [Light Pollution indicators](#light-pollution-indicators)
+- [Light Flux Surfacic Density](#light-flux-surfacic-density)
+- [Credits](#credits)
+- [Installation](#installation)
+- [Developers](#developers)
 
-*LightPollutionToolbox* is a QGIS 3 processing provider plugin.
+# Description
 
-*LightPollutionToolbox* provides multiple algorithms to characterize and map light pollution. It has been initially developped to check compliance with french regulations but is intended to go further and gather any treatments relative to light dispersal, public lighting, statistics, ... 
+*LightPollutionToolbox* is a QGIS plugin that gathers various geoprocessing tools to characterize and map light pollution.
 
-*LightPollutionToolbox* has been developed by Mathieu Chailloux and Antoine Sensier ([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) on mission for the [*French ecological network resource center*](http://www.trameverteetbleue.fr/).
+A dedicated graphical interface allows you to compute **light pollution indicators** from satellite images:
+ - contribution to skyglow
+ - blue light emission
+ - visibility of light sources
+
+![Indic](./docs/images/visi1.png)
+
+A processing chain has been developed to compute the **Light Flux Surface Density** (DSFLI) indicator.
+
+![DSFLI](./docs/images/dsfliReg.png)
+
+This tool is intended to evolve and be extended with any relevant geoprocessing related to light pollution and dark corridors (Trame noire).
 
 # Documentation
 
 Available documentation:
- - [Video tutorials about Light Flux Surfacic density](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
- - [Video tutorials about Pollution Indicators](https://www.youtube.com/playlist?list=PLh9oFe6PuPCU_K-qqZBIKJWEuRJFRa4Gc)
- - [Notice about Light Flux Surfacic density (french only)](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
- - [Notice about Light Pollution Indicators](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/en/NoteIndicateursPOLLUM_INRAE_en.pdf)
+ - [Video tutorials on Light Flux Surface Density](https://www.youtube.com/playlist?list=PLh9oFe6PuPCVSnbwOEN6aZ1hHkdg5qzg7)
+ - [Video tutorials on Light Pollution Indicators](https://www.youtube.com/playlist?list=PLh9oFe6PuPCU_K-qqZBIKJWEuRJFRa4Gc)
+ - [Methodological note on Light Flux Surface Density](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteDSFLI_INRAE.pdf)
+ - [Methodological note on light pollution indicators](https://github.com/MathieuChailloux/LightPollutionToolbox/blob/master/docs/fr/NoteIndicateursPOLLUM_INRAE_fr.pdf)
 
-# Algorithms Light Pollution Indicators
+# Light Pollution Indicators
 
-Algorithms are available in the processing toolbox or via the "LightPollutionToolbox" button in the menu.
-The 3 main indicators are as follows :
-- Contribution to the luminous halo (Radiance)
-  File : ./algs/statistics_radiance_grid.py
-- Emission in the blue part of the spectrum	
-  File : ./algs/statistics_blue_emission_grid.py
-- Visibility Light Source : this treatment is divided into 3 sub-treatments :
-	- 1 : Calcul of DSM (Digital Surface Model) with DTM (Digital Terrain Model), buildings and possibly the vegetation (optional)
-		  File : ./algs/calcul_MNS.py
-	- 2 : Calcul of Viewshed, this processing uses a part of the plugin code in Viewshed analysis : https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
-		  File : ./algs/light_points_viewshed.py
-	- 3 : Number of light visibility per grid
-		  File : ./algs/analyse_visibility_light_sources.py
+The algorithms are available in the Processing toolbox or via the *LightPollutionToolbox* button in the menu.
+The 3 main indicators are the following:
+- *Contribution to skyglow (Radiance)*
+- *Emission in the blue part of the spectrum*
+- *Visibility of light sources*: this processing is divided into 3 sub-processes:
+	- 1: *DSM computation* (Digital Surface Model) using the DTM, buildings and, optionally, vegetation
+	- 2: *Viewshed computation*; part of the code comes from the Viewshed analysis plugin: https://www.zoran-cuckovic.from.hr/QGIS-visibility-analysis
+	- 3: *Average number of light sources per grid cell*
 
-There are also 2 other treatments in the "Utils Light Pollution Indicators" sub-menu of the toolbox:
-- create MNT from RGE Alti : reate a DTM from an area of ​​influence, the slabs and the DTM ASC folder of RGE Alti
-  File : ./algs/create_MNT_from_RGEALTI.py 
-- Pretreatments to remove dark zones : Set to 0 pixels lower than the median of the pixels per band.
-  File : ./algs/pretreatments_dark_zones.py 
+There are also 2 other processing tools in the *Utils Light Pollution Indicators* submenu of the toolbox:
+- *create MNT from RGE Alti*: creates a DTM from an extent area, the tiles and the ASC DTM folder of RGE Alti
+- *Pretreatments to remove dark zones*: sets to 0 the pixels below the median of the pixels for each band
 
 
-# Algorithms DSFLI
+# Light Flux Surface Density
 
-Main algorithms are:
- - *Classify lighting layer*: checks compliance of a lighting layer to french regulations indicators (Upward Light Ratio, light flux, color temperature)
- - *Light Flux Surfacic Density (from raw data)*: computes Light Flux Surfacic Density, another indicator from french regulation which allows a certain amount of flux depending on the surface to be lit, from raw data (lighting layer, roads layer, cadastre layer, ...)
- 
- 
-*Statistics* group contains algorithms such as *Radiance Zonal Statistics* that compute radiance per surface/population from a satellite image (such as [NASA Black Marble](https://blackmarble.gsfc.nasa.gov/#product)) and a population layer.
+The 2 main algorithms are:
+ - *Classify lighting layer*: checks the compliance of a public lighting layer with certain regulatory indicators (ULR, luminous flux, color temperature)
+ - *Light Flux Surfacic Density (from raw data)*: computation of the Light Flux Surface Density (DSFLI) from raw data
 
-*Light Flux Surfacic Density* group contains intermediate algorithms used to compute light flux surfacic density:
- - *Add cadastre selection*: adds a manual selection of cadastre plots to a surface layer
- - *Apply symbology to DSFL layer*: apply a predefined legend according to reglementation tresholds
- - *Light Flux surfacic density*: computes light flux surfacic desinty from lighting, reporting and surface layers
- - *Light Flux surfacic density (from surface)*: computes light flux surfacic desinty from lighting and surface layers
- - *Reporting per roads*: computes a reporting layer from roads layer
- - *Roads Extent (BDTOPO + Cadastre)*: computes surface layer from roads and cadastre layers
- - *Roads Extent (BDTOPO)*: computes surface layer from roads layer
- - *Roads Extent (Cadastre)*: computes surface layer from cadastre layer
+The *Statistics* group is intended to gather processing tools that compute statistics, such as the *Radiance Zonal Statistics* algorithm, which computes radiance per surface area and per inhabitant from a satellite image (for example NASA's [Black Marble](https://blackmarble.gsfc.nasa.gov/#product)) and a territorial division (for example a layer of municipalities).
 
-# Sample data 
+The *Light Flux Surfacic Density* group gathers the intermediate processing tools used to compute the DSFLI:
+ - *Add cadastre selection*: adds a manual selection of cadastral parcels to a surface layer
+ - *Apply symbology to DSFL layer*: applies a predefined legend based on the regulatory thresholds to a DSFLI layer
+ - *Light Flux surfacic density*: computes the DSFLI from a public lighting layer, a reporting layer and a surface layer
+ - *Light Flux surfacic density (from surface)*: computes the DSFLI from a public lighting layer and a surface layer
+ - *Reporting per roads*: builds a reporting layer by applying buffers around roads
+ - *Roads Extent (BDTOPO + Cadastre)*: builds a surface layer from a BDTOPO road layer and a cadastral parcel layer
+ - *Roads Extent (BDTOPO)*: builds a surface layer from a BDTOPO road layer
+ - *Roads Extent (Cadastre)*: builds a surface layer from a cadastral parcel layer
 
-Sample data to compute light flux surfacic density is provided with plugin (directory *sample_data*).
+A detailed description of the parameters is available in each algorithm.
 
-# Contact
+# Credits
 
-*Development* : Mathieu Chailloux (mathieu.chailloux@inrae.fr) & Antoine Sensier (antoine.sensier@inrae.fr)
+*LightPollutionToolbox* was developed by Mathieu Chailloux and Antoine Sensier ([*UMR TETIS*](https://www.umr-tetis.fr) / [*INRAE*](http://www.inrae.fr)) for the [*Centre de ressources Trame verte et bleue*](http://www.trameverteetbleue.fr/).
 
-*Coordination* : Jennifer Amsallem (jennifer.amsallem@inrae.fr)
+*Development*: Mathieu Chailloux (mathieu@chailloux.org) & Antoine Sensier
 
-# Quotation
+*Coordination*: Jennifer Amsallem
 
 > Chailloux, M. & Amsallem, J. (2021) LightPollutionToolbox : a QGIS plugin to characterize light pollution
 
+
 # Installation
 
-*LightPollutionToolbox* must be installed from *QGIS* plugins menu.
+To install *LightPollutionToolbox* in *QGIS*, go to the menu *Plugins->Manage and Install Plugins->All*, search for *LightPollutionToolbox* and click *Install*.
+
+A light bulb icon should then appear in the toolbar, and the algorithms will appear in the Processing toolbox.
 
 # Developers
 
-*LightPollutionToolbox* is based on submodule [*qgis_lib_mc*](https://github.com/MathieuChailloux/qgis_lib_mc)
+The code is organized into subfolders, except for a few root files:
+ - LightPollutionToolbox.py is the main entry point of the plugin
+ - build.py is used to package a new version
+ - metadata.txt contains plugin QGIS metadata
 
-To install git repository:  
+The subfolders are organized as follows:
+ - **algs** contains processing tools used by LightPollutionToolbox
+   - *DSFLI* contains python files processing light flux surface density
+   - *modules* contains python files processing light pollution indicators 
+ - **assets** for some configuration files that must be embedded
+ - **docs** contains user guides
+ - **help** for help texts within the tool
+ - **i18n** contains translation files
+ - **qgis_lib** gathers Python files defining the interactions with QGIS (PyQGIS / PyQt libraries in particular)
+ - **sample_data** contains sample data
+ - **ui**  Python files managing GUI (Graphical User Interface)
+
+
+To clone the git repository:
 > git clone https://github.com/MathieuChailloux/LightPollutionToolbox.git
->
-> cd LightPollutionToolbox
->
-> git clone https://github.com/MathieuChailloux/qgis_lib_mc.git
