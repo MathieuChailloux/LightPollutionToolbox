@@ -198,6 +198,8 @@ class ControllerConnector():
                        StatisticsRadianceGrid.OUTPUT_RASTER_RADIANCE : out_path_raster}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:StatisticsRadianceGrid")
+        self.dlg.feedback.pushInfo("alg {}".format(alg.name()))
+        self.dlg.feedback.pushInfo("parameters {}".format(parameters))
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
         self.task.executed.connect(partial(self.task_finished, self.dlg.context, self.RADIANCE))
         QgsApplication.taskManager().addTask(self.task)
@@ -240,6 +242,8 @@ class ControllerConnector():
                        StatisticsBlueEmissionGrid.OUTPUT_STAT_CALC : out_path_vector}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:StatisticsBlueEmissionGrid")
+        self.dlg.feedback.pushInfo("alg {}".format(alg.name()))
+        self.dlg.feedback.pushInfo("parameters {}".format(parameters))
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
         self.task.executed.connect(partial(self.task_finished, self.dlg.context, self.BLUE_EMISSION))
         QgsApplication.taskManager().addTask(self.task)
@@ -323,8 +327,10 @@ class ControllerConnector():
                        LightPointsViewshed.REFRACTION : 0.13,
                        LightPointsViewshed.OPERATOR :0,
                        LightPointsViewshed.OUTPUT : out_path_raster_viewshed}
-        
+
         alg = QgsApplication.processingRegistry().algorithmById("LPT:LightPointsViewshed")
+        self.dlg.feedback.pushInfo("alg {}".format(alg.name()))
+        self.dlg.feedback.pushInfo("parameters {}".format(parameters))
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
         self.task.executed.connect(partial(self.task_finished, self.dlg.context, self.MNS))
         QgsApplication.taskManager().addTask(self.task)
@@ -368,6 +374,8 @@ class ControllerConnector():
                        AnalyseVisibilityLightSources.OUTPUT_NB_SRC_VIS: out_path_vector}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:AnalyseVisibilityLightSources")
+        self.dlg.feedback.pushInfo("alg {}".format(alg.name()))
+        self.dlg.feedback.pushInfo("parameters {}".format(parameters))
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
         self.task.executed.connect(partial(self.task_finished, self.dlg.context, self.NB_LIGHT_SOURCES))
         QgsApplication.taskManager().addTask(self.task)
@@ -393,6 +401,8 @@ class ControllerConnector():
                        RadianceToPoints.OUTPUT_VECTOR : out_path_vector}
         
         alg = QgsApplication.processingRegistry().algorithmById("LPT:RadianceToPoints")
+        self.dlg.feedback.pushInfo("alg {}".format(alg.name()))
+        self.dlg.feedback.pushInfo("parameters {}".format(parameters))
         self.task = QgsProcessingAlgRunnerTask(alg, parameters, self.dlg.context, self.dlg.feedback)
         self.task.executed.connect(partial(self.task_finished, self.dlg.context, self.LIGHT_POINTS))
         QgsApplication.taskManager().addTask(self.task)
