@@ -4,23 +4,8 @@
 <context>
     <name>@default</name>
     <message>
-        <location filename="../test/test_translations.py" line="48"/>
-        <source>Good morning</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qgis_lib_mc/feedbacks.py" line="70"/>
+        <location filename="../qgis_lib/feedbacks.py" line="85"/>
         <source>Wrong parameter value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qgis_lib_mc/feedbacks.py" line="73"/>
-        <source>Name &apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qgis_lib_mc/feedbacks.py" line="75"/>
-        <source>&apos; is not alphanumeric</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -45,19 +30,14 @@
 <context>
     <name>AnalyseVisibilityLightSources</name>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="54"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="53"/>
         <source>Extent zone</source>
         <translation type="unfinished">Zone d&apos;étude</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="55"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="54"/>
         <source>Layer resulting from viewshed processing</source>
-        <translation type="unfinished">Couche résultat de traitement viewshed</translation>
-    </message>
-    <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="56"/>
-        <source>Raster bati</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pression liée à la visibilité des sources lumineuses</translation>
     </message>
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
@@ -82,7 +62,7 @@
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="64"/>
         <source>Bounds for the last class of symbology</source>
-        <translation type="unfinished">Seuil max de la dernière classe de la symbologie</translation>
+        <translation type="obsolete">Seuil max de la dernière classe de la symbologie</translation>
     </message>
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="64"/>
@@ -90,9 +70,9 @@
         <translation type="obsolete">Sortie du Nombre de sources lumineuses visibles</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="229"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="234"/>
         <source>Number sources of light visibility per grid</source>
-        <translation>Nombre de sources lumineuses visibles par maille</translation>
+        <translation type="unfinished">Nombre de sources lumineuses visibles par maille</translation>
     </message>
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="234"/>
@@ -102,15 +82,15 @@
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="66"/>
         <source>Output Raster Number of visible lights</source>
-        <translation type="unfinished">Sortie Raster du Nombre de sources lumineuses visibles</translation>
+        <translation type="unfinished">Sortie Pression liée à la visibilité des sources hors bati</translation>
     </message>
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="67"/>
         <source>Output Number of visible lights per grid</source>
-        <translation type="unfinished">Sortie du Nombre de sources lumineuses visibles par maille</translation>
+        <translation type="unfinished">Sortie Pression liée à la visibilité des sources par maille</translation>
     </message>
     <message>
-        <location filename="../algs/analyse_visibility_light_sources.py" line="235"/>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="240"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
     </message>
@@ -122,12 +102,22 @@
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="57"/>
         <source>Max. observer height, meters</source>
-        <translation type="unfinished">Hateur max. observateurm, mètres</translation>
+        <translation type="unfinished">Hateur max Observateur (en m)</translation>
     </message>
     <message>
         <location filename="../algs/analyse_visibility_light_sources.py" line="61"/>
         <source>Grid diameter if no grid layer, meters</source>
         <translation type="unfinished">Diamètre de la maille si pas d&apos;import, mètres</translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="55"/>
+        <source>Input type of the viewshed</source>
+        <translation type="unfinished">Type de sources</translation>
+    </message>
+    <message>
+        <location filename="../algs/analyse_visibility_light_sources.py" line="56"/>
+        <source>Raster bati</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -135,7 +125,7 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="51"/>
         <source>Extent zone</source>
-        <translation>Zone d&apos;étude</translation>
+        <translation type="unfinished">Zone d&apos;étude</translation>
     </message>
     <message>
         <location filename="../algs/calcul_MNS.py" line="51"/>
@@ -150,7 +140,7 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="56"/>
         <source>Height Buildings field</source>
-        <translation>Champ Hauteur du Bâti</translation>
+        <translation type="unfinished">Champ Hauteur du Bâti</translation>
     </message>
     <message>
         <location filename="../algs/calcul_MNS.py" line="57"/>
@@ -160,7 +150,7 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="59"/>
         <source>Height Vegetation field</source>
-        <translation>Champ Hauteur de la Végétation</translation>
+        <translation type="unfinished">Champ Hauteur de la Végétation</translation>
     </message>
     <message>
         <location filename="../algs/calcul_MNS.py" line="61"/>
@@ -175,7 +165,7 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="296"/>
         <source>Calcul of MNS</source>
-        <translation>Calcul du MNS</translation>
+        <translation type="unfinished">Calcul du MNS</translation>
     </message>
     <message>
         <location filename="../algs/calcul_MNS.py" line="299"/>
@@ -185,7 +175,7 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="53"/>
         <source>Radius of analysis for visibility (buffer of extent), meters</source>
-        <translation>Rayon de visibilité (tampon sur l&apos;étendue), mètres</translation>
+        <translation type="unfinished">Rayon de visibilité (tampon sur l&apos;étendue), mètres</translation>
     </message>
     <message>
         <location filename="../algs/calcul_MNS.py" line="60"/>
@@ -225,7 +215,7 @@
     <message>
         <location filename="../algs/calcul_MNS.py" line="299"/>
         <source>Light Pollution Indicators</source>
-        <translation>Indicateurs de pollution lumineuse</translation>
+        <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
     </message>
     <message>
         <location filename="../algs/calcul_MNS.py" line="60"/>
@@ -241,37 +231,37 @@
 <context>
     <name>ClassifyLightingAlg</name>
     <message>
-        <location filename="../algs/DSFLI/classifyLamps.py" line="73"/>
+        <location filename="../algs/DSFLI/classifyLamps.py" line="55"/>
         <source>Classify lighting layer</source>
         <translation type="unfinished">Classifier la couche d&apos;éclairage</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/classifyLamps.py" line="77"/>
+        <location filename="../algs/DSFLI/classifyLamps.py" line="59"/>
         <source>Flux</source>
         <translation type="unfinished">Flux</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/classifyLamps.py" line="78"/>
+        <location filename="../algs/DSFLI/classifyLamps.py" line="60"/>
         <source>Color Temperature</source>
         <translation type="unfinished">Température de Couleur</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/classifyLamps.py" line="79"/>
+        <location filename="../algs/DSFLI/classifyLamps.py" line="61"/>
         <source>ULR</source>
         <translation type="unfinished">ULR</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/classifyLamps.py" line="81"/>
+        <location filename="../algs/DSFLI/classifyLamps.py" line="63"/>
         <source>Lighting layer</source>
         <translation type="unfinished">Couche d&apos;éclairage</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/classifyLamps.py" line="86"/>
+        <location filename="../algs/DSFLI/classifyLamps.py" line="68"/>
         <source>Field to classify</source>
         <translation type="unfinished">Champ à classifier</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/classifyLamps.py" line="93"/>
+        <location filename="../algs/DSFLI/classifyLamps.py" line="75"/>
         <source>Classification mode</source>
         <translation type="unfinished">Mode de classification</translation>
     </message>
@@ -312,52 +302,52 @@
 <context>
     <name>DSFLRaw</name>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="592"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="589"/>
         <source>Light Flux Surfacic Density (from raw data)</source>
         <translation type="unfinished">Densité surfacique de flux lumineux (à partir de données brutes)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="603"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="600"/>
         <source>Roads layer</source>
         <translation type="unfinished">Couche de Routes</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="608"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="605"/>
         <source>Extent layer</source>
         <translation type="unfinished">Couche d&apos;étendue</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="613"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="610"/>
         <source>Cadastre layer</source>
         <translation type="unfinished">Couche cadastrale</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="618"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="615"/>
         <source>Hydrographic surface layer</source>
         <translation type="unfinished">Couche de surface hydrographique</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="626"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="623"/>
         <source>Roads selection (surface layer)</source>
         <translation type="unfinished">Sélection des routes (couche de surface)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="632"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="629"/>
         <source>Roads buffer value (surface layer)</source>
         <translation type="unfinished">Valeur tampon des routes (couche de surface)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="637"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="634"/>
         <source>Dissolve step</source>
         <translation type="unfinished">Dissoudre</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="637"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="634"/>
         <source>Dissolve surface layer</source>
         <translation type="unfinished">Dissoudre la couche de surface</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="637"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="634"/>
         <source>Dissolve reporting unit</source>
         <translation type="unfinished">Dissoudre l&apos;unité déclarante</translation>
     </message>
@@ -365,42 +355,42 @@
 <context>
     <name>DSFLSurface</name>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="459"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="456"/>
         <source>Light Flux Surfacic Density (from surface)</source>
         <translation type="unfinished">Densité surfacique du flux lumineux (à partir de la surface)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="463"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="460"/>
         <source>Per road section</source>
         <translation type="unfinished">Par section de route</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="464"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="461"/>
         <source>Per road section (linear)</source>
         <translation type="unfinished">Par section de route (linéaire)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="465"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="462"/>
         <source>Per road</source>
         <translation type="unfinished">Par route</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="466"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="463"/>
         <source>Per lamp</source>
         <translation type="unfinished">Par lampe</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="468"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="465"/>
         <source>Reporting mode</source>
         <translation type="unfinished">Mode de rapport</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="480"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="477"/>
         <source>Surface to be illuminated</source>
         <translation type="unfinished">Surface à éclairer</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="486"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="483"/>
         <source>Roads layer</source>
         <translation type="unfinished">Couche de Routes</translation>
     </message>
@@ -408,17 +398,17 @@
 <context>
     <name>DSFLSymbology</name>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="414"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="411"/>
         <source>Apply symbology to DSFL layer</source>
         <translation type="unfinished">Appliquer la symbologie à la couche DSFL</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="417"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="414"/>
         <source>Input layer</source>
         <translation type="unfinished">Couche d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="421"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="418"/>
         <source>DSFL field</source>
         <translation type="unfinished">Champ DSFL</translation>
     </message>
@@ -434,67 +424,67 @@
 <context>
     <name>FluxDensityAlgorithm</name>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="94"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="91"/>
         <source>Light Flux Surfacic Density</source>
         <translation type="unfinished">Densité surfacique du flux lumineux</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="97"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="94"/>
         <source>Lighting layer</source>
         <translation type="unfinished">Couche d&apos;éclairage</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="102"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="99"/>
         <source>Light flux field</source>
         <translation type="unfinished">Champ de flux lumineux</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="111"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="108"/>
         <source>Maximal distance to lighting layer (reporting layer clip)</source>
         <translation type="unfinished">Distance maximale à la couche d&apos;éclairage (clip de couche de rapport)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="117"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="114"/>
         <source>Reporting fields to keep in output layer</source>
         <translation type="unfinished">Champs de rapport à conserver dans la couche de sortie</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="123"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="120"/>
         <source>Dissolve surface layer (no overlapping features)</source>
         <translation type="unfinished">Dissoudre la couche de surface (pas d&apos;entités qui se chevauchent)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="127"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="124"/>
         <source>Skip features with empty flux</source>
         <translation type="unfinished">Ignorer les fonctionnalités avec un flux vide</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="131"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="128"/>
         <source>Features minimal area (smaller features are skipped)</source>
         <translation type="unfinished">Caractéristiques zone minimale (les plus petites entités sont ignorées)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="136"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="133"/>
         <source>Minimal number of lamps (features with less lamps are skipped)</source>
         <translation type="unfinished">Nombre minimal de lampes (les entités avec moins de lampes sont ignorées)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="151"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="148"/>
         <source>Surface layer</source>
         <translation type="unfinished">Couche de surface</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="162"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="159"/>
         <source>Output layer</source>
         <translation type="unfinished">Couche de sortie</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="175"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="172"/>
         <source>Reporting layer</source>
         <translation type="unfinished">Couche de rapport</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="180"/>
+        <location filename="../algs/DSFLI/fluxDensity_algorithm.py" line="177"/>
         <source>Surface to be illuminated</source>
         <translation type="unfinished">Surface à éclairer</translation>
     </message>
@@ -502,7 +492,7 @@
 <context>
     <name>FluxDispAlg</name>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="235"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="223"/>
         <source>Flux Disp</source>
         <translation type="unfinished">Flux Disp</translation>
     </message>
@@ -510,70 +500,70 @@
 <context>
     <name>FluxDispBaseAlg</name>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="157"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="145"/>
         <source>Light Dispersal</source>
         <translation type="unfinished">Dispersion de la lumière</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="163"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="151"/>
         <source>Lighting layer</source>
         <translation type="unfinished">Couche d&apos;éclairage</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="168"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="156"/>
         <source>Flux field name</source>
         <translation type="unfinished">Nom du champ de flux</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="174"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="162"/>
         <source>Radius mode</source>
         <translation type="unfinished">Type de Rayon</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="174"/>
-        <source>Div100</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="174"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="162"/>
         <source>sqrt</source>
         <translation type="unfinished">racine carrée</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="180"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="168"/>
         <source>Radius coeff</source>
         <translation type="unfinished">Coefficient de rayon</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="187"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="175"/>
         <source>Resolution</source>
         <translation type="unfinished">Résolution</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="195"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="183"/>
         <source>Output layer</source>
         <translation type="unfinished">Couche de sortie</translation>
+    </message>
+    <message>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="162"/>
+        <source>Div100</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>FluxDispTempCoulAlg</name>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="277"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="265"/>
         <source>Flux Disp Temp Coul</source>
         <translation type="unfinished">Flux Disp Température de couleur</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="281"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="269"/>
         <source>Color temperature field</source>
         <translation type="unfinished">Champ de température de couleur</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="287"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="275"/>
         <source>Lamp type field</source>
         <translation type="unfinished">Champ Type de lampe</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="293"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="281"/>
         <source>Lamp types association file</source>
         <translation type="unfinished">Fichier d&apos;association des types de lampes</translation>
     </message>
@@ -581,12 +571,12 @@
 <context>
     <name>FluxEstimAlg</name>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="24"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="23"/>
         <source>Light Flux Estimation</source>
         <translation type="unfinished">Estimation du flux lumineux</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="27"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="26"/>
         <source>fluxEstim</source>
         <translation type="unfinished"></translation>
     </message>
@@ -594,32 +584,32 @@
 <context>
     <name>FluxEstimationAlgorithm</name>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="68"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="67"/>
         <source>Light Flux Estimation</source>
         <translation type="unfinished">Estimation du flux lumineux</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="134"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="133"/>
         <source>Lighting layer</source>
         <translation type="unfinished">Couche d&apos;éclairage</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="138"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="137"/>
         <source>Flux field name</source>
         <translation type="unfinished">Nom du champ de flux</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="143"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="142"/>
         <source>Edit layer in place (new layer if unchecked)</source>
         <translation type="unfinished">Modifier la couche sur place (nouveau calque si décoché)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="162"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="161"/>
         <source>LED efficacy association file (LED model -&gt; luminous efficacy)</source>
         <translation type="unfinished">Fichier d&apos;association efficacité LED (modèle LED -&gt; efficacité lumineuse)</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="167"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="166"/>
         <source>Output layer</source>
         <translation type="unfinished">Couche de sortie</translation>
     </message>
@@ -627,52 +617,52 @@
 <context>
     <name>FluxTimeAlgorithm</name>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="248"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="247"/>
         <source>Light Flux Per Hour</source>
         <translation type="unfinished">Flux lumineux par heure</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="298"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="297"/>
         <source>Lighting layer</source>
         <translation type="unfinished">Couche d&apos;éclairage</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="302"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="301"/>
         <source>Flux field name</source>
         <translation type="unfinished">Nom du champ de flux</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="308"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="307"/>
         <source>Shutdown field</source>
         <translation type="unfinished">Champ d&apos;arrêt</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="319"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="318"/>
         <source>Time for computation</source>
         <translation type="unfinished">Temps de calcul</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="324"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="323"/>
         <source>Sunset hour</source>
         <translation type="unfinished">Heure du coucher du soleil</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="330"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="329"/>
         <source>Sunrise hour</source>
         <translation type="unfinished">Heure du lever du soleil</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="336"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="335"/>
         <source>Output flux field name</source>
         <translation type="unfinished">Nom du champ de flux de sortie</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="341"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="340"/>
         <source>Overwrites outptut values if existing</source>
         <translation type="unfinished">Remplace les valeurs de sortie si elles existent</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="346"/>
+        <location filename="../algs/DSFLI/fluxEstimation_algorithm.py" line="345"/>
         <source>Output layer</source>
         <translation type="unfinished">Couche de sortie</translation>
     </message>
@@ -680,33 +670,14 @@
 <context>
     <name>InterfaceDialogBase</name>
     <message>
-        <location filename="../Interface_dialog_base.py" line="831"/>
-        <source>Light Pollution Toolbox</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Interface_dialog_base.py" line="837"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../Interface_dialog_base.py" line="829"/>
         <source>Extent zone [optionnal]</source>
         <translation type="obsolete">Zone d&apos;étude [optionnel]</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="934"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1363"/>
         <source>Browse</source>
-        <translation>Parcourir</translation>
-    </message>
-    <message>
-        <location filename="../Interface_dialog_base.py" line="957"/>
-        <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parcourir</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="853"/>
@@ -724,49 +695,49 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Diamètre de la maille</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="941"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1370"/>
         <source>Grid Type</source>
-        <translation>Type de maille</translation>
+        <translation type="unfinished">Type de maille</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="945"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1374"/>
         <source>Hexagon</source>
-        <translation>Hexagone</translation>
+        <translation type="unfinished">Hexagone</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="943"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1372"/>
         <source>Rectangle</source>
-        <translation>Rectangle</translation>
+        <translation type="unfinished">Rectangle</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="944"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1373"/>
         <source>Diamond</source>
-        <translation>Losange</translation>
+        <translation type="unfinished">Losange</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="851"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1228"/>
         <source>Statistics Radiance Output</source>
-        <translation>Sortie Statistiques Radiance</translation>
+        <translation type="unfinished">Sortie Statistiques Radiance</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="853"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1230"/>
         <source>Raster total Radiance Output</source>
-        <translation>Sortie Raster Radiance totale</translation>
+        <translation type="unfinished">Sortie Raster Radiance totale</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="949"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1381"/>
         <source>Run</source>
-        <translation>Exécuter</translation>
+        <translation type="unfinished">Exécuter</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="937"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1366"/>
         <source>Import Grid</source>
-        <translation>Importer une maille</translation>
+        <translation type="unfinished">Importer une maille</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="938"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1367"/>
         <source>Create Grid</source>
-        <translation>Créer une maille</translation>
+        <translation type="unfinished">Créer une maille</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="772"/>
@@ -774,12 +745,12 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Statistiques de Radiance</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="880"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1257"/>
         <source>Statistics Blue Emission Output</source>
         <translation type="unfinished">Sortie Statistiques d&apos;émission bleue</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="886"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1263"/>
         <source>Blue Emission</source>
         <translation type="unfinished">Emission lumière bleue</translation>
     </message>
@@ -794,9 +765,9 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">MNT</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="893"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1270"/>
         <source>Radius of analysis for visibility (buffer of extent), meters</source>
-        <translation>Rayon de visibilité (tampon sur l&apos;étendue), mètres</translation>
+        <translation type="unfinished">Rayon de visibilité (tampon sur l&apos;étendue), mètres</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="802"/>
@@ -804,7 +775,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Bâti (BD Topo)</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="897"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1274"/>
         <source>Height Buildings field</source>
         <translation type="unfinished">Champ HAUTEUR du bati</translation>
     </message>
@@ -839,9 +810,9 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Calcul du MNS</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="910"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1339"/>
         <source>Light points extraction</source>
-        <translation type="unfinished">Extraction des points lumineux</translation>
+        <translation type="unfinished">Points lumineux</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="817"/>
@@ -859,7 +830,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Champ hauteur de la source lumineuse [optionnel]</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="914"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1343"/>
         <source>Source light height (if no field), meters</source>
         <translation type="unfinished">Hauteur de la source lumineuse (si pas de champ), mètres</translation>
     </message>
@@ -879,12 +850,12 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Sortie Raster Viewshed</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="926"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1355"/>
         <source>2 - Calcul of Viewshed</source>
         <translation type="unfinished">2 - Calcul de la visibilité (Viewshed)</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="930"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1359"/>
         <source>Layer from viewshed</source>
         <translation type="unfinished">Couche résultat du viewshed</translation>
     </message>
@@ -894,7 +865,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Hauteur du masque</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="946"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1375"/>
         <source>Bounds for last class of symbology</source>
         <translation type="unfinished">Seuil max de la dernière classe de la symbologie</translation>
     </message>
@@ -909,54 +880,54 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">3 - Nombre de sources visibles</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="951"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1383"/>
         <source>Visibility Light Sources</source>
-        <translation type="unfinished">Visibilité des sources lumineuses</translation>
+        <translation type="unfinished">Visibilité (haute résolution)</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="952"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1384"/>
         <source>Debug mode</source>
         <translation type="unfinished">Activer le mode debug</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="954"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1386"/>
         <source>Save log as</source>
         <translation type="unfinished">Enregistrer le journal sous</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="956"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1388"/>
         <source>Clear log</source>
         <translation type="unfinished">Effacer le journal</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="958"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1390"/>
         <source>Log</source>
         <translation type="unfinished">Journal</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="959"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1391"/>
         <source>Cancel</source>
         <translation type="unfinished">Annuler</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="832"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1209"/>
         <source>About</source>
         <translation type="unfinished">A propos</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="834"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1211"/>
         <source>English</source>
         <translation type="unfinished">Anglais</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="835"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1212"/>
         <source>French</source>
         <translation type="unfinished">Français</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="917"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1346"/>
         <source>Radius of analysis for visibility (if no field), meters</source>
-        <translation>Rayon de visibilité (si pas de champs), mètres</translation>
+        <translation type="unfinished">Rayon de visibilité (si pas de champs), mètres</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="827"/>
@@ -969,24 +940,24 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Hauteur de l&apos;observateur (si pas de champ) 0, 1, 6 mètres</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="864"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1241"/>
         <source>Radiance</source>
-        <translation>Radiance</translation>
+        <translation type="unfinished">Radiance</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="927"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1356"/>
         <source>Extent zone [optional]</source>
-        <translation>Zone d&apos;étude [optionnel]</translation>
+        <translation type="unfinished">Zone d&apos;étude [optionnel]</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="939"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1368"/>
         <source>Import Grid  [optional]</source>
         <translation type="unfinished">Importer une maille [optionnel]</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="887"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1264"/>
         <source>Extent zone [opitonal]</source>
-        <translation>Zone d&apos;étude [optionnel]</translation>
+        <translation type="unfinished">Zone d&apos;étude [optionnel]</translation>
     </message>
     <message>
         <location filename="../Interface_dialog_base.py" line="798"/>
@@ -999,7 +970,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Végétation (BD Topo) [optionnel]</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="901"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1278"/>
         <source>Height Vegetation field [optional]</source>
         <translation type="unfinished">Champ hauteur Végétation [optionnel]</translation>
     </message>
@@ -1014,12 +985,12 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Champ hauteur de l&apos;observateur [optionnel]</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="913"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1342"/>
         <source>Source light height field [optional]</source>
         <translation type="unfinished">Champ hauteur de la source lumineuse [optionnel]</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="916"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1345"/>
         <source>Radius of analysis field for visibility [optional]</source>
         <translation type="unfinished">Champ de rayon de visibilité [optionnel]</translation>
     </message>
@@ -1029,12 +1000,12 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">MNT (Modèle Numérique de Terrain)</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="894"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1271"/>
         <source>Buildings (Topo DB)</source>
         <translation type="unfinished">Bati (BD Topo)</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="898"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1275"/>
         <source>Vegetation (Topo BD) [optional]</source>
         <translation type="unfinished">Végétation (BD Topo) [optionnel]</translation>
     </message>
@@ -1044,7 +1015,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Sortie MNS Raster</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="904"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1281"/>
         <source>Raster buildings vegetation Output</source>
         <translation type="unfinished">Sortie bati vegetation Raster</translation>
     </message>
@@ -1054,22 +1025,22 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">1 - Calcul du MNS</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="918"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1347"/>
         <source>DSM (Digital surface model)</source>
         <translation type="unfinished">MNS (Modèle Numérique de Surface)</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="924"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1353"/>
         <source>Raster Viewshed Output</source>
         <translation type="unfinished">Sortie Viewshed Raster</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="933"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1362"/>
         <source>Raster buildings vegetation</source>
         <translation type="unfinished">bati végétation Raster</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="906"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1283"/>
         <source>1 - Calcul of DSM</source>
         <translation type="unfinished">1 - Calcul du MNS</translation>
     </message>
@@ -1079,57 +1050,57 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">3 - Nombre de sources visibles</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="903"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1280"/>
         <source>Raster DSM Output</source>
         <translation type="unfinished">Sortie MNS Raster</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="915"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1344"/>
         <source>Observer height (0, 1, 6, meters)</source>
         <translation type="unfinished">Hauteur observateur (0, 1, 6 mètres)</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="881"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1258"/>
         <source>Adanced Parameters</source>
         <translation type="unfinished">Paramètres avancés</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="882"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1259"/>
         <source>Index of the green band</source>
         <translation type="unfinished">Indice de la bande verte</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="883"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1260"/>
         <source>Index of the red band</source>
         <translation type="unfinished">Indice de la bande rouge</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="884"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1261"/>
         <source>Index of the blue band</source>
         <translation type="unfinished">Indice de la bande bleue</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="947"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1376"/>
         <source>Output Raster Number of visible lights</source>
         <translation type="unfinished">Sortie Raster Nombre de sources lumineuses visibles</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="948"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1377"/>
         <source>Output Number of visible lightsy per grid</source>
         <translation type="unfinished">Sortie Nombre de sources lumineuses visibles par maille</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="950"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1382"/>
         <source>3 - Number of visible lights</source>
         <translation type="unfinished">3 - Nombre de sources visibles</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="862"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1239"/>
         <source>Satellite Image</source>
         <translation type="unfinished">Image Satellite</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="868"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1245"/>
         <source>Satellite Image RGB</source>
         <translation type="unfinished">Image Satellite RVB</translation>
     </message>
@@ -1139,35 +1110,79 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Hauteur max. observateur</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="940"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1369"/>
         <source>Grid Diameter, meters</source>
         <translation type="unfinished">Diamètre de la maille, mètres</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="902"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1279"/>
         <source>Height Vegetation by default if no field, meters [optional]</source>
         <translation type="unfinished">Hauteur de la Végétation par défaut si pas de champ, mètres [optionnel]</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="936"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1365"/>
         <source>Max. observer height, meters</source>
         <translation type="unfinished">Hauteur max. observateur, mètres</translation>
     </message>
     <message>
-        <location filename="../Interface_dialog_base.py" line="890"/>
+        <location filename="../ui/Interface_dialog_base.py" line="1267"/>
         <source>DTM (Digital Terrain Model)</source>
         <translation type="unfinished">MNT (Modèle Numérique de Terrain)</translation>
+    </message>
+    <message>
+        <location filename="../ui/Interface_dialog_base.py" line="1208"/>
+        <source>Light Pollution Toolbox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/Interface_dialog_base.py" line="1389"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/Interface_dialog_base.py" line="1214"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/Interface_dialog_base.py" line="1329"/>
+        <source>Input raster</source>
+        <translation type="unfinished">Raster de radiance</translation>
+    </message>
+    <message>
+        <location filename="../ui/Interface_dialog_base.py" line="1332"/>
+        <source>Radiance threshold</source>
+        <translation type="unfinished">Seuil de radiance</translation>
+    </message>
+    <message>
+        <location filename="../ui/Interface_dialog_base.py" line="1333"/>
+        <source>Output light points</source>
+        <translation type="unfinished">Points de pression</translation>
+    </message>
+    <message>
+        <location filename="../ui/Interface_dialog_base.py" line="1335"/>
+        <source>1 - Light points extraction</source>
+        <translation type="unfinished">1 - Génération des points de pression</translation>
+    </message>
+    <message>
+        <location filename="../ui/Interface_dialog_base.py" line="1380"/>
+        <source>Medium resolution visibility</source>
+        <translation type="unfinished">Visibilité (depuis radiance)</translation>
     </message>
 </context>
 <context>
     <name>LightDispSymbology</name>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="371"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="359"/>
         <source>Input layer</source>
         <translation type="unfinished">Couche d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="391"/>
+        <location filename="../algs/DSFLI/fluxDispersal_algorithm.py" line="379"/>
         <source>Apply lighting symbology</source>
         <translation type="unfinished">Appliquer la symbologie d&apos;éclairage</translation>
     </message>
@@ -1175,27 +1190,27 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LightPointsExtraction</name>
     <message>
-        <location filename="../algs/old/light_points_extraction.py" line="51"/>
+        <location filename="../algs/old/light_points_extraction.py" line="46"/>
         <source>Extent zone</source>
         <translation type="unfinished">Zone d&apos;étude</translation>
     </message>
     <message>
-        <location filename="../algs/old/light_points_extraction.py" line="194"/>
+        <location filename="../algs/old/light_points_extraction.py" line="189"/>
         <source>Light points extraction</source>
         <translation type="unfinished">Extraction des points lumineux</translation>
     </message>
     <message>
-        <location filename="../algs/old/light_points_extraction.py" line="54"/>
+        <location filename="../algs/old/light_points_extraction.py" line="49"/>
         <source>Source light height field</source>
         <translation type="unfinished">Champ de hauteur de la source lumineuse</translation>
     </message>
     <message>
-        <location filename="../algs/old/light_points_extraction.py" line="60"/>
+        <location filename="../algs/old/light_points_extraction.py" line="55"/>
         <source>Radius of analysis field for visibility</source>
         <translation type="unfinished">Champ du rayon de visibilité</translation>
     </message>
     <message>
-        <location filename="../algs/old/light_points_extraction.py" line="65"/>
+        <location filename="../algs/old/light_points_extraction.py" line="60"/>
         <source>Light points extraction for ViewShed</source>
         <translation type="unfinished">Extraction de points lumineux pour le ViewShed</translation>
     </message>
@@ -1205,12 +1220,12 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Visibilité des sources lumineuses</translation>
     </message>
     <message>
-        <location filename="../algs/old/light_points_extraction.py" line="63"/>
+        <location filename="../algs/old/light_points_extraction.py" line="58"/>
         <source>Raster buildings vegetation</source>
         <translation type="unfinished">Raster bati vegetation</translation>
     </message>
     <message>
-        <location filename="../algs/old/light_points_extraction.py" line="197"/>
+        <location filename="../algs/old/light_points_extraction.py" line="192"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
     </message>
@@ -1218,14 +1233,14 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LightPointsViewshed</name>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="102"/>
+        <location filename="../algs/light_points_viewshed.py" line="111"/>
         <source>Extent zone</source>
-        <translation>Zone d&apos;étude</translation>
+        <translation type="unfinished">Zone d&apos;étude</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="103"/>
+        <location filename="../algs/light_points_viewshed.py" line="112"/>
         <source>Light points extraction</source>
-        <translation>Extraction des points lumineux</translation>
+        <translation type="unfinished">Sources lumineuses / points de pression</translation>
     </message>
     <message>
         <location filename="../algs/light_points_viewshed.py" line="107"/>
@@ -1233,14 +1248,14 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Champ de hauteur de l&apos;observateur</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="105"/>
+        <location filename="../algs/light_points_viewshed.py" line="118"/>
         <source>Source light height field</source>
-        <translation>Champ de hauteur de la source lumineuse</translation>
+        <translation type="unfinished">Champ de hauteur de la source lumineuse</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="110"/>
+        <location filename="../algs/light_points_viewshed.py" line="128"/>
         <source>Radius of analysis field for visibility</source>
-        <translation>Champ du rayon de visibilité</translation>
+        <translation type="unfinished">Champ du rayon de visibilité</translation>
     </message>
     <message>
         <location filename="../algs/light_points_viewshed.py" line="124"/>
@@ -1248,34 +1263,34 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Modèle numérique de surface (MNS)</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="126"/>
+        <location filename="../algs/light_points_viewshed.py" line="144"/>
         <source>Take in account Earth curvature</source>
-        <translation>Tenir compte de la courbure de la Terre</translation>
+        <translation type="unfinished">Tenir compte de la courbure de la Terre</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="131"/>
+        <location filename="../algs/light_points_viewshed.py" line="149"/>
         <source>Analysis type</source>
-        <translation>Type d&apos;analyse</translation>
+        <translation type="unfinished">Type d&apos;analyse</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="138"/>
+        <location filename="../algs/light_points_viewshed.py" line="156"/>
         <source>Atmoshpheric refraction</source>
-        <translation>Réfraction atmoshpérique</translation>
+        <translation type="unfinished">Réfraction atmoshpérique</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="151"/>
+        <location filename="../algs/light_points_viewshed.py" line="170"/>
         <source>Combining multiple outputs</source>
-        <translation>Combinaison de plusieurs sorties</translation>
+        <translation type="unfinished">Combinaison de plusieurs sorties</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="159"/>
+        <location filename="../algs/light_points_viewshed.py" line="178"/>
         <source>Output file</source>
-        <translation>Fichier de sortie</translation>
+        <translation type="unfinished">Sortie Pression liée à la visibilité des sources</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="465"/>
+        <location filename="../algs/light_points_viewshed.py" line="514"/>
         <source>Calcul of Viewshed</source>
-        <translation>Calcul du Viewshed (champ de vision)</translation>
+        <translation type="unfinished">Calcul du Viewshed (champ de vision)</translation>
     </message>
     <message>
         <location filename="../algs/light_points_viewshed.py" line="468"/>
@@ -1288,14 +1303,14 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Hauteur observateur (si pas de champ) 0, 1, 6 mètres</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="106"/>
+        <location filename="../algs/light_points_viewshed.py" line="119"/>
         <source>Source light height (if no field), meters</source>
         <translation type="unfinished">Hauteur source lumineuse (si pas de champ), mètres</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="111"/>
+        <location filename="../algs/light_points_viewshed.py" line="129"/>
         <source>Radius of analysis for visibility (if no field), meters</source>
-        <translation>Rayon de visibilité (si pas de champ), mètres</translation>
+        <translation type="unfinished">Rayon de visibilité (si pas de champ), mètres</translation>
     </message>
     <message>
         <location filename="../algs/light_points_viewshed.py" line="120"/>
@@ -1303,67 +1318,72 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">MNS (Modèle Numérique de Surface)</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="108"/>
+        <location filename="../algs/light_points_viewshed.py" line="126"/>
         <source>Observer height (0, 1, 6, meters)</source>
         <translation type="unfinished">Hauteur observateur (0, 1, 6 mètres)</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="124"/>
+        <location filename="../algs/light_points_viewshed.py" line="142"/>
         <source>Raster buildings vegetation</source>
         <translation type="unfinished">Bati vegetation raster</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="120"/>
+        <location filename="../algs/light_points_viewshed.py" line="138"/>
         <source>DSM (Digital surface model)</source>
         <translation type="unfinished">MNS (Modèle Numérique de Surface)</translation>
     </message>
     <message>
-        <location filename="../algs/light_points_viewshed.py" line="472"/>
+        <location filename="../algs/light_points_viewshed.py" line="521"/>
         <source>Light Pollution Indicators</source>
-        <translation>Indicateurs de pollution lumineuse</translation>
+        <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
+    </message>
+    <message>
+        <location filename="../algs/light_points_viewshed.py" line="116"/>
+        <source>Input type</source>
+        <translation type="unfinished">Type de sources</translation>
+    </message>
+    <message>
+        <location filename="../algs/light_points_viewshed.py" line="114"/>
+        <source>High resolution (light sources)</source>
+        <translation type="unfinished">Sources lumineuses ponctuelles</translation>
+    </message>
+    <message>
+        <location filename="../algs/light_points_viewshed.py" line="115"/>
+        <source>Low resolution (radiance pixels)</source>
+        <translation type="unfinished">Points de pression</translation>
+    </message>
+</context>
+<context>
+    <name>LightPollutionAbout</name>
+    <message>
+        <location filename="../ui/LightPollutionAbout_dialog_base.py" line="114"/>
+        <source>LightPollutionToolBox - About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/LightPollutionAbout_dialog_base.py" line="115"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;LightPollutionToolBox is a QGIS 3 plugin (GNU GPLv3 licence) allowing the generation of light pollution indicators from satellite images.&lt;/p&gt;&lt;p&gt;The plugin has been developped by research unit UMR TETIS at INRAE in 2023. &lt;/p&gt;&lt;p&gt;This project has been funded by Occitanie Region, and developed through a partnership with La Telescop.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Designer / Developper &lt;/span&gt;: Antoine Sensier (antoine.sensier@inrae.fr)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Project initiator&lt;/span&gt; : Jennifer Amsallem (jennifer.amsallem@inrae.fr)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Links:&lt;/span&gt; :&lt;/p&gt;&lt;p&gt;- LightPollutionToolBox GitHub: &lt;a href=&quot;https://github.com/MathieuChailloux/BioDispersal&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://github.com/MathieuChailloux/LightPollutionToolbox&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;- LightPollutionToolBox bugtracker: &lt;a href=&quot;https://github.com/MathieuChailloux/BioDispersal/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://github.com/MathieuChailloux&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://github.com/MathieuChailloux/BioDispersal&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;/LightPollutionToolbox&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://github.com/MathieuChailloux/BioDispersal/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;l/issues&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;- UMR TETIS: &lt;a href=&quot;https://tetis.teledetection.fr&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://tetis.teledetection.fr&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;- INRAE: &lt;a href=&quot;https://www.inrae.fr/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://www.inrae.fr/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>LightPollutionToolboxPlugin</name>
     <message>
-        <location filename="../LightPollutionToolbox.py" line="223"/>
-        <source>&amp;LightPollutionToolbox</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../LightPollutionToolbox.py" line="184"/>
         <source>Light Pollution Toolbox</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
+    </message>
+    <message>
+        <location filename="../LightPollutionToolbox.py" line="223"/>
+        <source>&amp;LightPollutionToolbox</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>LightPollutionToolboxProvider</name>
     <message>
-        <location filename="../algs/LightPollutionToolbox_provider.py" line="131"/>
+        <location filename="../algs/LightPollutionToolbox_provider.py" line="133"/>
         <source>Light Pollution Toolbox</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MainDialog</name>
-    <message>
-        <location filename="../qgis_lib_mc/abstract_model.py" line="1547"/>
-        <source>Ignoring custom exception : </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qgis_lib_mc/abstract_model.py" line="1635"/>
-        <source>Model saved into file &apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qgis_lib_mc/abstract_model.py" line="1638"/>
-        <source>Save project as</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qgis_lib_mc/abstract_model.py" line="1661"/>
-        <source>Open project</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1434,27 +1454,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../qgis_lib_mc/abstract_model.py" line="825"/>
         <source>Workspace parameter not initialized</source>
-        <translation type="unfinished">Paramètre de l&apos;espace de travail non initialisé</translation>
+        <translation type="obsolete">Paramètre de l&apos;espace de travail non initialisé</translation>
     </message>
     <message>
         <location filename="../qgis_lib_mc/abstract_model.py" line="831"/>
         <source>Extent parameter not initialized</source>
-        <translation type="unfinished">Paramètre d&apos;étendue non initialisé</translation>
+        <translation type="obsolete">Paramètre d&apos;étendue non initialisé</translation>
     </message>
     <message>
         <location filename="../qgis_lib_mc/abstract_model.py" line="835"/>
         <source>Resolution parameter not initialized</source>
-        <translation type="unfinished">Paramètre de résolution non initialisé</translation>
+        <translation type="obsolete">Paramètre de résolution non initialisé</translation>
     </message>
     <message>
         <location filename="../qgis_lib_mc/abstract_model.py" line="839"/>
         <source>CRS parameter not initialized</source>
-        <translation type="unfinished">Paramètre de projection non initialisé</translation>
+        <translation type="obsolete">Paramètre de projection non initialisé</translation>
     </message>
     <message>
         <location filename="../qgis_lib_mc/abstract_model.py" line="841"/>
         <source>Invalid CRS</source>
-        <translation type="unfinished">Projection invalide</translation>
+        <translation type="obsolete">Projection invalide</translation>
     </message>
 </context>
 <context>
@@ -1487,12 +1507,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="59"/>
         <source>Index of the blue band</source>
-        <translation>Index de la bande bleue</translation>
+        <translation type="unfinished">Index de la bande bleue</translation>
     </message>
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="172"/>
         <source>Pretreatments to remove dark zones</source>
-        <translation>Prétraitements pour enlever les zones sombres</translation>
+        <translation type="unfinished">Prétraitements pour enlever les zones sombres</translation>
     </message>
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="175"/>
@@ -1502,7 +1522,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="175"/>
         <source>Utils Light Pollution Indicators</source>
-        <translation>Utils Indicateurs de pollution lumineuse</translation>
+        <translation type="unfinished">Utils Indicateurs de pollution lumineuse</translation>
     </message>
     <message>
         <location filename="../algs/pretreatments_dark_zones.py" line="49"/>
@@ -1513,6 +1533,14 @@ p, li { white-space: pre-wrap; }
         <location filename="../algs/pretreatments_dark_zones.py" line="49"/>
         <source>Satellite Image</source>
         <translation type="unfinished">Image Satellite</translation>
+    </message>
+</context>
+<context>
+    <name>ProgressFeedback</name>
+    <message>
+        <location filename="../qgis_lib/feedbacks.py" line="189"/>
+        <source>Process finished</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1540,7 +1568,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/radiance_bounds.py" line="101"/>
         <source>Utils Light Pollution Indicators</source>
-        <translation>Utils Indicateurs de pollution lumineuse</translation>
+        <translation type="unfinished">Utils Indicateurs de pollution lumineuse</translation>
     </message>
     <message>
         <location filename="../algs/radiance_bounds.py" line="46"/>
@@ -1551,7 +1579,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>RadianceStats</name>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="81"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="72"/>
         <source>Radiance zonal statistics</source>
         <translation type="unfinished">Statistiques zonales de rayonnement</translation>
     </message>
@@ -1561,54 +1589,87 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Statistiques</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="90"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="81"/>
         <source>Computes statistics of radiance per population/surface according to source layer.</source>
         <translation type="unfinished">Calcule des statistiques de luminance par population/surface selon la couche source.</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="93"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="84"/>
         <source>Per population</source>
         <translation type="unfinished">Par habitant</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="93"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="84"/>
         <source>Per area</source>
         <translation type="unfinished">Par zone</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="94"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="85"/>
         <source>Source layer</source>
         <translation type="unfinished">Couche source</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="99"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="90"/>
         <source>Radiance statistics</source>
         <translation type="unfinished">Statistiques de radiance</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="105"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="96"/>
         <source>Raster layer</source>
         <translation type="unfinished">Couche Raster</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="109"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="100"/>
         <source>Radiance band</source>
         <translation type="unfinished">bande de radiance</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="115"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="106"/>
         <source>Population field</source>
         <translation type="unfinished">Champ de population</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="133"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="124"/>
         <source>Output layer</source>
         <translation type="unfinished">Couche de sortie</translation>
     </message>
     <message>
-        <location filename="../algs/DSFLI/radiance_stats.py" line="84"/>
+        <location filename="../algs/DSFLI/radiance_stats.py" line="75"/>
         <source>Utils DSFLI</source>
         <translation type="unfinished">Utils DSFLI</translation>
+    </message>
+</context>
+<context>
+    <name>RadianceToPoints</name>
+    <message>
+        <location filename="../algs/radiance_to_points.py" line="34"/>
+        <source>Extent zone</source>
+        <translation>Zone d&apos;étude</translation>
+    </message>
+    <message>
+        <location filename="../algs/radiance_to_points.py" line="35"/>
+        <source>Satellite image</source>
+        <translation>Image satellite</translation>
+    </message>
+    <message>
+        <location filename="../algs/radiance_to_points.py" line="36"/>
+        <source>Radiance points</source>
+        <translation>Points de pression</translation>
+    </message>
+    <message>
+        <location filename="../algs/radiance_to_points.py" line="37"/>
+        <source>Radiance threshold</source>
+        <translation>Seuil de radiance</translation>
+    </message>
+    <message>
+        <location filename="../algs/radiance_to_points.py" line="91"/>
+        <source>Radiance to points</source>
+        <translation>Génération de points de pression</translation>
+    </message>
+    <message>
+        <location filename="../algs/radiance_to_points.py" line="94"/>
+        <source>Utils Light Pollution Indicators</source>
+        <translation>Utils Indicateurs de pollution lumineuse</translation>
     </message>
 </context>
 <context>
@@ -1756,7 +1817,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/statistics_blue_emission_grid.py" line="58"/>
         <source>Grid Layer</source>
-        <translation>Couche de maille</translation>
+        <translation type="unfinished">Couche de maille</translation>
     </message>
     <message>
         <location filename="../algs/statistics_blue_emission_grid.py" line="59"/>
@@ -1776,17 +1837,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/statistics_blue_emission_grid.py" line="65"/>
         <source>Index of the red band</source>
-        <translation>Indice de la bande rouge</translation>
+        <translation type="unfinished">Indice de la bande rouge</translation>
     </message>
     <message>
         <location filename="../algs/statistics_blue_emission_grid.py" line="68"/>
         <source>Index of the green band</source>
-        <translation>Indice de la bande verte</translation>
+        <translation type="unfinished">Indice de la bande verte</translation>
     </message>
     <message>
         <location filename="../algs/statistics_blue_emission_grid.py" line="71"/>
         <source>Index of the blue band</source>
-        <translation>Indice de la bande bleue</translation>
+        <translation type="unfinished">Indice de la bande bleue</translation>
     </message>
     <message>
         <location filename="../algs/statistics_blue_emission_grid.py" line="376"/>
@@ -1817,9 +1878,9 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>StatisticsRadianceGrid</name>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="55"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="56"/>
         <source>Extent zone</source>
-        <translation>Zone d&apos;étude</translation>
+        <translation type="unfinished">Zone d&apos;étude</translation>
     </message>
     <message>
         <location filename="../algs/statistics_radiance_grid.py" line="56"/>
@@ -1827,9 +1888,9 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Image JILIN radiance RGB</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="57"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="58"/>
         <source>Grid Layer</source>
-        <translation>Couche de maille</translation>
+        <translation type="unfinished">Couche de maille</translation>
     </message>
     <message>
         <location filename="../algs/statistics_radiance_grid.py" line="59"/>
@@ -1837,68 +1898,58 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Diamètre de la maille (m) si pas d&apos;import</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="60"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="61"/>
         <source>Type of grid if no grid layer</source>
         <translation type="unfinished">Type de maille si pas d&apos;import</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="62"/>
-        <source>Statistics Radiance</source>
-        <translation>Statistiques de Radiance</translation>
-    </message>
-    <message>
         <location filename="../algs/statistics_radiance_grid.py" line="63"/>
+        <source>Statistics Radiance</source>
+        <translation type="unfinished">Statistiques de Radiance</translation>
+    </message>
+    <message>
+        <location filename="../algs/statistics_radiance_grid.py" line="64"/>
         <source>Raster total Radiance</source>
-        <translation>Raster Radiance totale</translation>
+        <translation type="unfinished">Raster Radiance totale</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="65"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="66"/>
         <source>Index of the red band</source>
-        <translation>Indice de la bande rouge</translation>
+        <translation type="unfinished">Indice de la bande rouge</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="68"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="69"/>
         <source>Index of the green band</source>
-        <translation>Indice de la bande verte</translation>
+        <translation type="unfinished">Indice de la bande verte</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="71"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="72"/>
         <source>Index of the blue band</source>
-        <translation>Indice de la bande bleue</translation>
+        <translation type="unfinished">Indice de la bande bleue</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="369"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="370"/>
         <source>Statistics of radiance per grid</source>
-        <translation>Statistiques de radiance par maille</translation>
+        <translation type="unfinished">Statistiques de radiance par maille</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="372"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="373"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="56"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="57"/>
         <source>Satellite Image</source>
         <translation type="unfinished">Image Satellite</translation>
     </message>
     <message>
-        <location filename="../algs/statistics_radiance_grid.py" line="59"/>
+        <location filename="../algs/statistics_radiance_grid.py" line="60"/>
         <source>Grid diameter if no grid layer, meters</source>
         <translation type="unfinished">Diamètre de la maille si pas d&apos;import, mètres</translation>
     </message>
 </context>
 <context>
     <name>VIIRS_Untar</name>
-    <message>
-        <location filename="../algs/DSFLI/viirs.py" line="66"/>
-        <source>Untar VIIRS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algs/DSFLI/viirs.py" line="69"/>
-        <source>VIIRS</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../algs/DSFLI/viirs.py" line="75"/>
         <source>Untar VIIRS archives and clip it to France extent</source>
@@ -1909,48 +1960,53 @@ p, li { white-space: pre-wrap; }
         <source>VIIRS directory</source>
         <translation type="unfinished">VIIRS répertoire</translation>
     </message>
+    <message>
+        <location filename="../algs/DSFLI/viirs.py" line="66"/>
+        <source>Untar VIIRS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../algs/DSFLI/viirs.py" line="69"/>
+        <source>VIIRS</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ViewshedRaster</name>
     <message>
-        <location filename="../algs/old/viewshed_raster.py" line="87"/>
+        <location filename="../algs/old/viewshed_raster.py" line="73"/>
         <source>Analysis type</source>
         <translation type="unfinished">Type d&apos;analyse</translation>
     </message>
     <message>
-        <location filename="../algs/old/viewshed_raster.py" line="92"/>
+        <location filename="../algs/old/viewshed_raster.py" line="78"/>
         <source>Sources location(s)</source>
         <translation type="unfinished">Emplacement(s) des sources</translation>
     </message>
     <message>
-        <location filename="../algs/old/viewshed_raster.py" line="99"/>
+        <location filename="../algs/old/viewshed_raster.py" line="85"/>
         <source>Digital elevation model </source>
         <translation type="unfinished">Modèle numérique de surface</translation>
     </message>
     <message>
-        <location filename="../algs/old/viewshed_raster.py" line="104"/>
+        <location filename="../algs/old/viewshed_raster.py" line="90"/>
         <source>Take in account Earth curvature</source>
         <translation type="unfinished">Tenir compte de la courbure de la Terre</translation>
     </message>
     <message>
-        <location filename="../algs/old/viewshed_raster.py" line="108"/>
+        <location filename="../algs/old/viewshed_raster.py" line="94"/>
         <source>Atmoshpheric refraction</source>
         <translation type="unfinished">Réfraction atmoshpérique</translation>
     </message>
     <message>
-        <location filename="../algs/old/viewshed_raster.py" line="120"/>
+        <location filename="../algs/old/viewshed_raster.py" line="106"/>
         <source>Combining multiple outputs</source>
         <translation type="unfinished">Combinaison de plusieurs sorties</translation>
     </message>
     <message>
-        <location filename="../algs/old/viewshed_raster.py" line="126"/>
+        <location filename="../algs/old/viewshed_raster.py" line="112"/>
         <source>Output file</source>
         <translation type="unfinished">Fichier de sortie</translation>
-    </message>
-    <message>
-        <location filename="../algs/old/viewshed_raster.py" line="340"/>
-        <source>Viewshed</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../algs/old/viewshed_raster.py" line="347"/>
@@ -1958,9 +2014,14 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Visibilité des sources lumineuses</translation>
     </message>
     <message>
-        <location filename="../algs/old/viewshed_raster.py" line="347"/>
+        <location filename="../algs/old/viewshed_raster.py" line="333"/>
         <source>Light Pollution Indicators</source>
         <translation type="unfinished">Indicateurs de pollution lumineuse</translation>
+    </message>
+    <message>
+        <location filename="../algs/old/viewshed_raster.py" line="326"/>
+        <source>Viewshed</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1968,7 +2029,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="36"/>
         <source>Extent zone</source>
-        <translation>Zone d&apos;étude</translation>
+        <translation type="unfinished">Zone d&apos;étude</translation>
     </message>
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="37"/>
@@ -2003,7 +2064,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="141"/>
         <source>Utils Light Pollution Indicators</source>
-        <translation>Utils Indicateurs de pollution lumineuse</translation>
+        <translation type="unfinished">Utils Indicateurs de pollution lumineuse</translation>
     </message>
     <message>
         <location filename="../algs/create_MNT_from_RGEALTI.py" line="40"/>
@@ -2024,17 +2085,17 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>self.dlg</name>
     <message>
-        <location filename="../controller.py" line="380"/>
+        <location filename="../ui/controller.py" line="436"/>
         <source>Raster files(*.tif)</source>
         <translation type="unfinished">Fichiers Raster (*.tif)</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="384"/>
+        <location filename="../ui/controller.py" line="440"/>
         <source>Select a </source>
         <translation type="unfinished">Séléctionner un</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="382"/>
+        <location filename="../ui/controller.py" line="438"/>
         <source>(*.shp);;(*.gpkg)</source>
         <translation type="unfinished"></translation>
     </message>

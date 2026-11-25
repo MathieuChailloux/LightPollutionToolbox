@@ -60,6 +60,9 @@ from .modules import Raster as rst
 import numpy as np
 import time
 
+def tr_static(string):
+    return QCoreApplication.translate('LightPointsViewshed', string)
+
 class LightPointsViewshed(QgsProcessingAlgorithm):
 
     ALG_NAME = 'LightPointsViewshed'
@@ -85,7 +88,9 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
     PRECISION = 'PRECISION'
     ANALYSIS_TYPE = 'ANALYSIS_TYPE'
     INPUT_TYPE = 'INPUT_TYPE'
-    INPUT_TYPES = ['High resolution (light sources)', 'Low resolution (radiance pixels)']
+    INPUT_TYPES = [
+        tr_static('High resolution (light sources)'),
+        tr_static('Low resolution (radiance pixels)')]
     # Output style per input type, indexed like INPUT_TYPES
     INPUT_TYPE_QML = ['viewshed_sources.qml', 'viewshed_pixels.qml']
     OPERATOR = 'OPERATOR'
@@ -105,7 +110,10 @@ class LightPointsViewshed(QgsProcessingAlgorithm):
         
         self.addParameter(QgsProcessingParameterFeatureSource(self.EXTENT_ZONE, self.tr('Extent zone'), [QgsProcessing.SourceType.TypeVectorPolygon], defaultValue=None, optional=True))
         self.addParameter(QgsProcessingParameterFeatureSource(self.LIGHT_PTS_INPUT, self.tr('Light points extraction'), [QgsProcessing.SourceType.TypeVectorPoint], defaultValue=None))
-        self.addParameter(QgsProcessingParameterEnum(self.INPUT_TYPE, self.tr('Input type'), [self.tr(t) for t in self.INPUT_TYPES], defaultValue=0))
+        self.INPUT_TYPES = [
+            self.tr('High resolution (light sources)'),
+            self.tr('Low resolution (radiance pixels)')]
+        self.addParameter(QgsProcessingParameterEnum(self.INPUT_TYPE, self.tr('Input type'), self.INPUT_TYPES, defaultValue=0))
         
         self.addParameter(QgsProcessingParameterField(self.LIGHT_SOURCE_HEIGHT_FIELD, self.tr('Source light height field'), optional=True, type=QgsProcessingParameterField.DataType.Any, parentLayerParameterName=self.LIGHT_PTS_INPUT, allowMultiple=False,defaultValue=None))
         self.addParameter(
