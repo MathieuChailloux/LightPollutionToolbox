@@ -30,9 +30,7 @@ __copyright__ = '(C) 2020 by Mathieu Chailloux'
 
 __revision__ = '$Format:%H$'
 
-from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (QgsProcessing,
-                       QgsProcessingAlgorithm,
                        QgsProcessingUtils,
                        QgsProcessingException,
                        QgsProcessingParameterDefinition,
@@ -43,17 +41,14 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterField,
                        QgsProcessingParameterNumber,
                        QgsProcessingParameterCrs,
-                       QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterVectorDestination,
-                       QgsProcessingParameterMultipleLayers,
                        QgsProcessingParameterEnum,
                        QgsProcessingMultiStepFeedback,
                        QgsCoordinateReferenceSystem,
                        QgsProperty)
 
-from processing.algs.qgis.VariableDistanceBuffer import VariableDistanceBuffer
 
-from ...qgis_lib import utils, qgsUtils, qgsTreatments
+from ...qgis_lib import qgsUtils, qgsTreatments
 from .mkRoadsExtent import RoadsExtentGrpAlg
 
 
